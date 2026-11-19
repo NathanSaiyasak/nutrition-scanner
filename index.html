@@ -24,6 +24,9 @@
         </div>
         <button id="scan-button" class="primary" type="button">Scan a barcode</button>
         <button id="stop-button" class="secondary" type="button" hidden>Stop camera</button>
+        <label id="photo-label" class="secondary-button" for="photo-input">Use a photo of the barcode</label>
+        <input id="photo-input" type="file" accept="image/*" hidden>
+        <p id="photo-status" class="small-status" hidden></p>
         <div id="camera-error" class="notice" hidden>
           <strong id="camera-error-title"></strong>
           <p id="camera-error-text"></p>

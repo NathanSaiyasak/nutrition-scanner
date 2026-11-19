@@ -1,7 +1,7 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, or message.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
 import { lookupProduct } from './lookup.js';
-import { startScanner } from './scanner.js';
+import { startScanner, scanPhoto } from './scanner.js';
 
 const $ = (id) => document.getElementById(id);
 const SCREENS = ['screen-start', 'screen-loading', 'screen-product', 'screen-message'];
@@ -18,9 +18,9 @@ let lastBarcode = null;
 
 const CAMERA_ERRORS = {
   denied: ['Camera access was blocked',
-    'Allow camera access for this site in your browser settings, then tap "Scan a barcode" again. You can also type the number below.'],
+    'Allow camera access for this site in your browser settings, then tap "Scan a barcode" again. You can also use a photo or type the number below.'],
   'no-camera': ['No camera found',
-    "This device or browser doesn't offer a camera to the page. Type the barcode number below instead."],
+    "This device or browser doesn't offer a camera to the page. Use a photo of the barcode or type the number below instead."],
   'in-use': ['Camera is busy',
     'Another app may be using the camera. Close it and try again, or type the number below.'],
   insecure: ['Camera needs a secure link',
@@ -32,6 +32,7 @@ const CAMERA_ERRORS = {
 function startCamera(ignore = null) {
   stopCamera();
   $('camera-error').hidden = true;
+  $('photo-status').hidden = true;
   $('camera').hidden = false;
   $('scan-button').hidden = true;
   $('stop-button').hidden = false;
@@ -65,6 +66,31 @@ function resetCameraUi() {
 }
 
 $('scan-button').addEventListener('click', () => startCamera());
+
+// ---------- Start screen: photo of a barcode ----------
+// On phones, this offers "Take photo" or "Photo library". The photo stays on the phone:
+// it is read here in the browser and never uploaded anywhere.
+$('photo-input').addEventListener('change', async (event) => {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = ''; // so picking the same photo again still works
+  if (!file) return;
+  stopCamera();
+  const status = $('photo-status');
+  status.textContent = 'Reading the barcode in your photo…';
+  status.hidden = false;
+  let barcode = null;
+  try {
+    barcode = await scanPhoto(file);
+  } catch {
+    barcode = null;
+  }
+  if (barcode) {
+    status.hidden = true;
+    handleBarcode(barcode);
+  } else {
+    status.textContent = "Couldn't find a barcode in that photo. Try a closer, sharper photo with the whole barcode in view, or type the number below.";
+  }
+});
 $('stop-button').addEventListener('click', stopCamera);
 // Turn the camera off when the person switches app or tab.
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopCamera(); });

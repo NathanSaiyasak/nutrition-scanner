@@ -120,3 +120,31 @@ export function startScanner(video, { onResult, onError, ignore = null }) {
 
   return stop;
 }
+
+/**
+ * Read a barcode from a photo the person picked or took (a File from <input type="file">).
+ * Resolves with the barcode number, or null if none was found.
+ * Big phone photos are shrunk first: the reader is faster and just as accurate at ~1600 px.
+ */
+export async function scanPhoto(file) {
+  const detector = await getDetector();
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    for (const maxSide of [1600, 1000]) {
+      const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.naturalWidth * scale);
+      canvas.height = Math.round(img.naturalHeight * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      const codes = await detector.detect(canvas);
+      const hit = codes.find((c) => /^\d{8,14}$/.test(c.rawValue));
+      if (hit) return hit.rawValue;
+    }
+    return null;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}

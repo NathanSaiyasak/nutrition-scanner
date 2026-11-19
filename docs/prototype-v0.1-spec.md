@@ -32,6 +32,7 @@ and real phones, and is the base that v0.2 (the audit tool) builds on.
 | FR-9 | "Data from Open Food Facts" attribution with a link to the product's Open Food Facts page | Must |
 | FR-10 | "Scan another" returns to the scanner in one tap | Must |
 | FR-11 | A small "data completeness" note when key nutrients are missing (e.g. "3 of 8 values missing") | Should |
+| FR-12 | Photo fallback: pick or take a photo of a barcode and read it on the phone (added 19 Nov 2026) | Should |
 
 ## Non-functional requirements
 

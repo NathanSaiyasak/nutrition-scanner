@@ -27,6 +27,7 @@ You may not be able to open these links. Everything you need for the current bui
 
 | Date | Decision |
 |---|---|
+| 19 Nov 2026 | Added to v0.1: read a barcode from a photo (taken or from the photo library) as another fallback to the live camera. The photo is read on the phone, never uploaded. |
 | 19 Nov 2026 | Tech approach approved: plain HTML/CSS/JS (no framework, no build step), `barcode-detector` library (MIT) for scanning, Open Food Facts API v2, GitHub Pages hosting. |
 | 19 Nov 2026 | Sodium is always shown in mg next to salt (Thai labels use sodium). |
 | 19 Nov 2026 | An explicit 0 recorded in Open Food Facts is shown as 0; "Not available" only when there is no value (OK for now). |

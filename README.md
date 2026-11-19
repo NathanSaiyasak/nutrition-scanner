@@ -11,7 +11,7 @@ A mobile web page: scan or type a product barcode and see its nutrition facts fr
 | `index.html` | The page itself: the screens you see (start, loading, product, message). |
 | `style.css` | How it looks. Phone first. Uses the phone's own fonts, which display Thai correctly. |
 | `app.js` | Switches between screens and fills in the product details. |
-| `scanner.js` | Opens the rear camera and reads the barcode. Uses the phone's built-in reader if it has one (Android Chrome), otherwise the library in `vendor/` (iPhone Safari). |
+| `scanner.js` | Opens the rear camera and reads the barcode, or reads it from a photo you pick (the photo never leaves the phone). Uses the phone's built-in reader if it has one (Android Chrome), otherwise the library in `vendor/` (iPhone Safari). |
 | `vendor/` | The free `barcode-detector` library (v3.2.4) and its reader file `zxing_reader.wasm`, kept in the project so nothing loads from other servers. MIT licence, see `vendor/LICENSES.txt`. |
 | `lookup.js` | Asks Open Food Facts about a barcode and tidies up the answer. Missing values stay missing (shown as "Not available"), never 0. |
 
