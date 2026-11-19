@@ -36,6 +36,20 @@ GitHub Pages serves the files from the repository's main branch over HTTPS.
 
 Change the files, save, commit and push to GitHub. The live link updates about a minute later.
 
+## Test status (v0.1 acceptance criteria)
+
+| # | Check | Result |
+|---|---|---|
+| 1 | Scan a product in Open Food Facts → name and nutrition in about 3 s | Pass on iPhone (19 Nov 2026) |
+| 2 | Unknown barcode → "Product not found" with the barcode | Pass on iPhone (8856977006192) |
+| 3 | Missing nutrients show "Not available", never 0 | Pass (8851351932913: saturated fat, fibre) |
+| 4 | Camera denied → clear message, typing still works | Pass in automated test; not yet tried on a phone |
+| 5 | Thai names display correctly | Pass on iPhone |
+| 6 | Works on iPhone Safari and Android Chrome | iPhone pass; **Android not yet tested** |
+| 7 | Open Food Facts credit and link on every product screen | Pass |
+| 8 | Test products 8851351932913, 8853445000287, 8858867821632 + a made-up barcode | Pass on iPhone |
+| 9 | This README | Done |
+
 ## Data and licence notes
 
 - Product data and photos: Open Food Facts, licensed under ODbL (database) and CC BY-SA (photos).
