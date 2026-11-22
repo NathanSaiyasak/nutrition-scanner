@@ -76,6 +76,8 @@ export function logScan(scan) {
     valuesPresent: scan.valuesPresent ?? null,
     valuesTotal: scan.valuesTotal ?? null,
     complete,
+    labelCheck: null, // 'matches' | 'differs' | 'cant-tell', set on the product screen
+    labelNote: null,
     added: null,
   });
   return saveLog(log) ? entry : null;
@@ -87,6 +89,16 @@ export function attachAddedProduct(entry, added) {
   const row = log.find((r) => r.entry === entry);
   if (!row) return false;
   row.added = added;
+  return saveLog(log);
+}
+
+/** Record whether the Open Food Facts data matches the printed label. Returns true if saved. */
+export function setLabelCheck(entry, check, note) {
+  const log = loadLog();
+  const row = log.find((r) => r.entry === entry);
+  if (!row) return false;
+  row.labelCheck = check;
+  row.labelNote = note || null;
   return saveLog(log);
 }
 
@@ -103,12 +115,27 @@ export function summarise(log) {
   const firstTime = log.filter((r) => r.readFirstTime).length;
 
   // Coverage: one result per different barcode (the latest), lookup errors left out.
+  // A product added by hand with all 8 values stays covered even if it is scanned again later.
   const latest = new Map();
-  for (const row of log) if (row.result !== 'error') latest.set(row.barcode, row);
+  const addedComplete = new Set();
+  for (const row of log) {
+    if (row.result === 'error') continue;
+    latest.set(row.barcode, row);
+    if (row.added && countAddedValues(row.added.values) === 8) addedComplete.add(row.barcode);
+  }
   const products = [...latest.values()];
   const found = products.filter((r) => r.result === 'found');
   const withNutrition = found.filter((r) => (r.valuesPresent || 0) > 0);
   const complete = found.filter((r) => r.complete === true);
+  // Open Food Facts covers a product only if its data is complete and wasn't marked as
+  // different from the label. Typed-in label values (new or correction) cover it either way.
+  const freeDbCovered = complete.filter((r) => r.labelCheck !== 'differs');
+  const covered = products.filter((r) =>
+    addedComplete.has(r.barcode) || (r.complete === true && r.labelCheck !== 'differs'));
+  const byHand = covered.length - freeDbCovered.filter((r) => !addedComplete.has(r.barcode)).length;
+
+  // Label check, on different products found with nutrition facts (latest scan of each).
+  const checked = withNutrition.filter((r) => r.labelCheck === 'matches' || r.labelCheck === 'differs');
 
   const addTimes = log.filter((r) => r.added).map((r) => r.added.seconds).sort((a, b) => a - b);
   const underTarget = addTimes.filter((s) => s <= ADD_TARGET_SECONDS).length;
@@ -125,7 +152,16 @@ export function summarise(log) {
     products: products.length,
     found: found.length,
     withNutrition: withNutrition.length,
-    complete: { count: complete.length, of: products.length, target: 0.4 },
+    freeDb: { count: freeDbCovered.length, of: products.length },
+    freeDbDiffers: complete.filter((r) => r.labelCheck === 'differs' && !addedComplete.has(r.barcode)).length,
+    covered: { count: covered.length, of: products.length, target: 0.9 },
+    coveredByHand: byHand,
+    label: {
+      matches: checked.filter((r) => r.labelCheck === 'matches').length,
+      checked: checked.length,
+      cantTell: withNutrition.filter((r) => r.labelCheck === 'cant-tell').length,
+      notChecked: withNutrition.filter((r) => !r.labelCheck).length,
+    },
     adds: {
       count: addTimes.length,
       underTarget,
@@ -155,7 +191,9 @@ const CSV_COLUMNS = [
   ['product_name', (r) => r.productName],
   ['nutrition_values_present', (r) => (r.valuesPresent == null ? '' : `${r.valuesPresent} of ${r.valuesTotal}`)],
   ['nutrition_complete', (r) => yesNo(r.complete)],
-  ['added_by_hand', (r) => (r.added ? 'yes' : 'no')],
+  ['matches_label', (r) => ({ matches: 'matches', differs: 'differs', 'cant-tell': "can't tell" }[r.labelCheck] || '')],
+  ['label_difference_note', (r) => r.labelNote],
+  ['added_by_hand', (r) => (r.added ? (r.added.kind === 'correction' ? 'yes (correction)' : 'yes (new product)') : 'no')],
   ['add_seconds', (r) => r.added?.seconds],
   ['add_within_3_min', (r) => (r.added ? yesNo(r.added.seconds <= ADD_TARGET_SECONDS) : '')],
   ['added_name', (r) => r.added?.name],

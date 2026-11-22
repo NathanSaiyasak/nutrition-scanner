@@ -27,6 +27,8 @@ You may not be able to open these links. Everything you need for the current bui
 
 | Date | Decision |
 |---|---|
+| 22 Nov 2026 | Add a "matches the label?" check to the audit (Matches / Differs / Can't tell, optional note) and let testers correct a found product's values with the timed form. A product marked Differs doesn't count as covered unless corrected. Reason: store check of 10 products found Open Food Facts values that didn't match the pack (e.g. Mama sodium 1280 vs 1760 mg, Oishi 80 vs 60 kcal). |
+| 22 Nov 2026 | Coverage pass mark changed: the app must cover ≥ 90% of 7-Eleven products with complete nutrition, counting products we add ourselves where free databases have no data (replaces "found in free databases ≥ 40%"). The audit shows free-database coverage and total coverage; the 90% target applies to the total. Creating and storing our own data is part of the plan. |
 | 22 Nov 2026 | Build v0.2, the audit tool (scan log on the phone, CSV export, timed add form, pass-mark summary), with no further spec sign-off. Data stays on the phone; no backend or accounts. |
 | 19 Nov 2026 | Added to v0.1: read a barcode from a photo (taken or from the photo library) as another fallback to the live camera. The photo is read on the phone, never uploaded. |
 | 19 Nov 2026 | Tech approach approved: plain HTML/CSS/JS (no framework, no build step), `barcode-detector` library (MIT) for scanning, Open Food Facts API v2, GitHub Pages hosting. |
@@ -42,7 +44,7 @@ You may not be able to open these links. Everything you need for the current bui
 | 17 Nov 2026 | Direction: prototype first, later used as the audit tool in 7-Eleven stores. |
 | 17 Nov 2026 | Interface language: **English first**, Thai later. |
 | 17 Nov 2026 | Keep cost as low as possible. Any paid option is flagged to Nathan for a decision first. |
-| 17 Nov 2026 | Go/no-go pass marks: barcodes scan cleanly ≥ 90%; products found with complete nutrition ≥ 40%; manual add of a missing product ≤ 3 min; at least one data source licensed for commercial use. |
+| 17 Nov 2026 | Go/no-go pass marks: barcodes scan cleanly ≥ 90%; products found with complete nutrition ≥ 40% (changed 22 Nov 2026, see above); manual add of a missing product ≤ 3 min; at least one data source licensed for commercial use. |
 
 ## What we know about the data
 

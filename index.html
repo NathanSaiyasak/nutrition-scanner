@@ -69,7 +69,6 @@
         </div>
 
         <p id="no-nutrition" class="notice" hidden>Product found, but no nutrition facts yet.</p>
-        <button id="product-add" class="secondary add-button" type="button" hidden>Add its nutrition facts (timed)</button>
 
         <div id="nutrition" hidden>
           <h3>Nutrition facts</h3>
@@ -81,6 +80,20 @@
             <tbody id="nutrition-body"></tbody>
           </table>
         </div>
+        <div id="label-check" class="label-check" hidden>
+          <p class="label-check-q">Does this match the label on the pack?</p>
+          <div class="choices" role="group" aria-label="Does this match the label on the pack?">
+            <button type="button" class="choice-btn" data-check="matches">Matches</button>
+            <button type="button" class="choice-btn" data-check="differs">Differs</button>
+            <button type="button" class="choice-btn" data-check="cant-tell">Can't tell</button>
+          </div>
+          <div id="label-note-row" hidden>
+            <label for="label-note">Which value differs? (optional)</label>
+            <input id="label-note" type="text" maxlength="200" placeholder="e.g. sodium 1760 mg on the pack">
+          </div>
+          <p id="label-check-status" class="saved-note" hidden></p>
+        </div>
+        <button id="product-add" class="secondary add-button" type="button" hidden>Add the nutrition facts from the label (timed)</button>
 
         <p class="attribution">
           Data from <a id="off-link" href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>
@@ -107,7 +120,7 @@
     <section id="screen-add" class="screen" hidden>
       <form id="add-form" class="card" autocomplete="off" novalidate>
         <div class="add-head">
-          <h2>Add a product</h2>
+          <h2 id="add-title">Add a product</h2>
           <p class="timer" aria-live="off"><span id="add-timer" class="mono">0:00</span></p>
         </div>
         <p class="meta">Barcode <span id="add-barcode" class="mono"></span> · The timer measures how long adding takes (target: 3 minutes).</p>
