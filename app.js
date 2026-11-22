@@ -1,13 +1,19 @@
-// app.js — the screens. Shows one screen at a time: start, loading, product, or message.
+// app.js — the screens. Shows one screen at a time: start, loading, product, message,
+// and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
 import { lookupProduct } from './lookup.js';
 import { startScanner, scanPhoto } from './scanner.js';
+import { logScan, askToKeepData } from './audit.js';
+import { openAddForm, stopAddTimer } from './add-form.js';
+import { renderAudit } from './audit-screen.js';
 
 const $ = (id) => document.getElementById(id);
-const SCREENS = ['screen-start', 'screen-loading', 'screen-product', 'screen-message'];
+const SCREENS = ['screen-start', 'screen-loading', 'screen-product', 'screen-message',
+  'screen-add', 'screen-audit'];
 
-function show(screenId) {
+export function show(screenId) {
   if (screenId !== 'screen-start') stopCamera();
+  if (screenId !== 'screen-add') stopAddTimer();
   for (const id of SCREENS) $(id).hidden = id !== screenId;
   window.scrollTo(0, 0);
 }
@@ -15,6 +21,12 @@ function show(screenId) {
 // ---------- Start screen: camera ----------
 let stopScanner = null;
 let lastBarcode = null;
+
+// ---------- Audit: how this barcode was read ----------
+// An "attempt" runs from the start screen until a barcode is read. Each camera start and each
+// photo picked is one try. Read first time = read by the first try, without typing (spec FR-14).
+let attempt = newAttempt();
+function newAttempt() { return { tries: 0, cameraStartedAt: null }; }
 
 const CAMERA_ERRORS = {
   denied: ['Camera access was blocked',
@@ -36,12 +48,15 @@ function startCamera(ignore = null) {
   $('camera').hidden = false;
   $('scan-button').hidden = true;
   $('stop-button').hidden = false;
+  attempt.tries += 1;
+  attempt.cameraStartedAt = Date.now();
   stopScanner = startScanner($('camera-video'), {
     ignore,
     onResult: (barcode) => {
       stopScanner = null;
       resetCameraUi();
-      handleBarcode(barcode);
+      const readSeconds = Math.round((Date.now() - attempt.cameraStartedAt) / 100) / 10;
+      handleBarcode(barcode, { method: 'camera', readSeconds });
     },
     onError: (kind) => {
       stopCamera();
@@ -75,6 +90,7 @@ $('photo-input').addEventListener('change', async (event) => {
   event.target.value = ''; // so picking the same photo again still works
   if (!file) return;
   stopCamera();
+  attempt.tries += 1;
   const status = $('photo-status');
   status.textContent = 'Reading the barcode in your photo…';
   status.hidden = false;
@@ -86,7 +102,7 @@ $('photo-input').addEventListener('change', async (event) => {
   }
   if (barcode) {
     status.hidden = true;
-    handleBarcode(barcode);
+    handleBarcode(barcode, { method: 'photo' });
   } else {
     status.textContent = "Couldn't find a barcode in that photo. Try a closer, sharper photo with the whole barcode in view, or type the number below.";
   }
@@ -110,28 +126,53 @@ $('manual-form').addEventListener('submit', (event) => {
   }
   error.hidden = true;
   input.blur();
-  handleBarcode(barcode);
+  handleBarcode(barcode, { method: 'typed' });
 });
 
 // ---------- Lookup ----------
 let currentLookup = 0;
 
-export async function handleBarcode(barcode) {
+let currentEntry = null; // audit log entry number of the product on screen
+
+export async function handleBarcode(barcode, how = { method: 'typed' }) {
   const lookupId = ++currentLookup;
   lastBarcode = barcode;
+  const tries = Math.max(1, attempt.tries + (how.method === 'typed' ? 1 : 0));
+  attempt = newAttempt(); // the next scan starts counting from zero
   $('loading-barcode').textContent = barcode;
   show('screen-loading');
 
   const result = await lookupProduct(barcode);
-  if (lookupId !== currentLookup) return; // the person already moved on
 
+  // Record the scan even if the person has already moved on to another screen.
+  const product = result.kind === 'found' ? result.product : null;
+  const entry = logScan({
+    barcode,
+    method: how.method,
+    tries,
+    readSeconds: how.readSeconds,
+    result: product ? 'found' : result.kind === 'not-found' ? 'not-found' : 'error',
+    errorKind: product || result.kind === 'not-found' ? null : result.kind,
+    productName: product ? product.name : null,
+    valuesPresent: product ? product.completeness.present : null,
+    valuesTotal: product ? product.completeness.total : null,
+  });
+
+  if (lookupId !== currentLookup) return; // the person already moved on
+  currentEntry = entry;
+  showSavedNote(entry);
+
+  const canAdd = entry !== null;
+  $('message-add').hidden = true;
   switch (result.kind) {
     case 'found':
       renderProduct(result.product);
+      $('product-add').hidden = !canAdd || result.product.hasNutrition;
       break;
     case 'not-found':
       showMessage('Product not found',
         "This barcode isn't in Open Food Facts yet.", barcode);
+      $('message-add').hidden = !canAdd;
       break;
     case 'timeout':
       showMessage('Lookup timed out',
@@ -147,7 +188,17 @@ export async function handleBarcode(barcode) {
   }
 }
 
-function showMessage(title, text, barcode) {
+function showSavedNote(entry) {
+  for (const el of document.querySelectorAll('.saved-note')) {
+    el.textContent = entry === null
+      ? "Couldn't save this scan to the audit log. This phone's storage may be full or blocked (for example in a private window)."
+      : `Saved to audit log (#${entry}).`;
+    el.classList.toggle('field-error', entry === null);
+    el.hidden = false;
+  }
+}
+
+export function showMessage(title, text, barcode) {
   $('message-title').textContent = title;
   $('message-text').textContent = text;
   $('message-barcode').textContent = barcode ? `Barcode: ${barcode}` : '';
@@ -225,12 +276,46 @@ function formatNumber(value, unit) {
   return String(Math.round(value * 10) / 10); // one decimal, e.g. 18.5 g, 5 g
 }
 
+// ---------- v0.2: timed add form and audit screen ----------
+function startAdd() {
+  if (currentEntry === null) return;
+  openAddForm({
+    entry: currentEntry,
+    barcode: lastBarcode,
+    onDone: (seconds) => {
+      const m = Math.floor(seconds / 60);
+      const s = String(seconds % 60).padStart(2, '0');
+      showMessage('Product added',
+        `Saved to the audit log (#${currentEntry}). Adding it took ${m}:${s}.`, lastBarcode);
+      for (const el of document.querySelectorAll('.saved-note')) el.hidden = true;
+    },
+    onCancel: () => show(lastScreen),
+  });
+  show('screen-add');
+}
+let lastScreen = 'screen-start';
+$('message-add').addEventListener('click', () => { lastScreen = 'screen-message'; startAdd(); });
+$('product-add').addEventListener('click', () => { lastScreen = 'screen-product'; startAdd(); });
+
+$('audit-link').addEventListener('click', () => {
+  currentLookup++; // a lookup still running is logged, but no longer shown
+  renderAudit();
+  show('screen-audit');
+});
+$('audit-back').addEventListener('click', () => {
+  attempt = newAttempt();
+  show('screen-start');
+});
+
+askToKeepData();
+
 // ---------- "Scan another" ----------
 for (const button of document.querySelectorAll('.again')) {
   button.addEventListener('click', () => {
     currentLookup++;
     $('barcode-input').value = '';
     show('screen-start');
+    attempt = newAttempt();
     startCamera(lastBarcode); // straight back to scanning, one tap (FR-10)
   });
 }

@@ -12,6 +12,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 html { -webkit-text-size-adjust: 100%; }
 
@@ -24,7 +25,7 @@ body {
   line-height: 1.45;
 }
 
-.top { padding: 16px 16px 4px; }
+.top { padding: 16px 16px 4px; display: flex; justify-content: space-between; align-items: center; gap: 12px; max-width: 592px; margin: 0 auto; }
 .top h1 { margin: 0; font-size: 1.35rem; }
 .tag { margin: 0; color: var(--muted); font-size: 0.85rem; }
 
@@ -134,3 +135,51 @@ table.nutrition { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
 a { color: var(--accent); }
 
 .foot { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 8px 16px 24px; }
+
+/* ---------- v0.2: audit tool ---------- */
+.link-button {
+  background: transparent; color: var(--accent); border: 1px solid var(--line);
+  padding: 8px 12px; font-size: 0.9rem; flex-shrink: 0;
+}
+button:disabled { opacity: 0.45; cursor: default; }
+button.danger { color: var(--error); }
+.saved-note { font-size: 0.8rem; color: var(--muted); margin: 10px 0 0; }
+.add-button { margin-top: 12px; }
+.hint { font-size: 0.85rem; color: var(--muted); margin: 6px 0 12px; }
+h3.first { margin-top: 0; }
+
+/* Timed add form */
+.add-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.add-head h2 { margin: 0; font-size: 1.2rem; }
+.timer { margin: 0; font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+.timer .over { color: var(--error); }
+#add-form input[type="text"] { width: 100%; letter-spacing: normal; font-size: 1rem; margin-bottom: 12px; }
+#add-form label { margin-bottom: 4px; font-size: 0.95rem; }
+.req { font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+input.invalid { border-color: var(--error); box-shadow: 0 0 0 1px var(--error); }
+#add-name-error { margin: -8px 0 12px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.basis { border: 0; padding: 0; margin: 0 0 12px; }
+.basis legend { font-weight: 600; margin-bottom: 6px; font-size: 0.95rem; }
+.basis .choice { display: inline-flex; align-items: center; gap: 6px; font-weight: 400; margin: 0 14px 6px 0; }
+.basis input { flex: none; }
+.nutrient-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+.label-photo { display: block; width: 100%; max-height: 70vh; object-fit: contain; margin-top: 10px; border-radius: 10px; border: 1px solid var(--line); background: #fafafa; }
+
+/* Audit summary */
+.card h2 { margin: 0 0 10px; font-size: 1.2rem; }
+.mark { border-top: 1px solid var(--line); padding: 12px 0; }
+.mark:first-child { border-top: 0; padding-top: 4px; }
+.mark-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.mark-title { font-weight: 600; }
+.mark-figure { font-size: 1.6rem; font-weight: 700; margin: 4px 0 0; }
+.mark-detail { margin: 2px 0 0; font-size: 0.92rem; }
+.mark-target { margin: 2px 0 0; font-size: 0.82rem; color: var(--muted); }
+.chip { font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+.chip.pass { background: #e1f3e8; color: var(--accent); }
+.chip.below { background: #fde7e5; color: var(--error); }
+.chip.none { background: #eef1ef; color: var(--muted); }
+.recent { list-style: none; padding: 0; margin: 0 0 4px; }
+.recent li { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+.recent-top { display: flex; justify-content: space-between; gap: 8px; }
+.recent-name { overflow-wrap: anywhere; }
