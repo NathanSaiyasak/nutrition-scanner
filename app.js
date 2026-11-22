@@ -57,7 +57,7 @@ function startCamera(ignore = null, auto = false) {
   $('camera-error').hidden = true;
   $('photo-status').hidden = true;
   $('camera').hidden = false;
-  $('scan-button').hidden = true;
+  setTapButton('starting'); // stays over the frame until real camera pictures arrive
   $('stop-button').hidden = false;
   attempt.tries += 1;
   if (auto) attempt.autoTry = true;
@@ -89,12 +89,34 @@ function stopCamera() {
 }
 
 function resetCameraUi() {
+  clearTimeout(stallTimer);
   $('camera').hidden = true;
-  $('scan-button').hidden = false;
+  setTapButton('tap');
   $('stop-button').hidden = true;
 }
 
-$('scan-button').addEventListener('click', () => { cameraFailed = false; startCamera(); });
+// The "Tap to start the camera" button sits over the frame whenever the camera isn't showing
+// pictures: before it starts, if it fails, or if the phone pauses it. iPhones sometimes won't
+// start the camera without a tap, so a tap always (re)starts it. States: 'starting' | 'tap' | 'live'.
+let stallTimer = null;
+function setTapButton(state) {
+  const button = $('scan-button');
+  button.hidden = state === 'live';
+  button.dataset.state = state;
+  $('scan-button-text').textContent = state === 'starting' ? 'Starting camera…' : 'Tap to start the camera';
+  clearTimeout(stallTimer);
+  // No pictures after 3 seconds: offer the tap (the camera keeps trying in the background).
+  if (state === 'starting') stallTimer = setTimeout(() => setTapButton('tap'), 3000);
+}
+const video = $('camera-video');
+video.addEventListener('playing', () => { if (stopScanner) setTapButton('live'); });
+video.addEventListener('pause', () => { if (stopScanner) setTapButton('tap'); });
+
+$('scan-button').addEventListener('click', () => {
+  cameraFailed = false;
+  dropAutoTry(); // the automatic start didn't work; this tap is the real first try
+  startCamera();
+});
 
 // Start the camera by itself whenever the scan screen is showing (v0.3).
 let cameraFailed = false;
