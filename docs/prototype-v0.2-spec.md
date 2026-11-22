@@ -81,10 +81,10 @@ Food Facts · saving label photos · Thai interface · offline mode · native ap
 5. Export gives a CSV that opens in Numbers/Excel/Google Sheets with Thai names readable.
 6. The add form shows a running timer; Save records the time and the typed values on the right row;
    blanks stay blank in the CSV.
-8a. Tapping Differs on a complete product takes it out of coverage; correcting it with the timed form puts
-   it back. The label-check figure and CSV columns match what was tapped.
 7. The summary screen shows PM-1 to PM-3 figures that match the CSV, and PM-4 as "checked separately". PM-2
    shows total coverage (Open Food Facts plus added by hand) against 90%, and the Open Food Facts figure
    on its own.
 8. Clear log asks first, then empties the log and the summary.
 9. All v0.1 acceptance checks still pass (iPhone Safari; Android Chrome still to be tested).
+10. Tapping Differs on a complete product takes it out of coverage; correcting it with the timed form puts
+    it back. The label-check figure and CSV columns match what was tapped.
