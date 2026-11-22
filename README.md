@@ -1,23 +1,29 @@
-# Nutrition Scanner — prototype v0.2 (audit tool)
+# Nutrition Scanner — prototype v0.3 (shopper result screen)
 
 A mobile web page: scan or type a product barcode and see its nutrition facts from
 [Open Food Facts](https://world.openfoodfacts.org). Version 0.2 adds the store audit tool: every scan is
 recorded on the phone, the record can be exported as a spreadsheet, missing products can be typed in with
 a timer, and an "Audit log" screen shows the figures against the go/no-go pass marks.
-Project rules are in `CLAUDE.md`. Build specs: `docs/prototype-v0.1-spec.md` and `docs/prototype-v0.2-spec.md`.
+Version 0.3 redesigns what a shopper sees, from Nathan's Figma design: a dark scan screen, and a result
+screen with a sample score and the key facts sorted into **Watch out**, **Good points**, **Other** and
+**Not available**. The audit tools are still there, in a closed "Store audit" box on the result screen.
+Project rules are in `CLAUDE.md`. Build specs: `docs/prototype-v0.1-spec.md`, `docs/prototype-v0.2-spec.md`
+and `docs/prototype-v0.3-spec.md`.
 
 ## What's in the folder
 
 | File | What it does |
 |---|---|
 | `index.html` | The page itself: the screens you see (start, loading, product, message). |
-| `style.css` | How it looks. Phone first. Uses the phone's own fonts, which display Thai correctly. |
+| `style.css` | How it looks. Phone first. Uses LINE Seed Sans TH if it's installed, otherwise the phone's own fonts, which display Thai correctly. |
 | `app.js` | Switches between screens and fills in the product details. |
 | `scanner.js` | Opens the rear camera and reads the barcode, or reads it from a photo you pick (the photo never leaves the phone). Uses the phone's built-in reader if it has one (Android Chrome), otherwise the library in `vendor/` (iPhone Safari). |
 | `vendor/` | The free `barcode-detector` library (v3.2.4) and its reader file `zxing_reader.wasm`, kept in the project so nothing loads from other servers. MIT licence, see `vendor/LICENSES.txt`. |
 | `lookup.js` | Asks Open Food Facts about a barcode and tidies up the answer. Missing values stay missing (shown as "Not available"), never 0. |
 | `audit.js` | v0.2. The scan log: saves each scan in the phone's browser storage, makes the CSV spreadsheet, and works out the pass-mark figures. |
 | `add-form.js` | v0.2. The timed "Add this product" form for products Open Food Facts doesn't have. |
+| `nutrition-view.js` | v0.3. Sorts the key facts into Watch out / Good points / Other / Not available, with the "% of a day" bars. Thresholds are in the v0.3 spec. |
+| `score-placeholder.js` | v0.3. The **sample** score. The real scoring method isn't agreed yet, so all score logic is kept in this one file to replace or remove later. |
 | `audit-screen.js` | v0.2. The "Audit log" screen: pass-mark summary, export, recent scans, clear the log. |
 
 There are no frameworks, no build step, and nothing to install. The files are served exactly as they are.
@@ -46,10 +52,10 @@ Change the files, save, commit and push to GitHub. The live link updates about a
 - **Scanning records itself.** Every barcode you look up is saved to the log on this phone, with how it
   was read (camera, photo or typed), how many tries it took, and what Open Food Facts had. The product
   screen shows "Saved to audit log (#N)".
-- **Missing product?** On "Product not found", tap **Add this product (timed)**, type in what the label
+- **Missing product?** On "We don't have this product yet", tap **Add this product**, type in what the label
   says, and tap **Save**. A found product with missing or incomplete nutrition has the same button under
-  its nutrition table. Products added by hand with all 8 values count towards the 90% coverage target.
-- **Check the label.** On a found product, compare the screen with the pack and tap **Matches**, **Differs**
+  its nutrition table in the **Store audit** box. Products added by hand with all 8 values count towards the 90% coverage target.
+- **Check the label.** On a found product, open **Store audit: check against the pack** at the bottom, compare the screen with the pack and tap **Matches**, **Differs**
   or **Can't tell**. On Differs, you can note which value is different, and tap **Correct the values from
   the label (timed)** to type in what the pack says. A product marked Differs only counts as covered once
   it's corrected. The Audit log shows how often Open Food Facts matched the pack. The timer measures the "add in 3 minutes or less" pass mark. Leave a box empty
