@@ -75,19 +75,21 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 .scan-sub { margin: 0 0 22px; opacity: 0.8; font-size: 0.95rem; }
 .scan-stage { position: relative; max-width: 340px; margin: 0 auto; }
 .scan-start {
-  width: 100%; aspect-ratio: 300 / 200; background: transparent; padding: 0; position: relative;
+  width: 100%; aspect-ratio: 3 / 2; background: rgba(255, 255, 255, 0.04); padding: 0;
   display: flex; align-items: flex-end; justify-content: center; border-radius: 18px;
 }
-.corners { position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200' fill='none'%3E%3Cpath d='M3 44V21A18 18 0 0 1 21 3h23M256 3h23a18 18 0 0 1 18 18v23M297 156v23a18 18 0 0 1-18 18h-23M44 197H21A18 18 0 0 1 3 179v-23' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
-.scan-line { position: absolute; left: 10%; right: 10%; top: 50%; height: 3px; border-radius: 2px; background: var(--good); box-shadow: 0 0 12px var(--good); }
-.scan-start-text { position: relative; margin-bottom: 14px; font-size: 0.95rem; font-weight: 700; opacity: 0.9; }
-.camera { position: relative; border-radius: 18px; overflow: hidden; background: #000; aspect-ratio: 4 / 3; }
+.scan-start-text { margin-bottom: 16px; font-size: 0.95rem; font-weight: 700; opacity: 0.9; }
+.camera { border-radius: 18px; overflow: hidden; background: #000; aspect-ratio: 3 / 2; }
 .camera video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.viewfinder {
-  position: absolute; left: 10%; right: 10%; top: 30%; bottom: 30%;
-  border: 3px solid rgba(255, 255, 255, 0.95); border-radius: 12px;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+.frame-overlay { position: absolute; inset: 0; pointer-events: none; }
+.corners { position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200' fill='none'%3E%3Cpath d='M3 44V21A18 18 0 0 1 21 3h23M256 3h23a18 18 0 0 1 18 18v23M297 156v23a18 18 0 0 1-18 18h-23M44 197H21A18 18 0 0 1 3 179v-23' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+.scan-line {
+  position: absolute; left: 8%; right: 8%; top: 50%; height: 3px; border-radius: 2px;
+  background: var(--good); box-shadow: 0 0 12px var(--good);
 }
+.camera:not([hidden]) ~ .frame-overlay .scan-line { animation: sweep 2.2s ease-in-out infinite alternate; }
+@keyframes sweep { from { top: 18%; } to { top: 82%; } }
+@media (prefers-reduced-motion: reduce) { .camera:not([hidden]) ~ .frame-overlay .scan-line { animation: none; } }
 .ghost-dark { margin-top: 14px; background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.35); padding: 10px 18px; }
 .scan-hint { margin: 18px 0 0; opacity: 0.7; font-size: 0.9rem; }
 .scan-status { margin: 10px 0 0; font-size: 0.95rem; }
