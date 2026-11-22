@@ -90,30 +90,49 @@ function stopCamera() {
 
 function resetCameraUi() {
   clearTimeout(stallTimer);
+  clearInterval(liveCheck);
   $('camera').hidden = true;
   setTapButton('tap');
   $('stop-button').hidden = true;
 }
 
 // The "Tap to start the camera" button sits over the frame whenever the camera isn't showing
-// pictures: before it starts, if it fails, or if the phone pauses it. iPhones sometimes won't
-// start the camera without a tap, so a tap always (re)starts it. States: 'starting' | 'tap' | 'live'.
+// moving pictures: before it starts, if it fails, or if the phone stops the picture.
+// Why a tap matters on iPhone: in Low Power Mode (and some other cases) Safari opens the camera but
+// refuses to play the picture until the person taps. So a tap first tries to play the picture that
+// is already there (this must happen right inside the tap), and only restarts the camera if there
+// is none. States: 'starting' | 'tap' | 'live'.
 let stallTimer = null;
+let liveCheck = null;
+const video = $('camera-video');
+
 function setTapButton(state) {
   const button = $('scan-button');
   button.hidden = state === 'live';
   button.dataset.state = state;
   $('scan-button-text').textContent = state === 'starting' ? 'Starting camera…' : 'Tap to start the camera';
   clearTimeout(stallTimer);
-  // No pictures after 3 seconds: offer the tap (the camera keeps trying in the background).
-  if (state === 'starting') stallTimer = setTimeout(() => setTapButton('tap'), 3000);
+  clearInterval(liveCheck);
+  if (state === 'tap' && !stopScanner) return;
+  // While a camera session is open, keep checking whether pictures are really moving.
+  const startedAt = Date.now();
+  liveCheck = setInterval(() => {
+    if (!stopScanner) { clearInterval(liveCheck); return; }
+    const live = !video.paused && video.readyState >= 2 && video.videoWidth > 0;
+    const current = $('scan-button').dataset.state;
+    if (live && current !== 'live') setTapButton('live');
+    else if (!live && current === 'live') setTapButton('tap');
+    else if (!live && current === 'starting' && (Date.now() - startedAt > 3000 || (video.srcObject && video.paused && video.readyState >= 1))) setTapButton('tap');
+  }, 300);
 }
-const video = $('camera-video');
-video.addEventListener('playing', () => { if (stopScanner) setTapButton('live'); });
-video.addEventListener('pause', () => { if (stopScanner) setTapButton('tap'); });
 
 $('scan-button').addEventListener('click', () => {
   cameraFailed = false;
+  if (stopScanner && video.srcObject) {
+    // The camera is open but its picture isn't playing: play it now, inside the tap.
+    video.play().catch(() => { dropAutoTry(); startCamera(); });
+    return;
+  }
   dropAutoTry(); // the automatic start didn't work; this tap is the real first try
   startCamera();
 });
