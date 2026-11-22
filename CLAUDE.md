@@ -1,6 +1,6 @@
 # Nutrition Scanner — project context for Claude Code
 
-Read this file before doing anything. The current build spec is `docs/prototype-v0.1-spec.md`.
+Read this file before doing anything. The current build spec is `docs/prototype-v0.2-spec.md` (v0.1: `docs/prototype-v0.1-spec.md`).
 
 ## What this project is
 
@@ -27,6 +27,7 @@ You may not be able to open these links. Everything you need for the current bui
 
 | Date | Decision |
 |---|---|
+| 22 Nov 2026 | Build v0.2, the audit tool (scan log on the phone, CSV export, timed add form, pass-mark summary), with no further spec sign-off. Data stays on the phone; no backend or accounts. |
 | 19 Nov 2026 | Added to v0.1: read a barcode from a photo (taken or from the photo library) as another fallback to the live camera. The photo is read on the phone, never uploaded. |
 | 19 Nov 2026 | Tech approach approved: plain HTML/CSS/JS (no framework, no build step), `barcode-detector` library (MIT) for scanning, Open Food Facts API v2, GitHub Pages hosting. |
 | 19 Nov 2026 | Sodium is always shown in mg next to salt (Thai labels use sodium). |

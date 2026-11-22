@@ -9,8 +9,11 @@
 </head>
 <body>
   <header class="top">
-    <h1>Nutrition Scanner</h1>
-    <p class="tag">Prototype v0.1</p>
+    <div>
+      <h1>Nutrition Scanner</h1>
+      <p class="tag">Prototype v0.2 · audit tool</p>
+    </div>
+    <button id="audit-link" class="link-button" type="button">Audit log</button>
   </header>
 
   <main>
@@ -66,6 +69,7 @@
         </div>
 
         <p id="no-nutrition" class="notice" hidden>Product found, but no nutrition facts yet.</p>
+        <button id="product-add" class="secondary add-button" type="button" hidden>Add its nutrition facts (timed)</button>
 
         <div id="nutrition" hidden>
           <h3>Nutrition facts</h3>
@@ -82,6 +86,7 @@
           Data from <a id="off-link" href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>
           (open database, ODbL licence). Values are as entered by contributors and may be incomplete.
         </p>
+        <p class="saved-note" hidden></p>
       </div>
       <button class="primary again" type="button">Scan another</button>
     </section>
@@ -92,13 +97,93 @@
         <h2 id="message-title"></h2>
         <p id="message-text"></p>
         <p id="message-barcode" class="mono"></p>
+        <button id="message-add" class="secondary add-button" type="button" hidden>Add this product (timed)</button>
+        <p class="saved-note" hidden></p>
       </div>
       <button class="primary again" type="button">Scan another</button>
+    </section>
+
+    <!-- Screen 5 (v0.2): timed form to type in a missing product from its label -->
+    <section id="screen-add" class="screen" hidden>
+      <form id="add-form" class="card" autocomplete="off" novalidate>
+        <div class="add-head">
+          <h2>Add a product</h2>
+          <p class="timer" aria-live="off"><span id="add-timer" class="mono">0:00</span></p>
+        </div>
+        <p class="meta">Barcode <span id="add-barcode" class="mono"></span> · The timer measures how long adding takes (target: 3 minutes).</p>
+
+        <label class="secondary-button" for="label-photo-input">Take or pick a photo of the label</label>
+        <input id="label-photo-input" type="file" accept="image/*" hidden>
+        <img id="label-photo" class="label-photo" alt="Label photo" hidden>
+        <p class="hint">The photo is only shown here to read from. It isn't uploaded or saved.</p>
+
+        <label for="add-name">Product name <span class="req">(required)</span></label>
+        <input id="add-name" type="text" maxlength="200">
+        <p id="add-name-error" class="field-error" hidden>Please type the product name.</p>
+
+        <div class="two">
+          <div>
+            <label for="add-brand">Brand</label>
+            <input id="add-brand" type="text" maxlength="100">
+          </div>
+          <div>
+            <label for="add-quantity">Quantity</label>
+            <input id="add-quantity" type="text" maxlength="50" placeholder="e.g. 60 g">
+          </div>
+        </div>
+
+        <fieldset class="basis">
+          <legend>The values on the label are</legend>
+          <label class="choice"><input type="radio" name="basis" value="per serving" checked> Per serving</label>
+          <label class="choice"><input type="radio" name="basis" value="per 100 g"> Per 100 g</label>
+          <label class="choice"><input type="radio" name="basis" value="per 100 ml"> Per 100 ml</label>
+        </fieldset>
+        <div id="serving-row">
+          <label for="add-serving">Serving size</label>
+          <input id="add-serving" type="text" maxlength="50" placeholder="e.g. 30 g">
+        </div>
+
+        <h3>Nutrition facts</h3>
+        <p class="hint">Leave a box empty if the label doesn't show that value. Type 0 only if the label says 0.</p>
+        <div id="add-nutrients" class="nutrient-grid"></div>
+        <p id="add-number-error" class="field-error" hidden>Some boxes have something that isn't a number. Please check the boxes marked in red.</p>
+
+        <button class="primary" type="submit">Save</button>
+        <button id="add-cancel" class="secondary" type="button">Cancel (nothing is saved)</button>
+        <p id="add-save-error" class="field-error" hidden>This phone couldn't save the entry. Its storage may be full or blocked (for example in a private window).</p>
+      </form>
+    </section>
+
+    <!-- Screen 6 (v0.2): audit summary against the pass marks, export, and the recent scans -->
+    <section id="screen-audit" class="screen" hidden>
+      <div class="card">
+        <h2>Audit summary</h2>
+        <p id="audit-empty" class="meta" hidden>No scans recorded yet. Every barcode you look up is saved here, on this phone only.</p>
+        <p id="audit-small" class="notice small" hidden></p>
+        <div id="audit-marks"></div>
+        <p id="audit-totals" class="meta"></p>
+      </div>
+
+      <div class="card">
+        <h3 class="first">Save the log</h3>
+        <p class="hint">The log is kept in this browser on this phone only. Export it after every store visit: iPhone Safari can delete a website's saved data if the site isn't opened for 7 days.</p>
+        <button id="export-button" class="primary" type="button">Download CSV spreadsheet</button>
+        <button id="share-button" class="secondary" type="button" hidden>Share CSV (Files, Mail, LINE…)</button>
+        <p id="export-status" class="small-status" hidden></p>
+      </div>
+
+      <div class="card">
+        <h3 class="first">Recent scans</h3>
+        <ol id="recent-list" class="recent"></ol>
+        <button id="clear-button" class="secondary danger" type="button">Clear the log</button>
+      </div>
+
+      <button id="audit-back" class="primary" type="button">Back to scanning</button>
     </section>
   </main>
 
   <footer class="foot">
-    <p>Product data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>. No accounts, no tracking.</p>
+    <p>Product data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>. No accounts, no tracking. The audit log stays on this phone.</p>
   </footer>
 
   <!-- Barcode reader for phones without a built-in one (e.g. iPhone). MIT licence, see vendor/LICENSES.txt -->
