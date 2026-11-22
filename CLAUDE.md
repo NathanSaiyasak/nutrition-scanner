@@ -27,6 +27,7 @@ You may not be able to open these links. Everything you need for the current bui
 
 | Date | Decision |
 |---|---|
+| 22 Nov 2026 | Add a "matches the label?" check to the audit (Matches / Differs / Can't tell, optional note) and let testers correct a found product's values with the timed form. A product marked Differs doesn't count as covered unless corrected. Reason: store check of 10 products found Open Food Facts values that didn't match the pack (e.g. Mama sodium 1280 vs 1760 mg, Oishi 80 vs 60 kcal). |
 | 22 Nov 2026 | Coverage pass mark changed: the app must cover ≥ 90% of 7-Eleven products with complete nutrition, counting products we add ourselves where free databases have no data (replaces "found in free databases ≥ 40%"). The audit shows free-database coverage and total coverage; the 90% target applies to the total. Creating and storing our own data is part of the plan. |
 | 22 Nov 2026 | Build v0.2, the audit tool (scan log on the phone, CSV export, timed add form, pass-mark summary), with no further spec sign-off. Data stays on the phone; no backend or accounts. |
 | 19 Nov 2026 | Added to v0.1: read a barcode from a photo (taken or from the photo library) as another fallback to the live camera. The photo is read on the phone, never uploaded. |

@@ -3,7 +3,7 @@
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
 import { lookupProduct } from './lookup.js';
 import { startScanner, scanPhoto } from './scanner.js';
-import { logScan, askToKeepData } from './audit.js';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js';
 import { openAddForm, stopAddTimer } from './add-form.js';
 import { renderAudit } from './audit-screen.js';
 
@@ -133,6 +133,7 @@ $('manual-form').addEventListener('submit', (event) => {
 let currentLookup = 0;
 
 let currentEntry = null; // audit log entry number of the product on screen
+let currentProduct = null; // the found product on screen, if any
 
 export async function handleBarcode(barcode, how = { method: 'typed' }) {
   const lookupId = ++currentLookup;
@@ -166,10 +167,10 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
   $('message-add').hidden = true;
   switch (result.kind) {
     case 'found':
+      currentProduct = result.product;
       renderProduct(result.product);
-      // Missing or incomplete nutrition: offer the timed form, so the product can still be covered.
-      $('product-add').hidden = !canAdd
-        || result.product.completeness.present === result.product.completeness.total;
+      resetLabelCheck(canAdd && result.product.hasNutrition);
+      updateProductAdd();
       break;
     case 'not-found':
       showMessage('Product not found',
@@ -278,17 +279,68 @@ function formatNumber(value, unit) {
   return String(Math.round(value * 10) / 10); // one decimal, e.g. 18.5 g, 5 g
 }
 
+// ---------- v0.2: "does this match the label?" ----------
+// Open Food Facts data can be out of date (old recipe, different size or flavour under the same
+// barcode), so the tester compares it with the pack in their hand.
+let labelCheck = null;
+
+function resetLabelCheck(visible) {
+  labelCheck = null;
+  $('label-check').hidden = !visible;
+  $('label-note').value = '';
+  $('label-note-row').hidden = true;
+  $('label-check-status').hidden = true;
+  for (const b of document.querySelectorAll('.choice-btn')) b.classList.remove('selected');
+}
+
+function saveLabelCheck() {
+  if (currentEntry === null || !labelCheck) return;
+  const note = labelCheck === 'differs' ? $('label-note').value.trim() || null : null;
+  const ok = setLabelCheck(currentEntry, labelCheck, note);
+  const status = $('label-check-status');
+  status.textContent = ok
+    ? (labelCheck === 'differs'
+      ? 'Saved. This product won\'t count as covered unless you type in the label\'s values below.'
+      : 'Saved to the audit log.')
+    : "Couldn't save this to the audit log.";
+  status.classList.toggle('field-error', !ok);
+  status.hidden = false;
+}
+
+for (const button of document.querySelectorAll('.choice-btn')) {
+  button.addEventListener('click', () => {
+    labelCheck = button.dataset.check;
+    for (const b of document.querySelectorAll('.choice-btn')) b.classList.toggle('selected', b === button);
+    $('label-note-row').hidden = labelCheck !== 'differs';
+    saveLabelCheck();
+    updateProductAdd();
+  });
+}
+$('label-note').addEventListener('input', saveLabelCheck);
+
+// The timed form is offered when nutrition is missing or incomplete, or differs from the label.
+function updateProductAdd() {
+  const p = currentProduct;
+  const incomplete = p && p.completeness.present < p.completeness.total;
+  $('product-add').hidden = currentEntry === null || !p || !(incomplete || labelCheck === 'differs');
+  $('product-add').textContent = labelCheck === 'differs'
+    ? 'Correct the values from the label (timed)'
+    : 'Add the nutrition facts from the label (timed)';
+}
+
 // ---------- v0.2: timed add form and audit screen ----------
-function startAdd() {
+function startAdd(mode) {
   if (currentEntry === null) return;
   openAddForm({
     entry: currentEntry,
     barcode: lastBarcode,
+    mode,
+    name: mode === 'correction' && currentProduct ? currentProduct.name : '',
     onDone: (seconds) => {
       const m = Math.floor(seconds / 60);
       const s = String(seconds % 60).padStart(2, '0');
-      showMessage('Product added',
-        `Saved to the audit log (#${currentEntry}). Adding it took ${m}:${s}.`, lastBarcode);
+      showMessage(mode === 'correction' ? 'Values saved' : 'Product added',
+        `Saved to the audit log (#${currentEntry}). It took ${m}:${s}.`, lastBarcode);
       for (const el of document.querySelectorAll('.saved-note')) el.hidden = true;
     },
     onCancel: () => show(lastScreen),
@@ -296,8 +348,8 @@ function startAdd() {
   show('screen-add');
 }
 let lastScreen = 'screen-start';
-$('message-add').addEventListener('click', () => { lastScreen = 'screen-message'; startAdd(); });
-$('product-add').addEventListener('click', () => { lastScreen = 'screen-product'; startAdd(); });
+$('message-add').addEventListener('click', () => { lastScreen = 'screen-message'; startAdd('new'); });
+$('product-add').addEventListener('click', () => { lastScreen = 'screen-product'; startAdd('correction'); });
 
 $('audit-link').addEventListener('click', () => {
   currentLookup++; // a lookup still running is logged, but no longer shown

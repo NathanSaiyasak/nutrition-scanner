@@ -48,7 +48,11 @@ Change the files, save, commit and push to GitHub. The live link updates about a
   screen shows "Saved to audit log (#N)".
 - **Missing product?** On "Product not found", tap **Add this product (timed)**, type in what the label
   says, and tap **Save**. A found product with missing or incomplete nutrition has the same button under
-  its nutrition table. Products added by hand with all 8 values count towards the 90% coverage target. The timer measures the "add in 3 minutes or less" pass mark. Leave a box empty
+  its nutrition table. Products added by hand with all 8 values count towards the 90% coverage target.
+- **Check the label.** On a found product, compare the screen with the pack and tap **Matches**, **Differs**
+  or **Can't tell**. On Differs, you can note which value is different, and tap **Correct the values from
+  the label (timed)** to type in what the pack says. A product marked Differs only counts as covered once
+  it's corrected. The Audit log shows how often Open Food Facts matched the pack. The timer measures the "add in 3 minutes or less" pass mark. Leave a box empty
   if the label doesn't show that value.
 - **Audit log** (top right) shows the pass-mark figures, the recent scans, and the export buttons.
 - **Export after every store visit.** The log lives only in this browser on this phone. iPhone Safari can

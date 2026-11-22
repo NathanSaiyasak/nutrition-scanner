@@ -27,6 +27,7 @@ function markCard({ title, figure, detail, target, status }) {
     below: ['chip below', 'Below target'],
     none: ['chip none', 'No data yet'],
     manual: ['chip none', 'Checked separately'],
+    info: ['chip none', 'For information'],
   }[status];
   head.append(el('span', chip[0], chip[1]));
   card.append(head);
@@ -64,10 +65,21 @@ export function renderAudit() {
       title: '2. Products covered with complete nutrition',
       figure: pct(s.covered.count, s.covered.of),
       detail: `${s.covered.count} of ${s.covered.of} different products have all 8 key values: `
-        + `${s.freeDb.count} from Open Food Facts, ${s.coveredByHand} added by hand. `
-        + `Open Food Facts alone: ${pct(s.freeDb.count, s.freeDb.of)}.`,
+        + `${s.covered.count - s.coveredByHand} from Open Food Facts, ${s.coveredByHand} typed in from the label. `
+        + `Open Food Facts alone: ${pct(s.freeDb.count, s.freeDb.of)}.`
+        + (s.freeDbDiffers ? ` ${s.freeDbDiffers} complete in Open Food Facts but marked as different from the label, so not counted unless corrected.` : ''),
       target: 'Target: 90% or more, counting products added by hand.',
       status: ratioStatus(s.covered),
+    }),
+    markCard({
+      title: 'Open Food Facts matches the label',
+      figure: s.label.checked ? pct(s.label.matches, s.label.checked) : '',
+      detail: s.label.checked || s.label.cantTell
+        ? `${s.label.matches} of ${s.label.checked} checked products match the printed label. `
+          + `${s.label.cantTell} can't tell, ${s.label.notChecked} not checked.`
+        : 'No products checked yet. On a product screen, tap Matches, Differs or Can\'t tell.',
+      target: 'No pass mark yet. Shows how far Open Food Facts can be trusted.',
+      status: s.label.checked ? 'info' : 'none',
     }),
     markCard({
       title: '3. Add a missing product by hand',
@@ -115,7 +127,8 @@ function renderRecent(log) {
     } else {
       outcome = 'Lookup error';
     }
-    if (r.added) outcome += ` · added by hand in ${mmss(r.added.seconds)}`;
+    if (r.labelCheck) outcome += ` · label: ${{ matches: 'matches', differs: 'differs', 'cant-tell': "can't tell" }[r.labelCheck]}`;
+    if (r.added) outcome += ` · ${r.added.kind === 'correction' ? 'corrected' : 'added'} by hand in ${mmss(r.added.seconds)}`;
     const top = el('div', 'recent-top');
     top.append(el('span', 'mono', r.barcode), el('span', 'meta', `#${r.entry} · ${localDateTime(r.time).slice(5, 16)}`));
     li.append(top);

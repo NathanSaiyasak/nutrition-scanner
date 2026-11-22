@@ -26,9 +26,13 @@ for (const f of ADD_FIELDS) {
   grid.append(wrap);
 }
 
-export function openAddForm({ entry, barcode, onDone, onCancel }) {
-  current = { entry, barcode, onDone, onCancel };
+// mode: 'new' (not in Open Food Facts) or 'correction' (found, but missing values or
+// different from the label). For a correction the product name is filled in to save time.
+export function openAddForm({ entry, barcode, mode = 'new', name = '', onDone, onCancel }) {
+  current = { entry, barcode, mode, onDone, onCancel };
   $('add-form').reset();
+  $('add-title').textContent = mode === 'correction' ? 'Nutrition facts from the label' : 'Add a product';
+  $('add-name').value = name;
   for (const el of $('add-form').querySelectorAll('.invalid')) el.classList.remove('invalid');
   for (const id of ['add-name-error', 'add-number-error', 'add-save-error']) $(id).hidden = true;
   clearPhoto();
@@ -130,6 +134,7 @@ $('add-form').addEventListener('submit', (event) => {
   const seconds = elapsedSeconds(); // timer stops when Save is tapped and the form is valid
   const b = basis();
   const saved = attachAddedProduct(current.entry, {
+    kind: current.mode,
     seconds,
     name,
     brand: $('add-brand').value.trim() || null,

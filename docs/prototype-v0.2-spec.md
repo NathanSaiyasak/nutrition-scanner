@@ -14,7 +14,7 @@ the four go/no-go pass marks. Everything v0.1 does keeps working exactly as befo
 | # | Pass mark | How v0.2 measures it |
 |---|---|---|
 | PM-1 | Barcodes scan cleanly ≥ 90% | Share of scans **read first time**: read by the first camera session or the first photo, without stopping and retrying, and without typing the number. |
-| PM-2 | Products covered with complete nutrition ≥ 90% (changed 22 Nov 2026, was "found in free databases ≥ 40%") | Share of **different products** looked up (by barcode) that have all 8 key values (the same 8 as the v0.1 completeness note) **from either source**: Open Food Facts, or added by hand with the timed form. The target applies to this total. The summary also shows the free-database figure on its own (Open Food Facts only), so we can see how much depends on adding data ourselves. Lookups that failed (network error, timeout, too many lookups) are left out. If a barcode is scanned twice, the latest lookup counts, and a product added by hand stays covered. |
+| PM-2 | Products covered with complete nutrition ≥ 90% (changed 22 Nov 2026, was "found in free databases ≥ 40%") | Share of **different products** looked up (by barcode) that have all 8 key values (the same 8 as the v0.1 completeness note) **from either source**: Open Food Facts, or added by hand with the timed form. The target applies to this total. The summary also shows the free-database figure on its own (Open Food Facts only), so we can see how much depends on adding data ourselves. An Open Food Facts product marked **Differs** from the label (FR-22) does not count unless its label values are typed in with the timed form. Lookups that failed (network error, timeout, too many lookups) are left out. If a barcode is scanned twice, the latest lookup counts, and a product added by hand stays covered. |
 | PM-3 | Manual add of a missing product ≤ 3 min | Time from tapping "Add this product" to tapping "Save" on the timed form. The summary shows how many adds took 3 minutes or less, and the typical (median) and slowest time. It counts as a pass when the typical time is 3 minutes or less. |
 | PM-4 | At least one data source licensed for commercial use | **Not measured by the app.** It's a licence check done on paper. The summary says so and notes that Open Food Facts is ODbL (commercial use allowed with attribution and share-alike). |
 
@@ -40,6 +40,9 @@ the four go/no-go pass marks. Everything v0.1 does keeps working exactly as befo
 | FR-19 | **Recent scans list** on the summary screen (newest first, last 20), so the auditor can check that scans are being recorded. | Should |
 | FR-20 | **Clear log** button, with a "are you sure?" check, for starting a fresh audit after exporting. | Must |
 | FR-21 | The product and "not found" screens show a small "Saved to audit log (#N)" line. | Should |
+| FR-22 | **Matches the label?** (added 22 Nov 2026) On a found product with nutrition facts, the tester compares the screen with the pack and taps Matches, Differs or Can't tell. On Differs, an optional note says which value differs (e.g. "sodium 1760 mg on pack"). Saved on the scan's log row and in the CSV (`matches_label`, `label_difference_note`). Reason: Nathan's 10-product store check found Open Food Facts data that didn't match the pack (old recipe, different size or flavour under the same barcode). | Must |
+| FR-23 | **Correct a found product.** After Differs, a "Correct the values from the label (timed)" button opens the timed form with the product name filled in. Saved values count towards coverage, and the CSV marks the row "yes (correction)". | Must |
+| FR-24 | The Audit log shows an "Open Food Facts matches the label" figure: matches out of products checked (Matches + Differs), with Can't tell and not-checked counts. It has no pass mark yet. Unchecked products are not treated as different. | Must |
 
 ## Non-functional requirements
 
@@ -78,6 +81,8 @@ Food Facts · saving label photos · Thai interface · offline mode · native ap
 5. Export gives a CSV that opens in Numbers/Excel/Google Sheets with Thai names readable.
 6. The add form shows a running timer; Save records the time and the typed values on the right row;
    blanks stay blank in the CSV.
+8a. Tapping Differs on a complete product takes it out of coverage; correcting it with the timed form puts
+   it back. The label-check figure and CSV columns match what was tapped.
 7. The summary screen shows PM-1 to PM-3 figures that match the CSV, and PM-4 as "checked separately". PM-2
    shows total coverage (Open Food Facts plus added by hand) against 90%, and the Open Food Facts figure
    on its own.
