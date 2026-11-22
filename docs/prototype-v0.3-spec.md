@@ -14,7 +14,7 @@ The v0.2 audit tool keeps working exactly as before.
 
 | Screen | What it shows |
 |---|---|
-| Scan | Dark camera screen: "Scan a barcode", the viewfinder, and a bottom panel "Can't scan it?" with **Type the barcode** and **Use a photo of the barcode**. "Audit log" stays at the top. |
+| Scan | Dark camera screen: "Scan a barcode" and the live camera inside the frame, with a moving scan line. The camera starts by itself when the screen opens (the browser asks for permission the first time); "Stop camera" turns it off and tapping the frame starts it again. An automatic start only counts as a try (FR-14) if it reads the barcode, so using a photo or typing instead isn't counted as a failed camera try. Then and a bottom panel "Can't scan it?" with **Type the barcode** and **Use a photo of the barcode**. "Audit log" stays at the top. |
 | Result | Product card: photo, brand tag, English name, Thai name underneath (when different), size. Verdict pill and score (see "Score"). Then four groups: **Watch out**, **Good points**, **Other**, **Not available**. A "Scan another" button floats at the bottom. No "See full details" (Nathan, 22 Nov 2026). |
 | Not found | Icon, "We don't have this product yet", the barcode, **Add this product** (the v0.2 timed form) and **Scan another product**. Error messages (network, timeout, busy) use the same layout. |
 

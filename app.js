@@ -29,11 +29,18 @@ let lastBarcode = null;
 // An "attempt" runs from the start screen until a barcode is read. Each camera start and each
 // photo picked is one try. Read first time = read by the first try, without typing (spec FR-14).
 let attempt = newAttempt();
-function newAttempt() { return { tries: 0, cameraStartedAt: null }; }
+function newAttempt() { return { tries: 0, cameraStartedAt: null, autoTry: false }; }
+// v0.3: the camera starts by itself on the scan screen. That automatic start only counts as a try if
+// it reads the barcode: if the person uses a photo or types instead, or the camera can't start, it
+// is taken back out, so it doesn't make "read first time" look worse than it was.
+function dropAutoTry() {
+  if (attempt.autoTry && attempt.tries > 0) attempt.tries -= 1;
+  attempt.autoTry = false;
+}
 
 const CAMERA_ERRORS = {
   denied: ['Camera access was blocked',
-    'Allow camera access for this site in your browser settings, then tap "Scan a barcode" again. You can also use a photo or type the number below.'],
+    'Allow camera access for this site in your browser settings, then tap the camera box to try again. You can also use a photo or type the number below.'],
   'no-camera': ['No camera found',
     "This device or browser doesn't offer a camera to the page. Use a photo of the barcode or type the number below instead."],
   'in-use': ['Camera is busy',
@@ -44,14 +51,16 @@ const CAMERA_ERRORS = {
     'Try again, or type the barcode number below.'],
 };
 
-function startCamera(ignore = null) {
+function startCamera(ignore = null, auto = false) {
   stopCamera();
+  if (!auto) attempt.autoTry = false; // a tap to start again is a real retry
   $('camera-error').hidden = true;
   $('photo-status').hidden = true;
   $('camera').hidden = false;
   $('scan-button').hidden = true;
   $('stop-button').hidden = false;
   attempt.tries += 1;
+  if (auto) attempt.autoTry = true;
   attempt.cameraStartedAt = Date.now();
   stopScanner = startScanner($('camera-video'), {
     ignore,
@@ -63,6 +72,8 @@ function startCamera(ignore = null) {
     },
     onError: (kind) => {
       stopCamera();
+      dropAutoTry();
+      cameraFailed = true; // don't keep retrying by itself; the person can tap to try again
       const [title, text] = CAMERA_ERRORS[kind] || CAMERA_ERRORS.unknown;
       $('camera-error-title').textContent = title;
       $('camera-error-text').textContent = text;
@@ -83,7 +94,14 @@ function resetCameraUi() {
   $('stop-button').hidden = true;
 }
 
-$('scan-button').addEventListener('click', () => startCamera());
+$('scan-button').addEventListener('click', () => { cameraFailed = false; startCamera(); });
+
+// Start the camera by itself whenever the scan screen is showing (v0.3).
+let cameraFailed = false;
+export function autoStartCamera(ignore = null) {
+  if ($('screen-start').hidden || stopScanner || cameraFailed || document.hidden) return;
+  startCamera(ignore, true);
+}
 
 // ---------- Start screen: photo of a barcode ----------
 // On phones, this offers "Take photo" or "Photo library". The photo stays on the phone:
@@ -93,6 +111,7 @@ $('photo-input').addEventListener('change', async (event) => {
   event.target.value = ''; // so picking the same photo again still works
   if (!file) return;
   stopCamera();
+  dropAutoTry();
   attempt.tries += 1;
   const status = $('photo-status');
   status.textContent = 'Reading the barcode in your photo…';
@@ -112,7 +131,9 @@ $('photo-input').addEventListener('change', async (event) => {
 });
 $('stop-button').addEventListener('click', stopCamera);
 // Turn the camera off when the person switches app or tab.
-document.addEventListener('visibilitychange', () => { if (document.hidden) stopCamera(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { if (stopScanner) dropAutoTry(); stopCamera(); } else autoStartCamera();
+});
 
 // ---------- Start screen: manual entry ----------
 $('type-toggle').addEventListener('click', () => {
@@ -134,6 +155,8 @@ $('manual-form').addEventListener('submit', (event) => {
   }
   error.hidden = true;
   input.blur();
+  stopCamera();
+  dropAutoTry();
   handleBarcode(barcode, { method: 'typed' });
 });
 
@@ -434,6 +457,7 @@ $('audit-link').addEventListener('click', () => {
 $('audit-back').addEventListener('click', () => {
   attempt = newAttempt();
   show('screen-start');
+  autoStartCamera();
 });
 
 askToKeepData();
@@ -447,6 +471,10 @@ for (const button of document.querySelectorAll('.again')) {
     $('type-toggle').hidden = false;
     show('screen-start');
     attempt = newAttempt();
-    startCamera(lastBarcode); // straight back to scanning, one tap (FR-10)
+    cameraFailed = false;
+    startCamera(lastBarcode, true); // straight back to scanning, one tap (FR-10)
   });
 }
+
+// Open the camera as soon as the page loads (the browser asks for permission the first time).
+autoStartCamera();

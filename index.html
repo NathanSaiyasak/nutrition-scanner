@@ -25,12 +25,11 @@
         <div class="scan-stage">
           <div id="camera" class="camera" hidden>
             <video id="camera-video" playsinline muted autoplay></video>
-            <div class="viewfinder" aria-hidden="true"></div>
           </div>
           <button id="scan-button" class="scan-start" type="button">
-            <span class="corners" aria-hidden="true"><span class="scan-line"></span></span>
             <span class="scan-start-text">Tap to start the camera</span>
           </button>
+          <div class="frame-overlay" aria-hidden="true"><span class="corners"></span><span class="scan-line"></span></div>
         </div>
         <button id="stop-button" class="ghost-dark" type="button" hidden>Stop camera</button>
         <p class="scan-hint">Hold steady, 10–20 cm away, in good light</p>
