@@ -1,6 +1,6 @@
 # Nutrition Scanner — project context for Claude Code
 
-Read this file before doing anything. The current build spec is `docs/prototype-v0.2-spec.md` (v0.1: `docs/prototype-v0.1-spec.md`).
+Read this file before doing anything. The current build spec is `docs/prototype-v0.3-spec.md` (earlier: `docs/prototype-v0.2-spec.md`, `docs/prototype-v0.1-spec.md`).
 
 ## What this project is
 
@@ -27,6 +27,10 @@ You may not be able to open these links. Everything you need for the current bui
 
 | Date | Decision |
 |---|---|
+| 22 Nov 2026 | Build v0.3, the shopper result screen from Nathan's Figma redesign: scan screen, result with verdict + score, Watch out / Good points (plus Other and Not available), not-found screen. No "See full details". Audit tools kept in a closed "Store audit" box. History and Favorite tabs not built. |
+| 22 Nov 2026 | Until a scoring method is agreed, the result screen shows a **sample** score, labelled "Sample score · method not agreed yet", with all logic in `score-placeholder.js`. |
+| 22 Nov 2026 | Key facts for shoppers: calories, sugar, saturated fat, sodium, protein (fibre when present). Grouped with UK front-of-pack traffic-light thresholds; bars show % of the Thai daily guide. |
+| 22 Nov 2026 | Font: LINE Seed Sans TH (free, SIL OFL), with phone fonts as fallback. |
 | 22 Nov 2026 | Add a "matches the label?" check to the audit (Matches / Differs / Can't tell, optional note) and let testers correct a found product's values with the timed form. A product marked Differs doesn't count as covered unless corrected. Reason: store check of 10 products found Open Food Facts values that didn't match the pack (e.g. Mama sodium 1280 vs 1760 mg, Oishi 80 vs 60 kcal). |
 | 22 Nov 2026 | Coverage pass mark changed: the app must cover ≥ 90% of 7-Eleven products with complete nutrition, counting products we add ourselves where free databases have no data (replaces "found in free databases ≥ 40%"). The audit shows free-database coverage and total coverage; the 90% target applies to the total. Creating and storing our own data is part of the plan. |
 | 22 Nov 2026 | Build v0.2, the audit tool (scan log on the phone, CSV export, timed add form, pass-mark summary), with no further spec sign-off. Data stays on the phone; no backend or accounts. |

@@ -6,6 +6,8 @@ import { startScanner, scanPhoto } from './scanner.js';
 import { logScan, askToKeepData, setLabelCheck } from './audit.js';
 import { openAddForm, stopAddTimer } from './add-form.js';
 import { renderAudit } from './audit-screen.js';
+import { buildView } from './nutrition-view.js';
+import { sampleScore, SCORE_LABEL } from './score-placeholder.js';
 
 const $ = (id) => document.getElementById(id);
 const SCREENS = ['screen-start', 'screen-loading', 'screen-product', 'screen-message',
@@ -15,6 +17,7 @@ export function show(screenId) {
   if (screenId !== 'screen-start') stopCamera();
   if (screenId !== 'screen-add') stopAddTimer();
   for (const id of SCREENS) $(id).hidden = id !== screenId;
+  document.body.dataset.screen = screenId; // the scan screen is dark (v0.3)
   window.scrollTo(0, 0);
 }
 
@@ -112,6 +115,11 @@ $('stop-button').addEventListener('click', stopCamera);
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopCamera(); });
 
 // ---------- Start screen: manual entry ----------
+$('type-toggle').addEventListener('click', () => {
+  $('type-toggle').hidden = true;
+  $('manual-form').hidden = false;
+  $('barcode-input').focus();
+});
 $('manual-form').addEventListener('submit', (event) => {
   event.preventDefault();
   const input = $('barcode-input');
@@ -173,8 +181,8 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
       updateProductAdd();
       break;
     case 'not-found':
-      showMessage('Product not found',
-        "This barcode isn't in Open Food Facts yet.", barcode);
+      showMessage('We don’t have this product yet',
+        "This barcode isn't in our database yet. You can add it from the nutrition label on the pack.", barcode);
       $('message-add').hidden = !canAdd;
       break;
     case 'timeout':
@@ -201,7 +209,8 @@ function showSavedNote(entry) {
   }
 }
 
-export function showMessage(title, text, barcode) {
+export function showMessage(title, text, barcode, done = false) {
+  $('screen-message').dataset.done = String(done); // a success message hides the "search" icon
   $('message-title').textContent = title;
   $('message-text').textContent = text;
   $('message-barcode').textContent = barcode ? `Barcode: ${barcode}` : '';
@@ -213,7 +222,11 @@ function renderProduct(p) {
   $('product-name').textContent = p.name;
   $('product-name-alt').textContent = p.altName || '';
   $('product-name-alt').hidden = !p.altName;
-  $('product-meta').textContent = [p.brands, p.quantity].filter(Boolean).join(' · ');
+  const brand = p.brands ? p.brands.split(',')[0].trim() : '';
+  $('product-brand').textContent = brand;
+  $('product-brand').hidden = !brand;
+  $('product-meta').textContent = p.quantity || '';
+  $('product-meta').hidden = !p.quantity;
   $('product-barcode').textContent = `Barcode: ${p.barcode}`;
   $('off-link').href = p.offUrl;
 
@@ -222,17 +235,79 @@ function renderProduct(p) {
     img.src = p.image;
     img.alt = `Photo of ${p.name}`;
     img.hidden = false;
-    img.onerror = () => { img.hidden = true; };
+    img.onerror = () => { img.hidden = true; $('product-image-placeholder').hidden = false; };
   } else {
     img.removeAttribute('src');
     img.hidden = true;
   }
+  $('product-image-placeholder').hidden = Boolean(p.image);
 
   $('no-nutrition').hidden = p.hasNutrition;
   $('nutrition').hidden = !p.hasNutrition;
   if (p.hasNutrition) renderNutrition(p);
+  $('audit-box').open = false;
+
+  // v0.3 shopper view: sample score and the Watch out / Good points groups.
+  const view = p.hasNutrition ? buildView(p) : null;
+  renderScore(view ? sampleScore(view) : null);
+  renderGroups(view);
 
   show('screen-product');
+}
+
+function renderScore(result) {
+  $('score-row').hidden = !result;
+  $('score-label').hidden = !result;
+  if (!result) return;
+  const verdict = $('verdict');
+  verdict.textContent = result.verdict;
+  verdict.dataset.tone = result.tone;
+  $('score-dot').dataset.tone = result.tone;
+  $('score-number').textContent = String(result.score);
+  $('score-label').textContent = SCORE_LABEL;
+}
+
+function renderGroups(view) {
+  const box = $('groups');
+  box.replaceChildren();
+  if (!view) return;
+  view.groups.forEach((group, index) => {
+    const section = el('section', 'group');
+    const head = el('div', 'group-head');
+    head.append(el('h3', '', group.title));
+    if (index === 0) head.append(el('span', 'basis', view.basisLabel));
+    const card = el('ul', 'group-card');
+    for (const item of group.items) {
+      const li = el('li', 'fact');
+      const line = el('div', 'fact-line');
+      const dot = el('span', 'dot');
+      dot.dataset.tone = item.tone;
+      const text = el('div', 'fact-text');
+      text.append(el('span', 'fact-name', item.name), el('span', 'fact-note', item.note));
+      text.lastChild.dataset.tone = item.tone;
+      const amount = el('span', item.pct === null ? 'fact-amount na' : 'fact-amount', item.amount);
+      line.append(dot, text, amount);
+      li.append(line);
+      if (item.pct !== null) {
+        const bar = el('div', 'bar');
+        const fill = el('span', '');
+        fill.dataset.tone = item.tone;
+        fill.style.width = `${Math.max(2, Math.min(100, item.pct))}%`;
+        bar.append(fill);
+        li.append(bar);
+      }
+      card.append(li);
+    }
+    section.append(head, card);
+    box.append(section);
+  });
+}
+
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
 }
 
 function renderNutrition(p) {
@@ -340,7 +415,7 @@ function startAdd(mode) {
       const m = Math.floor(seconds / 60);
       const s = String(seconds % 60).padStart(2, '0');
       showMessage(mode === 'correction' ? 'Values saved' : 'Product added',
-        `Saved to the audit log (#${currentEntry}). It took ${m}:${s}.`, lastBarcode);
+        `Saved to the audit log (#${currentEntry}). It took ${m}:${s}.`, lastBarcode, true);
       for (const el of document.querySelectorAll('.saved-note')) el.hidden = true;
     },
     onCancel: () => show(lastScreen),
@@ -368,6 +443,8 @@ for (const button of document.querySelectorAll('.again')) {
   button.addEventListener('click', () => {
     currentLookup++;
     $('barcode-input').value = '';
+    $('manual-form').hidden = true;
+    $('type-toggle').hidden = false;
     show('screen-start');
     attempt = newAttempt();
     startCamera(lastBarcode); // straight back to scanning, one tap (FR-10)
