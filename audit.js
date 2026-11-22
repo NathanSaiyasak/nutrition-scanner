@@ -103,12 +103,19 @@ export function summarise(log) {
   const firstTime = log.filter((r) => r.readFirstTime).length;
 
   // Coverage: one result per different barcode (the latest), lookup errors left out.
+  // A product added by hand with all 8 values stays covered even if it is scanned again later.
   const latest = new Map();
-  for (const row of log) if (row.result !== 'error') latest.set(row.barcode, row);
+  const addedComplete = new Set();
+  for (const row of log) {
+    if (row.result === 'error') continue;
+    latest.set(row.barcode, row);
+    if (row.added && countAddedValues(row.added.values) === 8) addedComplete.add(row.barcode);
+  }
   const products = [...latest.values()];
   const found = products.filter((r) => r.result === 'found');
   const withNutrition = found.filter((r) => (r.valuesPresent || 0) > 0);
   const complete = found.filter((r) => r.complete === true);
+  const byHand = products.filter((r) => r.complete !== true && addedComplete.has(r.barcode));
 
   const addTimes = log.filter((r) => r.added).map((r) => r.added.seconds).sort((a, b) => a - b);
   const underTarget = addTimes.filter((s) => s <= ADD_TARGET_SECONDS).length;
@@ -125,7 +132,9 @@ export function summarise(log) {
     products: products.length,
     found: found.length,
     withNutrition: withNutrition.length,
-    complete: { count: complete.length, of: products.length, target: 0.4 },
+    freeDb: { count: complete.length, of: products.length },
+    covered: { count: complete.length + byHand.length, of: products.length, target: 0.9 },
+    coveredByHand: byHand.length,
     adds: {
       count: addTimes.length,
       underTarget,

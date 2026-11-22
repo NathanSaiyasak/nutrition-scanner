@@ -14,7 +14,7 @@ the four go/no-go pass marks. Everything v0.1 does keeps working exactly as befo
 | # | Pass mark | How v0.2 measures it |
 |---|---|---|
 | PM-1 | Barcodes scan cleanly ≥ 90% | Share of scans **read first time**: read by the first camera session or the first photo, without stopping and retrying, and without typing the number. |
-| PM-2 | Products found with complete nutrition ≥ 40% | Share of **different products** looked up (by barcode) that Open Food Facts has with all 8 key values per 100 g/ml (the same 8 as the v0.1 completeness note). Lookups that failed (network error, timeout, too many lookups) are left out. If a barcode is scanned twice, the latest lookup counts. |
+| PM-2 | Products covered with complete nutrition ≥ 90% (changed 22 Nov 2026, was "found in free databases ≥ 40%") | Share of **different products** looked up (by barcode) that have all 8 key values (the same 8 as the v0.1 completeness note) **from either source**: Open Food Facts, or added by hand with the timed form. The target applies to this total. The summary also shows the free-database figure on its own (Open Food Facts only), so we can see how much depends on adding data ourselves. Lookups that failed (network error, timeout, too many lookups) are left out. If a barcode is scanned twice, the latest lookup counts, and a product added by hand stays covered. |
 | PM-3 | Manual add of a missing product ≤ 3 min | Time from tapping "Add this product" to tapping "Save" on the timed form. The summary shows how many adds took 3 minutes or less, and the typical (median) and slowest time. It counts as a pass when the typical time is 3 minutes or less. |
 | PM-4 | At least one data source licensed for commercial use | **Not measured by the app.** It's a licence check done on paper. The summary says so and notes that Open Food Facts is ODbL (commercial use allowed with attribution and share-alike). |
 
@@ -34,7 +34,7 @@ the four go/no-go pass marks. Everything v0.1 does keeps working exactly as befo
 | FR-13 | **Scan log.** Every barcode that is looked up adds one row, saved on the phone: entry number, date and time, barcode, how it was read (camera / photo / typed), number of tries, read first time (yes/no), seconds the camera took to read it, lookup result (found / not found / error), product name, how many of the 8 key values are present, nutrition complete (yes/no). | Must |
 | FR-14 | **Tries.** Counted from the start screen until a barcode is read: each camera start and each photo picked is one try. Stopping the camera and starting again, or a photo that can't be read, adds a try. Typing the number always counts as *not* read first time. | Must |
 | FR-15 | **Export as CSV.** One button saves the whole log as a `.csv` spreadsheet file (opens in Excel, Numbers, Google Sheets). Thai text must display correctly. Where the phone offers it, a Share button sends the file to Files, Mail, LINE, etc. | Must |
-| FR-16 | **Timed add form.** On "Product not found" (and on "Product found, but no nutrition facts yet") an "Add this product (timed)" button opens a form with a running timer: name (required), brand, quantity, whether the values are per 100 g, per 100 ml or per serving (with serving size), then energy, fat, saturated fat, carbohydrates, sugars, fibre, protein, salt and sodium (mg). Blank means "not on the label", never 0. Save stops the timer and stores the entry and its time on the same log row. Cancel stores nothing. | Must |
+| FR-16 | **Timed add form.** On "Product not found", and on a found product whose nutrition is missing or incomplete, an "Add this product (timed)" button opens a form with a running timer: name (required), brand, quantity, whether the values are per 100 g, per 100 ml or per serving (with serving size), then energy, fat, saturated fat, carbohydrates, sugars, fibre, protein, salt and sodium (mg). Blank means "not on the label", never 0. Save stops the timer and stores the entry and its time on the same log row. Cancel stores nothing. | Must |
 | FR-17 | **Label photo, on the phone only.** The add form can take or pick a photo of the label to look at while typing. The photo is shown on screen only. It is not uploaded and not saved. | Should |
 | FR-18 | **Audit summary screen.** Reached from an "Audit log" link at the top. Shows PM-1 to PM-4 with the figure, the count behind it (e.g. "18 of 20 scans"), the target, and pass / not yet. Also: total scans, products found, products found with any nutrition, lookup errors. Warns when the sample is small (fewer than 30 products). | Must |
 | FR-19 | **Recent scans list** on the summary screen (newest first, last 20), so the auditor can check that scans are being recorded. | Should |
@@ -78,6 +78,8 @@ Food Facts · saving label photos · Thai interface · offline mode · native ap
 5. Export gives a CSV that opens in Numbers/Excel/Google Sheets with Thai names readable.
 6. The add form shows a running timer; Save records the time and the typed values on the right row;
    blanks stay blank in the CSV.
-7. The summary screen shows PM-1 to PM-3 figures that match the CSV, and PM-4 as "checked separately".
+7. The summary screen shows PM-1 to PM-3 figures that match the CSV, and PM-4 as "checked separately". PM-2
+   shows total coverage (Open Food Facts plus added by hand) against 90%, and the Open Food Facts figure
+   on its own.
 8. Clear log asks first, then empties the log and the summary.
 9. All v0.1 acceptance checks still pass (iPhone Safari; Android Chrome still to be tested).

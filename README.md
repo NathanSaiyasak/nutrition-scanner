@@ -47,7 +47,8 @@ Change the files, save, commit and push to GitHub. The live link updates about a
   was read (camera, photo or typed), how many tries it took, and what Open Food Facts had. The product
   screen shows "Saved to audit log (#N)".
 - **Missing product?** On "Product not found", tap **Add this product (timed)**, type in what the label
-  says, and tap **Save**. The timer measures the "add in 3 minutes or less" pass mark. Leave a box empty
+  says, and tap **Save**. A found product with missing or incomplete nutrition has the same button under
+  its nutrition table. Products added by hand with all 8 values count towards the 90% coverage target. The timer measures the "add in 3 minutes or less" pass mark. Leave a box empty
   if the label doesn't show that value.
 - **Audit log** (top right) shows the pass-mark figures, the recent scans, and the export buttons.
 - **Export after every store visit.** The log lives only in this browser on this phone. iPhone Safari can

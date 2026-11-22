@@ -61,11 +61,13 @@ export function renderAudit() {
       status: ratioStatus(s.scanClean),
     }),
     markCard({
-      title: '2. Found with complete nutrition',
-      figure: pct(s.complete.count, s.complete.of),
-      detail: `${s.complete.count} of ${s.complete.of} different products have all 8 key values in Open Food Facts.`,
-      target: 'Target: 40% or more.',
-      status: ratioStatus(s.complete),
+      title: '2. Products covered with complete nutrition',
+      figure: pct(s.covered.count, s.covered.of),
+      detail: `${s.covered.count} of ${s.covered.of} different products have all 8 key values: `
+        + `${s.freeDb.count} from Open Food Facts, ${s.coveredByHand} added by hand. `
+        + `Open Food Facts alone: ${pct(s.freeDb.count, s.freeDb.of)}.`,
+      target: 'Target: 90% or more, counting products added by hand.',
+      status: ratioStatus(s.covered),
     }),
     markCard({
       title: '3. Add a missing product by hand',

@@ -167,7 +167,9 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
   switch (result.kind) {
     case 'found':
       renderProduct(result.product);
-      $('product-add').hidden = !canAdd || result.product.hasNutrition;
+      // Missing or incomplete nutrition: offer the timed form, so the product can still be covered.
+      $('product-add').hidden = !canAdd
+        || result.product.completeness.present === result.product.completeness.total;
       break;
     case 'not-found':
       showMessage('Product not found',
