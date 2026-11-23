@@ -396,22 +396,39 @@ function renderGroups(view) {
     const card = el('ul', 'group-card');
     for (const item of group.items) {
       const li = el('li', 'fact');
+      // With details: the row is a <details> dropdown (closed by default); tapping it shows the reasons.
+      const hasDetails = item.details && item.details.length > 0;
+      const wrap = hasDetails ? el('details', 'fact-drop') : li;
+      const rowHead = hasDetails ? el('summary', 'fact-head') : el('div', 'fact-head');
       const line = el('div', 'fact-line');
       const dot = el('span', 'dot');
       dot.dataset.tone = item.tone;
       const text = el('div', 'fact-text');
       text.append(el('span', 'fact-name', item.name), el('span', 'fact-note', item.note));
-      text.lastChild.dataset.tone = item.tone;
       const amount = el('span', item.pct === null ? 'fact-amount na' : 'fact-amount', item.amount);
       line.append(dot, text, amount);
-      li.append(line);
+      rowHead.append(line);
+      const foot = el('div', 'fact-foot');
       if (item.pct !== null) {
         const bar = el('div', 'bar');
         const fill = el('span', '');
         fill.dataset.tone = item.tone;
         fill.style.width = `${Math.max(2, Math.min(100, item.pct))}%`;
         bar.append(fill);
-        li.append(bar);
+        foot.append(bar);
+      }
+      if (hasDetails) {
+        const chevron = el('span', 'chevron');
+        chevron.setAttribute('aria-hidden', 'true');
+        foot.append(chevron);
+      }
+      if (foot.childElementCount > 0) rowHead.append(foot);
+      wrap.append(rowHead);
+      if (hasDetails) {
+        const more = el('ul', 'fact-details');
+        for (const d of item.details) more.append(el('li', '', d));
+        wrap.append(more);
+        li.append(wrap);
       }
       card.append(li);
     }

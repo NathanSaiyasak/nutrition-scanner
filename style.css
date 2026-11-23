@@ -93,6 +93,8 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
   position: absolute; left: 8%; right: 8%; top: 50%; height: 3px; border-radius: 2px;
   background: var(--good); box-shadow: 0 0 12px var(--good);
 }
+/* The line only shows once the camera is running; before that it crossed the "Tap to start" text. */
+.scan-start:not([hidden]) ~ .frame-overlay .scan-line { display: none; }
 .scan-start[hidden] ~ .frame-overlay .scan-line { animation: sweep 2.2s ease-in-out infinite alternate; }
 @keyframes sweep { from { top: 18%; } to { top: 82%; } }
 @media (prefers-reduced-motion: reduce) { .scan-start[hidden] ~ .frame-overlay .scan-line { animation: none; } }
@@ -159,11 +161,22 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 .fact-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .fact-name { font-weight: 700; font-size: 0.95rem; }
 .fact-note { font-size: 0.8rem; color: var(--muted); }
-.fact-note[data-tone="bad"] { color: var(--bad-text); }
-.fact-note[data-tone="warn"] { color: var(--warn-text); }
-.fact-note[data-tone="good"] { color: var(--good-text); }
 .fact-amount { font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
 .fact-amount.na { font-weight: 400; color: var(--faint); font-size: 0.82rem; }
+.fact-head { display: block; }
+summary.fact-head { list-style: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+summary.fact-head::-webkit-details-marker { display: none; }
+summary.fact-head:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 8px; }
+.fact-foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.fact-foot .bar { flex: 1; margin-top: 0; }
+.chevron {
+  width: 16px; height: 16px; flex-shrink: 0; margin-left: auto; transition: transform 0.2s;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M3.5 6l4.5 4.5L12.5 6' stroke='%239ca3af' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.fact-drop[open] .chevron { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .chevron { transition: none; } }
+.fact-details { margin: 10px 0 0; padding: 10px 12px; list-style: none; background: var(--na-bg); border-radius: 10px; font-size: 0.8rem; color: var(--muted); line-height: 1.45; }
+.fact-details li + li { margin-top: 6px; }
 .bar { height: 6px; border-radius: 4px; background: var(--track); margin-top: 10px; overflow: hidden; }
 .bar span { display: block; height: 100%; border-radius: 4px; }
 
