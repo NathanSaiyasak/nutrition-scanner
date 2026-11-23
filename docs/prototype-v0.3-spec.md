@@ -43,8 +43,15 @@ Good points, Watch out, Other"). Groups use the UK front-of-pack traffic-light t
 | Fibre | Good when ≥ 3 g or ≥ 1.5 g per 100 kcal; "High in fibre" at ≥ 6 g or ≥ 3 g per 100 kcal (EU claims) | otherwise Other | — | — |
 
 The serving rule (UK guidance) applies only when one serving is over 100 g (food) or 150 ml (drinks) and
-the serving size is known; the note then says "High in one serving". Drinks with more than 6 g sugar per
-100 ml get the note "Taxed as a sugary drink in Thailand" (Thai excise tax); it doesn't change the group.
+the serving size is known; the row's details then say "High in one serving". Drinks with more than 6 g sugar
+per 100 ml get the detail "Taxed as a sugary drink in Thailand" (Thai excise tax); it doesn't change the group.
+
+Row layout (changed 23 Nov 2026, Nathan: too much text): each row shows the name, one short line
+("28% of recommended daily limit", "4% of a day" for calories, "…of recommended daily amount" for
+protein and fibre), the amount on the right, the bar, and a small chevron. Tapping the row opens a
+dropdown (closed by default) with the reasons: the level and threshold it was judged against, the
+serving rule, the sugar-tax note, and what the bar compares with. The colour of the dot and bar still
+shows the level. Grouping rules are unchanged.
 The sample score still counts only the original five key facts as "missing", so adding fat doesn't hide it.
 
 Each row shows the amount and a bar: the share of a day's amount, using the Thai daily guide (2,000 kcal,
