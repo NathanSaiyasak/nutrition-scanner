@@ -8,17 +8,41 @@ import { openAddForm, stopAddTimer } from './add-form.js';
 import { renderAudit } from './audit-screen.js';
 import { buildView } from './nutrition-view.js';
 import { sampleScore, SCORE_LABEL } from './score-placeholder.js';
+import { loadHistory, addToHistory, clearHistory } from './history.js';
 
 const $ = (id) => document.getElementById(id);
 const SCREENS = ['screen-start', 'screen-loading', 'screen-product', 'screen-message',
-  'screen-add', 'screen-audit'];
+  'screen-add', 'screen-audit', 'screen-history', 'screen-favorite'];
 
 export function show(screenId) {
-  if (screenId !== 'screen-start') stopCamera();
+  if (screenId !== 'screen-start') stopCamera(); // the camera only runs on the Scan screen
   if (screenId !== 'screen-add') stopAddTimer();
   for (const id of SCREENS) $(id).hidden = id !== screenId;
   document.body.dataset.screen = screenId; // the scan screen is dark (v0.3)
+  updateTabbar(screenId);
   window.scrollTo(0, 0);
+}
+
+// ---------- Bottom navigation: History, Scan, Favorite ----------
+// Which tab is highlighted. A result opened from History keeps History highlighted.
+let openedFromHistory = false;
+function activeTab(screenId) {
+  if (screenId === 'screen-history') return 'history';
+  if (screenId === 'screen-favorite') return 'favorite';
+  if (screenId === 'screen-product' && openedFromHistory) return 'history';
+  if (screenId === 'screen-audit') return null;
+  return 'scan';
+}
+function updateTabbar(screenId) {
+  // Hidden on the timed add form, so a tap can't lose what's been typed.
+  $('tabbar').hidden = screenId === 'screen-add';
+  document.body.classList.toggle('has-tabbar', screenId !== 'screen-add');
+  const tab = activeTab(screenId);
+  for (const button of document.querySelectorAll('.tab')) {
+    const on = button.dataset.tab === tab;
+    button.classList.toggle('active', on);
+    if (on) button.setAttribute('aria-current', 'page'); else button.removeAttribute('aria-current');
+  }
 }
 
 // ---------- Start screen: camera ----------
@@ -210,6 +234,7 @@ let currentProduct = null; // the found product on screen, if any
 export async function handleBarcode(barcode, how = { method: 'typed' }) {
   const lookupId = ++currentLookup;
   lastBarcode = barcode;
+  openedFromHistory = false;
   const tries = Math.max(1, attempt.tries + (how.method === 'typed' ? 1 : 0));
   attempt = newAttempt(); // the next scan starts counting from zero
   $('loading-barcode').textContent = barcode;
@@ -219,6 +244,7 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
 
   // Record the scan even if the person has already moved on to another screen.
   const product = result.kind === 'found' ? result.product : null;
+  if (product) addToHistory(product);
   const entry = logScan({
     barcode,
     method: how.method,
@@ -233,6 +259,7 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
 
   if (lookupId !== currentLookup) return; // the person already moved on
   currentEntry = entry;
+  $('history-note').hidden = true;
   showSavedNote(entry);
 
   const canAdd = entry !== null;
@@ -504,18 +531,115 @@ $('audit-back').addEventListener('click', () => {
 askToKeepData();
 
 // ---------- "Scan another" ----------
-for (const button of document.querySelectorAll('.again')) {
+function goToScan() {
+  currentLookup++;
+  $('barcode-input').value = '';
+  $('manual-form').hidden = true;
+  $('type-toggle').hidden = false;
+  show('screen-start');
+  attempt = newAttempt();
+  cameraFailed = false;
+  startCamera(lastBarcode, true); // straight back to scanning, one tap (FR-10)
+}
+for (const button of document.querySelectorAll('.again')) button.addEventListener('click', goToScan);
+
+// ---------- Tabs ----------
+for (const button of document.querySelectorAll('.tab')) {
   button.addEventListener('click', () => {
-    currentLookup++;
-    $('barcode-input').value = '';
-    $('manual-form').hidden = true;
-    $('type-toggle').hidden = false;
-    show('screen-start');
-    attempt = newAttempt();
-    cameraFailed = false;
-    startCamera(lastBarcode, true); // straight back to scanning, one tap (FR-10)
+    const tab = button.dataset.tab;
+    if (tab === 'scan') {
+      if (!$('screen-start').hidden) return; // already scanning
+      goToScan();
+    } else if (tab === 'history') {
+      currentLookup++; // a lookup still running is logged and saved, but no longer shown
+      openedFromHistory = false;
+      renderHistory();
+      show('screen-history');
+    } else {
+      currentLookup++;
+      show('screen-favorite');
+    }
   });
 }
+
+// ---------- History ----------
+const dateFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
+const timeFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
+function whenText(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const today = new Date();
+  const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+  const sameDay = (a, b) => a.toDateString() === b.toDateString();
+  const day = sameDay(d, today) ? 'Today' : sameDay(d, yesterday) ? 'Yesterday' : dateFormat.format(d);
+  return `${day}, ${timeFormat.format(d)}`;
+}
+
+function renderHistory() {
+  const items = loadHistory();
+  $('history-empty').hidden = items.length > 0;
+  $('history-full').hidden = items.length === 0;
+  const list = $('history-list');
+  list.replaceChildren();
+  for (const item of items) {
+    const p = item.product;
+    const li = el('li', '');
+    const button = el('button', 'history-item');
+    button.type = 'button';
+
+    const photo = el('span', 'history-photo');
+    if (p.image) {
+      const img = document.createElement('img');
+      img.src = p.image;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.onerror = () => img.remove();
+      photo.append(img);
+    }
+    const text = el('span', 'history-text');
+    text.append(el('span', 'history-name', p.name));
+    const brand = p.brands ? p.brands.split(',')[0].trim() : '';
+    text.append(el('span', 'history-meta', [brand, whenText(item.savedAt)].filter(Boolean).join(' · ')));
+
+    button.append(photo, text);
+    const view = p.hasNutrition ? buildView(p) : null;
+    const score = view ? sampleScore(view) : null;
+    if (score) {
+      const badge = el('span', 'history-score');
+      const dot = el('span', 'dot');
+      dot.dataset.tone = score.tone;
+      badge.append(dot, el('b', '', String(score.score)));
+      button.append(badge);
+    }
+    button.addEventListener('click', () => openFromHistory(p));
+    li.append(button);
+    list.append(li);
+  }
+}
+
+// Reopen a saved result. It isn't a new scan, so nothing is added to the audit log, and the
+// Store audit buttons (which need a log entry) stay hidden.
+function openFromHistory(p) {
+  currentLookup++;
+  openedFromHistory = true;
+  lastBarcode = p.barcode;
+  currentEntry = null;
+  currentProduct = p;
+  for (const note of document.querySelectorAll('.saved-note')) note.hidden = true;
+  renderProduct(p);
+  resetLabelCheck(false);
+  updateProductAdd();
+  $('history-note').hidden = false;
+}
+
+$('history-scan').addEventListener('click', goToScan);
+$('history-clear').addEventListener('click', () => {
+  if (!window.confirm('Clear your scan history on this phone? The audit log is kept.')) return;
+  clearHistory();
+  renderHistory();
+});
+
+updateTabbar('screen-start');
 
 // Open the camera as soon as the page loads (the browser asks for permission the first time).
 autoStartCamera();

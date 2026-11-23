@@ -53,7 +53,7 @@ facts are missing.
 
 ## Not in v0.3
 
-History and Favorite tabs (in the Figma bar, not built) · a real scoring method · Thai interface ·
+History and Favorite tabs (added on 23 Nov 2026, see "Bottom navigation" below) · a real scoring method · Thai interface ·
 accounts, tracking, backend · any paid service. LINE Seed Sans TH (Nathan's font, SIL Open Font Licence,
 free) is first in the font list, so it shows where it is installed; bundling the font files waits until we
 have them (the public GitHub repo only has the Japanese version).
@@ -70,3 +70,18 @@ have them (the public GitHub repo only has the Japanese version).
 6. The Store audit box still records Matches / Differs / Can't tell, offers the timed correction, and
    shows "Saved to audit log (#N)". All v0.2 acceptance criteria still pass.
 7. Works at phone width (390 px) with no sideways scrolling.
+
+## Bottom navigation (added 23 Nov 2026)
+
+Nathan asked for the Figma bottom bar: **History**, **Scan** (middle), **Favorite**, icons above labels, the
+active tab in a rounded grey pill.
+
+- **Scan** is the scan and result flow above. The camera only runs on the Scan screen: it stops when another
+  tab opens and starts again when Scan is tapped.
+- **History** lists every product found, newest first, saved in this browser on this phone only (up to 100,
+  each barcode once). Tapping one reopens its result screen from the saved details, without internet. A
+  reopened result isn't a new scan, so nothing is added to the audit log and the Store audit buttons stay
+  hidden ("scan it again to check it against the pack"). Empty state: "No scans yet" with **Scan a product**.
+  **Clear history** doesn't touch the audit log.
+- **Favorite** shows "Coming soon". Favorites need shared storage and sign-in, which aren't decided yet.
+- The bar is hidden on the timed add form, so a tap can't lose what has been typed.

@@ -27,6 +27,7 @@ You may not be able to open these links. Everything you need for the current bui
 
 | Date | Decision |
 |---|---|
+| 23 Nov 2026 | Add the bottom navigation from the Figma design: History, Scan, Favorite. History lists found products saved on the phone (tap to reopen the result; reopening isn't logged as a scan). Favorite shows "Coming soon" until shared storage and sign-in are decided. |
 | 22 Nov 2026 | Build v0.3, the shopper result screen from Nathan's Figma redesign: scan screen, result with verdict + score, Watch out / Good points (plus Other and Not available), not-found screen. No "See full details". Audit tools kept in a closed "Store audit" box. History and Favorite tabs not built. |
 | 22 Nov 2026 | Until a scoring method is agreed, the result screen shows a **sample** score, labelled "Sample score · method not agreed yet", with all logic in `score-placeholder.js`. |
 | 22 Nov 2026 | Key facts for shoppers: calories, sugar, saturated fat, sodium, protein (fibre when present). Grouped with UK front-of-pack traffic-light thresholds; bars show % of the Thai daily guide. |
