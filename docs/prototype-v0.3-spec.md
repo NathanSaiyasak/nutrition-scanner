@@ -46,12 +46,16 @@ The serving rule (UK guidance) applies only when one serving is over 100 g (food
 the serving size is known; the row's details then say "High in one serving". Drinks with more than 6 g sugar
 per 100 ml get the detail "Taxed as a sugary drink in Thailand" (Thai excise tax); it doesn't change the group.
 
-Row layout (changed 23 Nov 2026, Nathan: too much text): each row shows the name, one short line
-("28% of recommended daily limit", "4% of a day" for calories, "…of recommended daily amount" for
-protein and fibre), the amount on the right, the bar, and a small chevron. Tapping the row opens a
-dropdown (closed by default) with the reasons: the level and threshold it was judged against, the
-serving rule, the sugar-tax note, and what the bar compares with. The colour of the dot and bar still
-shows the level. Grouping rules are unchanged.
+Row layout (changed 23 Nov 2026, Nathan: too much text; wording simplified again the same day): each row
+shows the name, one plain line that says what the colour means ("Too much sugar", "A bit too much sugar",
+"Low in sugar", "Too much sugar per serving", "Good amount of protein", "High in fibre", "Not much protein",
+"Not low in calories", "Can't rate this yet"), the amount on the right, the bar, and a small chevron. No
+percentage in that line. Tapping the row opens a dropdown (closed by default) with one or two short
+sentences: the share of the Thai daily guide ("One serving has 22% of the recommended daily limit, based on
+the Thai daily guide (65 g a day).") and why it got its colour ("Rated medium by the UK traffic-light
+guide, and taxed as a sugary drink in Thailand."). No per-100 thresholds in the dropdown. All wording is in
+the `TEXT` table in `nutrition-view.js`, as whole sentences, ready for a Thai translation. The colour of the
+dot and bar still shows the level. Grouping rules are unchanged.
 The sample score still counts only the original five key facts as "missing", so adding fat doesn't hide it.
 
 Each row shows the amount and a bar: the share of a day's amount, using the Thai daily guide (2,000 kcal,
