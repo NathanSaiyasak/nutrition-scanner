@@ -415,7 +415,8 @@ function renderGroups(view) {
       }
       card.append(li);
     }
-    section.append(head, card);
+    if (group.hint) section.append(head, el('p', 'group-hint', group.hint), card);
+    else section.append(head, card);
     box.append(section);
   });
 }

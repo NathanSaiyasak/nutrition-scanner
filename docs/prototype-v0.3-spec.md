@@ -44,6 +44,12 @@ sugar 65 g, saturated fat 20 g, sodium 2,000 mg, protein 50 g, fibre 25 g). Amou
 when Open Food Facts has per-serving values and a serving size, otherwise per 100 g / 100 ml. The group
 heading says which.
 
+Grouping always compares per-100 values. When a label only gives per-serving values but the serving size
+is known (e.g. "200 ml"), the per-100 value is worked out from them (18 g in 200 ml = 9 g per 100 ml); a
+drink is anything sized in ml or litres and uses the drink thresholds. Without a serving size the facts
+can't be compared and stay in Other. The Other group has a one-line explanation under its heading
+(added 23 Nov 2026 after a Tipco orange juice showed everything in Other).
+
 ## Score
 
 The scoring method is **not agreed yet** (CLAUDE.md). Nathan's design shows a score, so v0.3 shows a

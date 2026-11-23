@@ -150,6 +150,7 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 .group { margin-bottom: 18px; }
 .group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
 .group-head h3 { margin: 0; font-size: 1.1rem; }
+.group-hint { margin: -2px 0 8px; font-size: 0.8rem; color: var(--muted); }
 .basis { font-size: 0.72rem; font-weight: 700; color: var(--muted); }
 .group-card { list-style: none; margin: 0; padding: 0 16px; background: var(--card); border-radius: 16px; }
 .fact { padding: 14px 0; }

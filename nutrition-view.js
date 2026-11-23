@@ -53,7 +53,15 @@ export function buildView(p) {
     : `Per 100 ${per}`;
   const missingNote = p.source === 'shared' || p.source === 'phone' ? 'Not typed in from the label' : 'Not in the database yet';
 
-  const energy100 = facts[0].per100;
+  // Judging uses per-100 values. When the label only gave per-serving values but the serving size is
+  // known (e.g. "200 ml"), work out per 100 from it: plain arithmetic on the label's own numbers,
+  // like salt to sodium, not an estimate. Without a serving size the fact can't be judged.
+  const servingAmount = parseServing(p.servingSize);
+  for (const f of facts) {
+    f.judge100 = f.per100 ?? (f.perServing !== null && servingAmount ? (f.perServing * 100) / servingAmount : null);
+  }
+
+  const energy100 = facts[0].judge100;
   const items = facts.map((f) => {
     const amountValue = useServing ? f.perServing : f.per100;
     if (amountValue === null) {
@@ -76,23 +84,29 @@ export function buildView(p) {
   const watch = items.filter((i) => i.group === 'watch')
     .sort((a, b) => (order[a.level] - order[b.level]) || (b.pct - a.pct));
 
+  // judged: at least one fact could be compared with the limits (needs a per-100 value, or a
+  // per-serving value with a known serving size). If none could, there are no colours and no sample score.
+  const judged = facts.some((f) => f.judge100 !== null);
+  const otherItems = items.filter((i) => i.group === 'other');
+  const unjudgedOther = otherItems.some((i) => facts.find((f) => f.key === i.key).judge100 === null);
+  const otherHint = unjudgedOther
+    ? 'The label was typed in per serving without the serving size, so we can\'t compare these with the limits yet.'
+    : 'In the middle: not high enough to watch out for, not low enough to count as a good point.';
+
   const groups = [
     { id: 'watch', title: 'Watch out', items: watch },
     { id: 'good', title: 'Good points', items: items.filter((i) => i.group === 'good') },
-    { id: 'other', title: 'Other', items: items.filter((i) => i.group === 'other') },
+    { id: 'other', title: 'Other', hint: otherHint, items: otherItems },
     { id: 'missing', title: 'Not available', items: items.filter((i) => i.group === 'missing') },
   ].filter((g) => g.items.length > 0);
 
   const missingCount = items.filter((i) => i.group === 'missing').length;
-  // judged: at least one fact could be compared with the limits (needs a per-100 value). A label typed
-  // in "per serving" only can't be, so it gets no colours and no sample score.
-  const judged = facts.some((f) => f.per100 !== null);
   return { basisLabel, groups, missingCount, items, judged };
 }
 
 // high / medium / low for nutrients to limit; good / neutral for the others. Uses per-100 values.
 function classify(f, drink, energy100) {
-  const v = f.per100;
+  const v = f.judge100;
   if (v === null) return 'neutral'; // only a per-serving value: show it, but don't judge it
   const kind = drink ? 'drink' : 'food';
   if (f.key === 'sugars' || f.key === 'satfat') return level(v, LIMITS[f.key][kind]);
@@ -119,6 +133,15 @@ function level(v, [low, high]) {
 function isDrink(p) {
   const text = `${p.quantity || ''} ${p.servingSize || ''}`.toLowerCase();
   return /\d\s*(ml|cl|l|มล|ลิตร)\b/.test(text) || /มล|ลิตร/.test(text);
+}
+
+// Serving size in g or ml, e.g. "200 ml", "30g", "1 bottle (250 ml)", "0.5 l". null when unclear.
+function parseServing(text) {
+  if (!text) return null;
+  const m = String(text).toLowerCase().replace(',', '.').match(/(\d+(?:\.\d+)?)\s*(ml|มล|cl|l|ลิตร|g|กรัม)(?![a-z])/);
+  if (!m) return null;
+  const n = parseFloat(m[1]) * ({ cl: 10, l: 1000, 'ลิตร': 1000 }[m[2]] || 1);
+  return n > 0 ? n : null;
 }
 
 function format(value, unit) {
