@@ -1,16 +1,31 @@
-// nutrition-view.js — v0.3. Turns a product from lookup.js into the shopper view:
+// nutrition-view.js — v0.3 (criteria updated 23 Nov 2026). Turns a product from lookup.js into the shopper view:
 // Watch out / Good points / Other / Not available. Rules and thresholds: docs/prototype-v0.3-spec.md.
 // Never invents a value: a missing number goes in "Not available".
 
 // Thai daily guide amounts, used for the "% of a day" bars.
-const DAILY = { energy: 2000, sugars: 65, satfat: 20, sodium: 2000, protein: 50, fibre: 25 };
+const DAILY = { energy: 2000, sugars: 65, fat: 65, satfat: 20, sodium: 2000, protein: 50, fibre: 25 };
 
-// UK front-of-pack traffic-light thresholds, per 100 g (food) or per 100 ml (drinks): [low ≤, high >].
+// UK front-of-pack traffic-light thresholds (FSA guidance, 2016), per 100 g (food) or per 100 ml
+// (drinks): [low ≤, high >]. Salt is in g (sodium mg ÷ 400).
 const LIMITS = {
   sugars: { food: [5, 22.5], drink: [2.5, 11.25] },
+  fat:    { food: [3, 17.5], drink: [1.5, 8.75] },
   satfat: { food: [1.5, 5], drink: [0.75, 2.5] },
   salt:   { food: [0.3, 1.5], drink: [0.3, 0.75] },
 };
+
+// UK portion rule: when one portion is over 100 g (food) or 150 ml (drinks), a nutrient is High if the
+// portion has more than this (30% of the daily maximum for food, 15% for drinks). Salt in g.
+const PORTION_MIN = { food: 100, drink: 150 };
+const PORTION_HIGH = {
+  sugars: { food: 27, drink: 13.5 },
+  fat:    { food: 21, drink: 10.5 },
+  satfat: { food: 6, drink: 3 },
+  salt:   { food: 1.8, drink: 0.9 },
+};
+
+// Thai excise tax on sugary drinks applies above 6 g sugar per 100 ml. Shown as a note only.
+const THAI_SUGAR_TAX = 6;
 
 const LEVEL_WORD = { high: 'High', medium: 'Medium', low: 'Low' };
 
@@ -36,6 +51,7 @@ export function buildView(p) {
   const facts = [
     fact('energy', 'Calories', 'kcal', row('energy-kcal')),
     fact('sugars', 'Sugar', 'g', row('sugars')),
+    fact('fat', 'Fat', 'g', row('fat')),
     fact('satfat', 'Saturated fat', 'g', row('saturated-fat')),
     fact('sodium', 'Sodium', 'mg', { per100: sodium100, perServing: sodiumServ, lessThan: sodiumLess }),
     fact('protein', 'Protein', 'g', row('proteins')),
@@ -59,6 +75,10 @@ export function buildView(p) {
   const servingAmount = parseServing(p.servingSize);
   for (const f of facts) {
     f.judge100 = f.per100 ?? (f.perServing !== null && servingAmount ? (f.perServing * 100) / servingAmount : null);
+    // Amount in one portion, for the UK portion rule (only for big portions, see PORTION_MIN).
+    const bigPortion = servingAmount && servingAmount > PORTION_MIN[drink ? 'drink' : 'food'];
+    f.portion = !bigPortion ? null
+      : f.perServing ?? (f.per100 !== null ? (f.per100 * servingAmount) / 100 : null);
   }
 
   const energy100 = facts[0].judge100;
@@ -69,12 +89,16 @@ export function buildView(p) {
     }
     const pct = Math.round((amountValue / DAILY[f.key]) * 100);
     const amount = `${f.lessThan ? '<' : ''}${format(amountValue, f.unit)} ${f.unit}`;
-    const level = classify(f, drink, energy100);
-    const isLimit = ['energy', 'sugars', 'satfat', 'sodium'].includes(f.key);
+    const { level, why } = classify(f, drink, energy100);
+    const isLimit = ['energy', 'sugars', 'fat', 'satfat', 'sodium'].includes(f.key);
     const share = `${pct}% of ${isLimit ? 'daily limit' : 'daily need'}`;
     let note = share;
-    if (level === 'good' && !isLimit) note = `Good source • ${share}`;
+    if (level === 'good' && !isLimit) note = `${why === 'high' ? `High in ${f.name.toLowerCase()}` : 'Good source'} • ${share}`;
+    else if (level === 'high' && why === 'portion') note = `High in one serving • ${share}`;
     else if (LEVEL_WORD[level]) note = `${LEVEL_WORD[level]} • ${share}`;
+    if (f.key === 'sugars' && drink && f.judge100 !== null && f.judge100 > THAI_SUGAR_TAX) {
+      note += ' • Taxed as a sugary drink in Thailand';
+    }
     const tone = { high: 'bad', medium: 'warn', low: 'good', good: 'good', neutral: 'na' }[level];
     const group = level === 'high' || level === 'medium' ? 'watch' : level === 'neutral' ? 'other' : 'good';
     return { key: f.key, name: f.name, amount, note, pct, tone, level, group };
@@ -100,27 +124,42 @@ export function buildView(p) {
     { id: 'missing', title: 'Not available', items: items.filter((i) => i.group === 'missing') },
   ].filter((g) => g.items.length > 0);
 
-  const missingCount = items.filter((i) => i.group === 'missing').length;
+  // Fat (added 23 Nov 2026) isn't counted here, so the sample score shows for the same products as before.
+  const missingCount = items.filter((i) => i.group === 'missing' && i.key !== 'fat').length;
   return { basisLabel, groups, missingCount, items, judged };
 }
 
 // high / medium / low for nutrients to limit; good / neutral for the others. Uses per-100 values.
+// Returns { level, why }: why is 'portion' when the UK portion rule made it High, 'high' for
+// "high in protein / fibre".
 function classify(f, drink, energy100) {
   const v = f.judge100;
-  if (v === null) return 'neutral'; // only a per-serving value: show it, but don't judge it
+  if (v === null) return { level: 'neutral' }; // only a per-serving value: show it, but don't judge it
   const kind = drink ? 'drink' : 'food';
-  if (f.key === 'sugars' || f.key === 'satfat') return level(v, LIMITS[f.key][kind]);
-  if (f.key === 'sodium') return level(v / 400, LIMITS.salt[kind]); // compare as salt (g)
-  if (f.key === 'energy') {
-    if (v <= (drink ? 20 : 40)) return 'low';
-    if (!drink && v > 400) return 'high';
-    return 'neutral';
+  if (['sugars', 'fat', 'satfat', 'sodium'].includes(f.key)) {
+    const limitKey = f.key === 'sodium' ? 'salt' : f.key;
+    const toSalt = f.key === 'sodium' ? 1 / 400 : 1; // sodium mg → salt g
+    const byHundred = level(v * toSalt, LIMITS[limitKey][kind]);
+    if (byHundred !== 'high' && f.portion !== null && f.portion * toSalt > PORTION_HIGH[limitKey][kind]) {
+      return { level: 'high', why: 'portion' };
+    }
+    return { level: byHundred };
   }
+  // Calories: only "low" (EU low-energy claim) is judged; there is no high warning (Nathan, 23 Nov 2026).
+  if (f.key === 'energy') return { level: v <= (drink ? 20 : 40) ? 'low' : 'neutral' };
+  // Protein: EU "source of protein" ≥ 12% of calories, "high protein" ≥ 20%.
   if (f.key === 'protein') {
-    return energy100 && (v * 4) / energy100 >= 0.12 ? 'good' : 'neutral';
+    const share = energy100 ? (v * 4) / energy100 : 0;
+    if (share >= 0.2) return { level: 'good', why: 'high' };
+    return { level: share >= 0.12 ? 'good' : 'neutral' };
   }
-  if (f.key === 'fibre') return v >= 3 ? 'good' : 'neutral';
-  return 'neutral';
+  // Fibre: EU "source of fibre" ≥ 3 g/100 g or ≥ 1.5 g/100 kcal; "high fibre" ≥ 6 g or ≥ 3 g/100 kcal.
+  if (f.key === 'fibre') {
+    const per100kcal = energy100 ? (v * 100) / energy100 : 0;
+    if (v >= 6 || per100kcal >= 3) return { level: 'good', why: 'high' };
+    return { level: v >= 3 || per100kcal >= 1.5 ? 'good' : 'neutral' };
+  }
+  return { level: 'neutral' };
 }
 
 function level(v, [low, high]) {
