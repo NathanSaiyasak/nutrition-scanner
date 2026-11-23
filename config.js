@@ -4,5 +4,5 @@
 // Leave them empty and the app keeps working with products saved on this phone only.
 // The contributor passcode is NOT stored here (this repository is public): testers type it on the
 // Audit log screen, and it stays on their phone.
-export const SHARED_DB_URL = '';  // e.g. 'https://abcdefghijkl.supabase.co'
-export const SHARED_DB_KEY = '';  // the project's publishable key (sb_publishable_…) or legacy anon key (eyJ…)
+export const SHARED_DB_URL = 'https://pzkbnlnefyxsdsrognix.supabase.co';
+export const SHARED_DB_KEY = 'sb_publishable_AqIqA2zn369jV3Kx0aKKiA_M-aprO3E'; // publishable key (public)
