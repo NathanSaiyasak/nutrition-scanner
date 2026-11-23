@@ -24,6 +24,7 @@ and `docs/prototype-v0.3-spec.md`.
 | `add-form.js` | v0.2. The timed "Add this product" form for products Open Food Facts doesn't have. |
 | `nutrition-view.js` | v0.3. Sorts the key facts into Watch out / Good points / Other / Not available, with the "% of a day" bars. Thresholds are in the v0.3 spec. |
 | `score-placeholder.js` | v0.3. The **sample** score. The real scoring method isn't agreed yet, so all score logic is kept in this one file to replace or remove later. |
+| `history.js` | The History tab's list: every product found is saved in the phone's browser storage (newest first, up to 100), so it can be reopened without internet. Nothing is sent anywhere. |
 | `audit-screen.js` | v0.2. The "Audit log" screen: pass-mark summary, export, recent scans, clear the log. |
 
 There are no frameworks, no build step, and nothing to install. The files are served exactly as they are.
