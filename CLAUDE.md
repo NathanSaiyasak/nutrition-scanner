@@ -27,6 +27,7 @@ You may not be able to open these links. Everything you need for the current bui
 
 | Date | Decision |
 |---|---|
+| 23 Nov 2026 | Plainer result row wording: the line under each name says what the colour means ("A bit too much sugar", "Low in sodium", "Good amount of protein"), no percentage. The dropdown is one or two sentences: % of the Thai daily guide and the reason (UK traffic-light level, EU claim, Thai sugar tax). Criteria unchanged. |
 | 23 Nov 2026 | Result rows simplified: name, one short "% of recommended daily limit" line, amount, bar; the reasons (level, serving rule, sugar-tax note) move into a dropdown with a chevron, closed by default. Criteria unchanged. |
 | 23 Nov 2026 | Result screen criteria (Nathan approved the Notion proposal): UK traffic-light thresholds per 100 g/ml plus the UK per-serving rule (servings > 100 g / 150 ml), total fat added, calories only judged as "low" (no high warning), protein and fibre use the EU claim levels (source / high), and drinks over 6 g sugar per 100 ml get a Thai sugar tax note. See `docs/prototype-v0.3-spec.md`. |
 | 23 Nov 2026 | Shared storage for products we add: Supabase free plan (approved by Nathan). Reads public; writes only with a shared contributor passcode checked in the database (interim until contributor sign-in is decided). Values typed from the pack are shown before Open Food Facts. Products wait on the phone until they can be sent. History stays on the phone. See `docs/prototype-v0.4-spec.md`. |

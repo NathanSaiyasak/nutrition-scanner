@@ -88,11 +88,10 @@ export function buildView(p) {
     const pct = Math.round((amountValue / DAILY[f.key]) * 100);
     const amount = `${f.lessThan ? '<' : ''}${format(amountValue, f.unit)} ${f.unit}`;
     const { level, why } = classify(f, drink, energy100);
-    // The row shows one short line; the reasons go in a dropdown under it (Nathan, 23 Nov 2026).
-    const isLimit = ['sugars', 'fat', 'satfat', 'sodium'].includes(f.key);
-    const note = f.key === 'energy' ? `${pct}% of a day`
-      : `${pct}% of recommended daily ${isLimit ? 'limit' : 'amount'}`;
-    const details = explain(f, { level, why, drink, energy100, servingAmount });
+    // The row shows one plain line ("A bit too much sugar"); a one- or two-sentence dropdown under it
+    // gives the % of the daily guide and why (Nathan, 23 Nov 2026). All wording is in TEXT below.
+    const note = subtitle(f, level, why, energy100);
+    const details = [explain(f, { level, why, drink, pct, useServing, energy100 })];
     const tone = { high: 'bad', medium: 'warn', low: 'good', good: 'good', neutral: 'na' }[level];
     const group = level === 'high' || level === 'medium' ? 'watch' : level === 'neutral' ? 'other' : 'good';
     return { key: f.key, name: f.name, amount, note, details, pct, tone, level, group };
@@ -123,57 +122,90 @@ export function buildView(p) {
   return { basisLabel, groups, missingCount, items, judged };
 }
 
-// Plain-language reasons for a row's colour, shown in its dropdown. Uses the same thresholds as
-// classify() and only describes what classify() decided; it never changes the group.
-function explain(f, { level, why, drink, energy100, servingAmount }) {
-  const kind = drink ? 'drink' : 'food';
-  const per100 = `per 100 ${drink ? 'ml' : 'g'}`;
-  const out = [];
+// All shopper-facing wording for the rows, in one place so it can be translated to Thai later.
+// {n} = nutrient word, {pct} = % of the daily guide, {daily} = the daily guide amount. Each entry is a
+// whole sentence or phrase (no pieces glued together), so a translation can change the word order.
+const TEXT = {
+  noun: { energy: 'calories', sugars: 'sugar', fat: 'fat', satfat: 'saturated fat', sodium: 'sodium', protein: 'protein', fibre: 'fibre' },
+  // Row subtitle, by level.
+  tooMuch: 'Too much {n}',
+  tooMuchServing: 'Too much {n} per serving',
+  bitTooMuch: 'A bit too much {n}',
+  lowIn: 'Low in {n}',
+  highIn: 'High in {n}',
+  goodAmount: 'Good amount of {n}',
+  notMuch: 'Not much {n}',
+  notLowCalories: 'Not low in calories',
+  cantRate: 'Can\'t rate this yet',
+  // Dropdown, first sentence: share of the Thai daily guide.
+  shareLimit: '{basis} {pct}% of the recommended daily limit, based on the Thai daily guide ({daily} a day).',
+  shareAmount: '{basis} {pct}% of the recommended daily amount, based on the Thai daily guide ({daily} a day).',
+  shareCalories: '{basis} {pct}% of a day\'s calories, based on the Thai daily guide ({daily} a day).',
+  basisServing: 'One serving has',
+  basisFood: '100 g of this has',
+  basisDrink: '100 ml of this has',
+  // Dropdown, second sentence: why it got its colour.
+  rateHigh: 'Rated high by the UK traffic-light guide.',
+  rateHighTax: 'Rated high by the UK traffic-light guide, and taxed as a sugary drink in Thailand.',
+  ratePortion: 'Rated high by the UK traffic-light guide because one serving is large.',
+  ratePortionTax: 'Rated high by the UK traffic-light guide because one serving is large, and taxed as a sugary drink in Thailand.',
+  rateMedium: 'Rated medium by the UK traffic-light guide.',
+  rateMediumTax: 'Rated medium by the UK traffic-light guide, and taxed as a sugary drink in Thailand.',
+  rateLow: 'Rated low by the UK traffic-light guide.',
+  lowCalories: 'Counts as low in calories under EU rules.',
+  proteinHigh: 'At least 20% of its calories come from protein.',
+  proteinSource: 'At least 12% of its calories come from protein.',
+  proteinLow: 'Less than 12% of its calories come from protein.',
+  proteinNoCalories: 'It can\'t be rated without the calories.',
+  fibreHigh: 'Enough to count as high in fibre under EU rules.',
+  fibreSource: 'Enough to count as a source of fibre under EU rules.',
+  fibreLow: 'Not enough to count as a source of fibre under EU rules.',
+  noServingSize: 'The label didn\'t give the serving size, so we can\'t rate it yet.',
+};
+
+function say(key, vars = {}) {
+  return TEXT[key].replace(/\{(\w+)\}/g, (_, k) => vars[k]);
+}
+
+const LIMIT_KEYS = ['sugars', 'fat', 'satfat', 'sodium'];
+
+// The one-line subtitle under a row's name. Describes what classify() decided; never changes it.
+function subtitle(f, level, why, energy100) {
+  const n = TEXT.noun[f.key];
+  if (f.judge100 === null) return say('cantRate');
+  if (LIMIT_KEYS.includes(f.key)) {
+    if (level === 'high') return say(why === 'portion' ? 'tooMuchServing' : 'tooMuch', { n });
+    return say(level === 'medium' ? 'bitTooMuch' : 'lowIn', { n });
+  }
+  if (f.key === 'energy') return level === 'low' ? say('lowIn', { n }) : say('notLowCalories');
+  if (f.key === 'protein' && !energy100) return say('cantRate');
+  if (level === 'good') return say(why === 'high' ? 'highIn' : 'goodAmount', { n });
+  return say('notMuch', { n });
+}
+
+// The dropdown text: one or two short sentences (Nathan, 23 Nov 2026: understandable at a glance).
+function explain(f, { level, why, drink, pct, useServing, energy100 }) {
+  const basis = say(useServing ? 'basisServing' : drink ? 'basisDrink' : 'basisFood');
+  const daily = `${format(DAILY[f.key], f.unit)} ${f.unit}`;
+  const shareKey = LIMIT_KEYS.includes(f.key) ? 'shareLimit' : f.key === 'energy' ? 'shareCalories' : 'shareAmount';
+  const share = say(shareKey, { basis, pct, daily });
   const v = f.judge100;
-  if (v === null) {
-    out.push('The label was typed in per serving without the serving size, so this can\'t be compared with the limits yet.');
-  } else if (['sugars', 'fat', 'satfat', 'sodium'].includes(f.key)) {
-    const limitKey = f.key === 'sodium' ? 'salt' : f.key;
-    const fromSalt = f.key === 'sodium' ? 400 : 1; // salt g → sodium mg
-    const [low, high] = LIMITS[limitKey][kind].map((x) => x * fromSalt);
-    const n = (x) => `${format(x, f.unit)} ${f.unit}`;
-    const has = `This product has ${n(v)} ${per100}.`;
-    if (level === 'high' && why === 'portion') {
-      const limit = PORTION_HIGH[limitKey][kind] * fromSalt;
-      out.push(`High in one serving: ${n(f.portion)} in one ${format(servingAmount, 'g')} ${drink ? 'ml' : 'g'} serving, more than the ${n(limit)} limit for one ${kind} serving.`);
-      out.push(`Per 100 ${drink ? 'ml' : 'g'} it has ${n(v)}, which on its own would be ${v <= low ? 'low' : 'medium'}.`);
-    } else if (level === 'high') {
-      out.push(`High: more than ${n(high)} ${per100}. ${has}`);
-    } else if (level === 'medium') {
-      out.push(`Medium: between ${n(low)} and ${n(high)} ${per100}. ${has}`);
-    } else {
-      out.push(`Low: ${n(low)} or less ${per100}. ${has}`);
-    }
-    out.push('Levels from the UK front-of-pack traffic-light guide.');
+  let reason = null;
+  if (v === null) reason = say('noServingSize');
+  else if (LIMIT_KEYS.includes(f.key)) {
+    const tax = f.key === 'sugars' && drink && v > THAI_SUGAR_TAX ? 'Tax' : '';
+    if (level === 'high') reason = say((why === 'portion' ? 'ratePortion' : 'rateHigh') + tax);
+    else if (level === 'medium') reason = say('rateMedium' + tax);
+    else reason = say('rateLow');
   } else if (f.key === 'energy') {
-    const lowCal = drink ? 20 : 40;
-    out.push(level === 'low'
-      ? `Low in calories: ${lowCal} kcal or less ${per100}. This product has ${format(v, 'kcal')} kcal.`
-      : `Calories only count as a good point when they're low (${lowCal} kcal or less ${per100}). There is no "high" warning for calories.`);
+    if (level === 'low') reason = say('lowCalories');
   } else if (f.key === 'protein') {
-    if (!energy100) out.push('Can\'t be judged without the calories.');
-    else {
-      const share = Math.round(((v * 4) / energy100) * 100);
-      out.push(level === 'good'
-        ? `${why === 'high' ? 'High in protein: 20%' : 'Source of protein: 12%'} or more of the calories come from protein. Here it's ${share}%.`
-        : `Counts as a good point when 12% or more of the calories come from protein. Here it's ${share}%.`);
-    }
+    reason = !energy100 ? say('proteinNoCalories')
+      : level === 'good' ? say(why === 'high' ? 'proteinHigh' : 'proteinSource') : say('proteinLow');
   } else if (f.key === 'fibre') {
-    const rule = (g) => `${g} g or more ${per100}, or ${g / 2} g or more per 100 kcal`;
-    out.push(level === 'good'
-      ? `${why === 'high' ? `High in fibre: ${rule(6)}` : `Source of fibre: ${rule(3)}`}. This product has ${format(v, 'g')} g ${per100}.`
-      : `Counts as a good point at ${rule(3)}. This product has ${format(v, 'g')} g ${per100}.`);
+    reason = level === 'good' ? say(why === 'high' ? 'fibreHigh' : 'fibreSource') : say('fibreLow');
   }
-  if (f.key === 'sugars' && drink && v !== null && v > THAI_SUGAR_TAX) {
-    out.push(`Taxed as a sugary drink in Thailand (more than ${THAI_SUGAR_TAX} g sugar per 100 ml).`);
-  }
-  out.push(`The bar compares with the Thai daily guide of ${format(DAILY[f.key], f.unit)} ${f.unit} a day.`);
-  return out;
+  return reason ? `${share} ${reason}` : share;
 }
 
 // high / medium / low for nutrients to limit; good / neutral for the others. Uses per-100 values.
