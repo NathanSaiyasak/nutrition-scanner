@@ -24,23 +24,31 @@ the groups, so testers can still use them and shoppers don't see them unless the
 
 ## Which facts, and which group
 
-Key facts, always shown: **calories, sugar, saturated fat, sodium, protein**. Fibre is added when the
-database has it. A key fact with no value goes in **Not available** ("Not in the database yet"), never 0.
+Key facts, always shown: **calories, sugar, fat, saturated fat, sodium, protein** (fat added 23 Nov 2026).
+Fibre is added when the database has it. A key fact with no value goes in **Not available** ("Not in the
+database yet"), never 0.
 
-Groups use the UK front-of-pack traffic-light thresholds (per 100 g, or per 100 ml for drinks), a public
-and widely used standard:
+Criteria updated 23 Nov 2026 (approved by Nathan; stakeholder table in Notion: "Result screen criteria:
+Good points, Watch out, Other"). Groups use the UK front-of-pack traffic-light thresholds (FSA guidance,
+2016), per 100 g, or per 100 ml for drinks:
 
-| Fact | Low (Good points) | Medium (Watch out, orange) | High (Watch out, red) |
-|---|---|---|---|
-| Sugar | ≤ 5 g (drinks ≤ 2.5 g) | in between | > 22.5 g (drinks > 11.25 g) |
-| Saturated fat | ≤ 1.5 g (drinks ≤ 0.75 g) | in between | > 5 g (drinks > 2.5 g) |
-| Salt (sodium × 2.5) | ≤ 0.3 g | in between | > 1.5 g (drinks > 0.75 g) |
-| Calories | ≤ 40 kcal (drinks ≤ 20) is Good | otherwise Other | > 400 kcal (food only) |
-| Protein | Good when ≥ 12% of the calories come from protein (EU "source of protein") | otherwise Other | — |
-| Fibre | Good when ≥ 3 g | otherwise Other | — |
+| Fact | Low (Good points) | Medium (Watch out, orange) | High (Watch out, red) | Also High if one serving has more than |
+|---|---|---|---|---|
+| Sugar | ≤ 5 g (drinks ≤ 2.5 g) | in between | > 22.5 g (drinks > 11.25 g) | 27 g (drinks 13.5 g) |
+| Fat | ≤ 3 g (drinks ≤ 1.5 g) | in between | > 17.5 g (drinks > 8.75 g) | 21 g (drinks 10.5 g) |
+| Saturated fat | ≤ 1.5 g (drinks ≤ 0.75 g) | in between | > 5 g (drinks > 2.5 g) | 6 g (drinks 3 g) |
+| Salt (sodium × 2.5) | ≤ 0.3 g | in between | > 1.5 g (drinks > 0.75 g) | 1.8 g (drinks 0.9 g) |
+| Calories | ≤ 40 kcal (drinks ≤ 20) is Good (EU "low energy") | otherwise Other | no high warning (Nathan, 23 Nov 2026) | — |
+| Protein | Good when ≥ 12% of calories come from protein; "High in protein" at ≥ 20% (EU claims) | otherwise Other | — | — |
+| Fibre | Good when ≥ 3 g or ≥ 1.5 g per 100 kcal; "High in fibre" at ≥ 6 g or ≥ 3 g per 100 kcal (EU claims) | otherwise Other | — | — |
+
+The serving rule (UK guidance) applies only when one serving is over 100 g (food) or 150 ml (drinks) and
+the serving size is known; the note then says "High in one serving". Drinks with more than 6 g sugar per
+100 ml get the note "Taxed as a sugary drink in Thailand" (Thai excise tax); it doesn't change the group.
+The sample score still counts only the original five key facts as "missing", so adding fat doesn't hide it.
 
 Each row shows the amount and a bar: the share of a day's amount, using the Thai daily guide (2,000 kcal,
-sugar 65 g, saturated fat 20 g, sodium 2,000 mg, protein 50 g, fibre 25 g). Amounts are **per serving**
+sugar 65 g, fat 65 g, saturated fat 20 g, sodium 2,000 mg, protein 50 g, fibre 25 g). Amounts are **per serving**
 when Open Food Facts has per-serving values and a serving size, otherwise per 100 g / 100 ml. The group
 heading says which.
 
