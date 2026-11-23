@@ -11,7 +11,7 @@
   <header class="top">
     <div>
       <h1>Nutrition Scanner</h1>
-      <p class="tag">Prototype v0.3</p>
+      <p class="tag">Prototype v0.4</p>
     </div>
     <button id="audit-link" class="link-button" type="button">Audit log</button>
   </header>
@@ -90,8 +90,10 @@
       <div id="groups"></div>
 
       <p class="attribution">
-        Nutrition data: <a id="off-link" href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>
-        (open database, ODbL). % of a day uses the Thai daily guide (2,000 kcal). If the pack says something
+        <span id="source-off">Nutrition data: <a id="off-link" href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>
+        (open database, ODbL).</span>
+        <span id="source-ours" hidden></span>
+        % of a day uses the Thai daily guide (2,000 kcal). If the pack says something
         different, trust the pack.
       </p>
 
@@ -104,7 +106,7 @@
           <p id="completeness" class="notice small" hidden></p>
           <table class="nutrition">
             <thead>
-              <tr><th scope="col">Nutrient</th><th scope="col">Per 100 <span id="per-unit">g</span></th><th scope="col" id="serving-head">Per serving</th></tr>
+              <tr><th scope="col">Nutrient</th><th scope="col" id="per100-head">Per 100 <span id="per-unit">g</span></th><th scope="col" id="serving-head">Per serving</th></tr>
             </thead>
             <tbody id="nutrition-body"></tbody>
           </table>
@@ -141,6 +143,7 @@
         <p id="message-text"></p>
         <p id="message-barcode" class="mono"></p>
         <p class="saved-note" hidden></p>
+        <p id="message-share" class="share-note" hidden></p>
       </div>
       <div class="message-actions">
         <button id="message-add" class="primary" type="button" hidden>Add this product</button>
@@ -254,6 +257,19 @@
       </div>
 
       <div class="card">
+        <h3 class="first">Shared product database</h3>
+        <p id="shared-status" class="hint"></p>
+        <form id="passcode-form" hidden>
+          <label for="passcode-input">Contributor passcode</label>
+          <input id="passcode-input" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="100">
+          <button class="secondary" type="submit">Save passcode</button>
+        </form>
+        <p id="passcode-status" class="small-status" hidden></p>
+        <button id="passcode-forget" class="secondary" type="button" hidden>Remove the passcode from this phone</button>
+        <button id="send-waiting" class="primary" type="button" hidden>Send waiting products</button>
+      </div>
+
+      <div class="card">
         <h3 class="first">Recent scans</h3>
         <ol id="recent-list" class="recent"></ol>
         <button id="clear-button" class="secondary danger" type="button">Clear the log</button>
@@ -264,7 +280,7 @@
   </main>
 
   <footer class="foot">
-    <p>Product data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>. No accounts, no tracking. Your history and the audit log stay on this phone.</p>
+    <p>Product data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> and products our testers typed in from the pack. No accounts, no tracking. Your history and the audit log stay on this phone.</p>
   </footer>
 
   <!-- Bottom navigation (Nathan's design): History, Scan, Favorite -->

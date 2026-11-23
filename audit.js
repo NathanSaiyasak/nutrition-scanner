@@ -55,7 +55,7 @@ export function askToKeepData() {
 /**
  * Add one scan to the log. Returns the entry number, or null if the phone wouldn't save it.
  * scan: { barcode, method: 'camera'|'photo'|'typed', tries, readSeconds, result, errorKind,
- *         productName, valuesPresent, valuesTotal }
+ *         productName, source, valuesPresent, valuesTotal }
  */
 export function logScan(scan) {
   const log = loadLog();
@@ -73,6 +73,8 @@ export function logScan(scan) {
     result: scan.result,              // 'found' | 'not-found' | 'error'
     errorKind: scan.errorKind ?? null, // 'timeout' | 'busy' | 'network'
     productName: scan.productName ?? null,
+    source: scan.source ?? null,      // 'off' | 'shared' | 'phone' (where the values came from)
+    offComplete: scan.offComplete ?? null, // did Open Food Facts have all 8 values? (null = unknown)
     valuesPresent: scan.valuesPresent ?? null,
     valuesTotal: scan.valuesTotal ?? null,
     complete,
@@ -129,7 +131,11 @@ export function summarise(log) {
   const complete = found.filter((r) => r.complete === true);
   // Open Food Facts covers a product only if its data is complete and wasn't marked as
   // different from the label. Typed-in label values (new or correction) cover it either way.
-  const freeDbCovered = complete.filter((r) => r.labelCheck !== 'differs');
+  // Rows from before v0.4 have no source: they all came from Open Food Facts. When our own typed-in
+  // values were shown instead, Open Food Facts counts only if it also had all 8 values.
+  const fromFreeDb = (r) => !r.source || r.source === 'off';
+  const freeDbCovered = products.filter((r) => r.result === 'found'
+    && (fromFreeDb(r) ? r.complete === true && r.labelCheck !== 'differs' : r.offComplete === true));
   const covered = products.filter((r) =>
     addedComplete.has(r.barcode) || (r.complete === true && r.labelCheck !== 'differs'));
   const byHand = covered.length - freeDbCovered.filter((r) => !addedComplete.has(r.barcode)).length;
@@ -153,7 +159,7 @@ export function summarise(log) {
     found: found.length,
     withNutrition: withNutrition.length,
     freeDb: { count: freeDbCovered.length, of: products.length },
-    freeDbDiffers: complete.filter((r) => r.labelCheck === 'differs' && !addedComplete.has(r.barcode)).length,
+    freeDbDiffers: complete.filter((r) => r.labelCheck === 'differs' && fromFreeDb(r) && !addedComplete.has(r.barcode)).length,
     covered: { count: covered.length, of: products.length, target: 0.9 },
     coveredByHand: byHand,
     label: {
@@ -189,6 +195,8 @@ const CSV_COLUMNS = [
   ['camera_seconds_to_read', (r) => r.readSeconds],
   ['lookup_result', (r) => (r.result === 'error' ? `error (${r.errorKind || 'unknown'})` : r.result)],
   ['product_name', (r) => r.productName],
+  ['data_source', (r) => ({ off: 'Open Food Facts', shared: 'our shared database', phone: 'added on this phone' }[r.source] || (r.result === 'found' ? 'Open Food Facts' : ''))],
+  ['open_food_facts_complete', (r) => (r.source && r.source !== 'off' ? yesNo(r.offComplete) : '')],
   ['nutrition_values_present', (r) => (r.valuesPresent == null ? '' : `${r.valuesPresent} of ${r.valuesTotal}`)],
   ['nutrition_complete', (r) => yesNo(r.complete)],
   ['matches_label', (r) => ({ matches: 'matches', differs: 'differs', 'cant-tell': "can't tell" }[r.labelCheck] || '')],
