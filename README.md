@@ -15,7 +15,7 @@ and `docs/prototype-v0.3-spec.md`.
 | File | What it does |
 |---|---|
 | `index.html` | The page itself: the screens you see (start, loading, product, message). |
-| `style.css` | How it looks. Phone first. Uses LINE Seed Sans TH if it's installed, otherwise the phone's own fonts, which display Thai correctly. |
+| `style.css` | How it looks. Phone first. Uses the LINE Seed Sans TH font from `fonts/` (SIL Open Font Licence, `fonts/OFL.txt`), with the phone's own fonts as a fallback. |
 | `app.js` | Switches between screens and fills in the product details. |
 | `scanner.js` | Opens the rear camera and reads the barcode, or reads it from a photo you pick (the photo never leaves the phone). Uses the phone's built-in reader if it has one (Android Chrome), otherwise the library in `vendor/` (iPhone Safari). |
 | `vendor/` | The free `barcode-detector` library (v3.2.4) and its reader file `zxing_reader.wasm`, kept in the project so nothing loads from other servers. MIT licence, see `vendor/LICENSES.txt`. |

@@ -1,6 +1,15 @@
 /* Phone-first styles (v0.3 design, from Nathan's Figma redesign).
-   Font: LINE Seed Sans TH where it is installed (free, SIL Open Font Licence), otherwise the phone's own
-   fonts, which display Thai correctly. No web font is downloaded. */
+   Font: LINE Seed Sans TH (free, SIL Open Font Licence, see fonts/OFL.txt), served from fonts/ with the
+   app. Regular (400) and Bold (700; also used for 600). Until it loads, and for any character it lacks,
+   the phone's own fonts are used, which display Thai correctly. */
+@font-face {
+  font-family: "LINE Seed Sans TH"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("fonts/LINESeedSansTH-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "LINE Seed Sans TH"; font-style: normal; font-weight: 600 700; font-display: swap;
+  src: url("fonts/LINESeedSansTH-Bold.woff2") format("woff2");
+}
 :root {
   --bg: #f4f5f7;
   --card: #ffffff;
