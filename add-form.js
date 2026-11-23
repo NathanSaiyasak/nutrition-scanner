@@ -133,7 +133,7 @@ $('add-form').addEventListener('submit', (event) => {
 
   const seconds = elapsedSeconds(); // timer stops when Save is tapped and the form is valid
   const b = basis();
-  const saved = attachAddedProduct(current.entry, {
+  const added = {
     kind: current.mode,
     seconds,
     name,
@@ -142,7 +142,8 @@ $('add-form').addEventListener('submit', (event) => {
     basis: b,
     servingSize: b === 'per serving' ? ($('add-serving').value.trim() || null) : null,
     values,
-  });
+  };
+  const saved = attachAddedProduct(current.entry, added);
   if (!saved) {
     $('add-save-error').hidden = false;
     return;
@@ -150,7 +151,7 @@ $('add-form').addEventListener('submit', (event) => {
   const { onDone } = current;
   current = null;
   stopAddTimer();
-  onDone(seconds);
+  onDone(seconds, added);
 });
 
 $('add-cancel').addEventListener('click', () => {

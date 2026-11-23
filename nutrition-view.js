@@ -29,32 +29,38 @@ export function buildView(p) {
   const salt = row('salt');
   const sodium100 = sodium.per100 ?? (salt.per100 !== null ? salt.per100 * 400 : null);
   const sodiumServ = sodium.perServing ?? (salt.perServing !== null ? salt.perServing * 400 : null);
+  const sodiumLess = sodium.per100 !== null || sodium.perServing !== null ? sodium.lessThan : salt.lessThan;
 
+  // lessThan: the label printed "less than" (e.g. "<1 g"), only for products we typed in.
+  const fact = (key, name, unit, r) => ({ key, name, unit, per100: r.per100, perServing: r.perServing, lessThan: Boolean(r.lessThan) });
   const facts = [
-    { key: 'energy', name: 'Calories', unit: 'kcal', per100: row('energy-kcal').per100, perServing: row('energy-kcal').perServing },
-    { key: 'sugars', name: 'Sugar', unit: 'g', per100: row('sugars').per100, perServing: row('sugars').perServing },
-    { key: 'satfat', name: 'Saturated fat', unit: 'g', per100: row('saturated-fat').per100, perServing: row('saturated-fat').perServing },
-    { key: 'sodium', name: 'Sodium', unit: 'mg', per100: sodium100, perServing: sodiumServ },
-    { key: 'protein', name: 'Protein', unit: 'g', per100: row('proteins').per100, perServing: row('proteins').perServing },
+    fact('energy', 'Calories', 'kcal', row('energy-kcal')),
+    fact('sugars', 'Sugar', 'g', row('sugars')),
+    fact('satfat', 'Saturated fat', 'g', row('saturated-fat')),
+    fact('sodium', 'Sodium', 'mg', { per100: sodium100, perServing: sodiumServ, lessThan: sodiumLess }),
+    fact('protein', 'Protein', 'g', row('proteins')),
   ];
   const fibre = row('fiber');
-  if (fibre.per100 !== null || fibre.perServing !== null) {
-    facts.push({ key: 'fibre', name: 'Fibre', unit: 'g', per100: fibre.per100, perServing: fibre.perServing });
-  }
+  if (fibre.per100 !== null || fibre.perServing !== null) facts.push(fact('fibre', 'Fibre', 'g', fibre));
 
-  // Per serving only when every fact that has a value also has a per-serving value.
+  // Per serving only when every fact that has a value also has a per-serving value, and either the
+  // serving size is known or there are no per-100 values at all (a label typed in "per serving").
   const present = facts.filter((f) => f.per100 !== null || f.perServing !== null);
-  const useServing = Boolean(p.servingSize) && present.length > 0 && present.every((f) => f.perServing !== null);
-  const basisLabel = useServing ? `Per serving (${p.servingSize})` : `Per 100 ${per}`;
+  const allServing = present.length > 0 && present.every((f) => f.perServing !== null);
+  const useServing = allServing && (Boolean(p.servingSize) || present.every((f) => f.per100 === null));
+  const basisLabel = useServing
+    ? (p.servingSize ? `Per serving (${p.servingSize})` : 'Per serving')
+    : `Per 100 ${per}`;
+  const missingNote = p.source === 'shared' || p.source === 'phone' ? 'Not typed in from the label' : 'Not in the database yet';
 
   const energy100 = facts[0].per100;
   const items = facts.map((f) => {
     const amountValue = useServing ? f.perServing : f.per100;
     if (amountValue === null) {
-      return { key: f.key, name: f.name, amount: 'Not available', note: 'Not in the database yet', pct: null, tone: 'na', group: 'missing' };
+      return { key: f.key, name: f.name, amount: 'Not available', note: missingNote, pct: null, tone: 'na', group: 'missing' };
     }
     const pct = Math.round((amountValue / DAILY[f.key]) * 100);
-    const amount = `${format(amountValue, f.unit)} ${f.unit}`;
+    const amount = `${f.lessThan ? '<' : ''}${format(amountValue, f.unit)} ${f.unit}`;
     const level = classify(f, drink, energy100);
     const isLimit = ['energy', 'sugars', 'satfat', 'sodium'].includes(f.key);
     const share = `${pct}% of ${isLimit ? 'daily limit' : 'daily need'}`;
@@ -78,7 +84,10 @@ export function buildView(p) {
   ].filter((g) => g.items.length > 0);
 
   const missingCount = items.filter((i) => i.group === 'missing').length;
-  return { basisLabel, groups, missingCount, items };
+  // judged: at least one fact could be compared with the limits (needs a per-100 value). A label typed
+  // in "per serving" only can't be, so it gets no colours and no sample score.
+  const judged = facts.some((f) => f.per100 !== null);
+  return { basisLabel, groups, missingCount, items, judged };
 }
 
 // high / medium / low for nutrients to limit; good / neutral for the others. Uses per-100 values.

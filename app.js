@@ -1,7 +1,7 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { lookupProduct } from './lookup.js';
+import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js';
 import { startScanner, scanPhoto } from './scanner.js';
 import { logScan, askToKeepData, setLabelCheck } from './audit.js';
 import { openAddForm, stopAddTimer } from './add-form.js';
@@ -240,7 +240,7 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
   $('loading-barcode').textContent = barcode;
   show('screen-loading');
 
-  const result = await lookupProduct(barcode);
+  const result = await findProduct(barcode);
 
   // Record the scan even if the person has already moved on to another screen.
   const product = result.kind === 'found' ? result.product : null;
@@ -253,6 +253,8 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
     result: product ? 'found' : result.kind === 'not-found' ? 'not-found' : 'error',
     errorKind: product || result.kind === 'not-found' ? null : result.kind,
     productName: product ? product.name : null,
+    source: product ? product.source : null,
+    offComplete: product ? (product.source === 'off' ? product.completeness.present === product.completeness.total : product.offComplete) : null,
     valuesPresent: product ? product.completeness.present : null,
     valuesTotal: product ? product.completeness.total : null,
   });
@@ -301,6 +303,7 @@ function showSavedNote(entry) {
 }
 
 export function showMessage(title, text, barcode, done = false) {
+  $('message-share').hidden = true;
   $('screen-message').dataset.done = String(done); // a success message hides the "search" icon
   $('message-title').textContent = title;
   $('message-text').textContent = text;
@@ -319,7 +322,7 @@ function renderProduct(p) {
   $('product-meta').textContent = p.quantity || '';
   $('product-meta').hidden = !p.quantity;
   $('product-barcode').textContent = `Barcode: ${p.barcode}`;
-  $('off-link').href = p.offUrl;
+  renderSource(p);
 
   const img = $('product-image');
   if (p.image) {
@@ -344,6 +347,29 @@ function renderProduct(p) {
   renderGroups(view);
 
   show('screen-product');
+}
+
+// Where the values come from: Open Food Facts, or typed in from the pack by our testers.
+function renderSource(p) {
+  const ours = p.source === 'shared' || p.source === 'phone';
+  $('source-off').hidden = ours;
+  $('source-ours').hidden = !ours;
+  if (p.offUrl) $('off-link').href = p.offUrl;
+  if (!ours) return;
+  const when = p.addedAt && !Number.isNaN(new Date(p.addedAt).getTime())
+    ? ` on ${dateFormat.format(new Date(p.addedAt))} ${new Date(p.addedAt).getFullYear()}` : '';
+  const box = $('source-ours');
+  box.replaceChildren(p.source === 'shared'
+    ? `Nutrition facts typed in from the pack by Nutrition Scanner testers${when}.`
+    : `Nutrition facts typed in from the pack on this phone${when} (not in the shared database yet).`);
+  if (p.photoFromOff && p.offUrl) {
+    const a = document.createElement('a');
+    a.href = p.offUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = 'Open Food Facts';
+    box.append(' Photo: ', a, ' (ODbL).');
+  }
 }
 
 function renderScore(result) {
@@ -405,12 +431,16 @@ function renderNutrition(p) {
   const { present, total } = p.completeness;
   const missing = total - present;
   const note = $('completeness');
+  const ours = p.source === 'shared' || p.source === 'phone';
   note.textContent = missing > 0
-    ? `${missing} of ${total} key values missing from Open Food Facts.`
+    ? `${missing} of ${total} key values missing from ${ours ? 'the values typed in from the label' : 'Open Food Facts'}.`
     : '';
   note.hidden = missing === 0;
 
-  // Per-serving column only when Open Food Facts has per-serving values.
+  // A label typed in "per serving" has no per-100 values: don't show an empty column for them.
+  const show100 = !(ours && p.basis === 'per serving');
+  $('per100-head').hidden = !show100;
+  // Per-serving column only when there are per-serving values.
   $('serving-head').hidden = !p.hasServing;
   $('serving-head').textContent = p.servingSize ? `Per serving (${p.servingSize})` : 'Per serving';
 
@@ -421,19 +451,20 @@ function renderNutrition(p) {
     const name = document.createElement('td');
     name.textContent = row.label;
     if (row.sub) name.className = 'sub';
-    tr.append(name, valueCell(row.per100, row.unit));
-    if (p.hasServing) tr.append(valueCell(row.perServing, row.unit));
+    tr.append(name);
+    if (show100) tr.append(valueCell(row.per100, row.unit, row.lessThan));
+    if (p.hasServing) tr.append(valueCell(row.perServing, row.unit, row.lessThan));
     body.append(tr);
   }
 }
 
-function valueCell(value, unit) {
+function valueCell(value, unit, lessThan = false) {
   const td = document.createElement('td');
   if (value === null) {
     td.textContent = 'Not available';
     td.className = 'na';
   } else {
-    td.textContent = `${formatNumber(value, unit)} ${unit}`;
+    td.textContent = `${lessThan ? '<' : ''}${formatNumber(value, unit)} ${unit}`;
   }
   return td;
 }
@@ -502,17 +533,40 @@ function startAdd(mode) {
     barcode: lastBarcode,
     mode,
     name: mode === 'correction' && currentProduct ? currentProduct.name : '',
-    onDone: (seconds) => {
+    onDone: (seconds, added) => {
       const m = Math.floor(seconds / 60);
       const s = String(seconds % 60).padStart(2, '0');
+      const barcode = lastBarcode;
       showMessage(mode === 'correction' ? 'Values saved' : 'Product added',
-        `Saved to the audit log (#${currentEntry}). It took ${m}:${s}.`, lastBarcode, true);
+        `Saved to the audit log (#${currentEntry}). It took ${m}:${s}.`, barcode, true);
       for (const el of document.querySelectorAll('.saved-note')) el.hidden = true;
+      shareNote('Saving the product…');
+      keepAddedProduct(barcode, added).then((r) => {
+        if ($('screen-message').hidden || $('message-barcode').textContent !== `Barcode: ${barcode}`) return;
+        shareNote(SHARE_TEXT[r.status === 'shared' ? 'shared' : r.status === 'not-saved' ? 'not-saved' : r.reason]
+          || SHARE_TEXT.offline, r.status === 'shared');
+      });
     },
     onCancel: () => show(lastScreen),
   });
   show('screen-add');
 }
+// What happened to a product typed in from the label (shown under "Product added").
+const SHARE_TEXT = {
+  shared: 'Added to the shared database: anyone who scans this barcode now sees these values.',
+  'not-set-up': 'Saved on this phone: scanning this barcode here shows these values. The shared database isn’t set up yet.',
+  'no-passcode': 'Saved on this phone only. To share it with everyone, enter the contributor passcode on the Audit log screen; it is sent then.',
+  'wrong-passcode': 'Saved on this phone only: the contributor passcode was refused. Enter it again on the Audit log screen; it is sent then.',
+  offline: 'Saved on this phone only: couldn’t reach the shared database. It is sent automatically next time the app opens with internet.',
+  'not-saved': 'This phone couldn’t keep a copy of the product (storage full or blocked). It is still in the audit log.',
+};
+function shareNote(text, ok = false) {
+  const note = $('message-share');
+  note.textContent = text;
+  note.dataset.tone = ok ? 'ok' : '';
+  note.hidden = false;
+}
+
 let lastScreen = 'screen-start';
 $('message-add').addEventListener('click', () => { lastScreen = 'screen-message'; startAdd('new'); });
 $('product-add').addEventListener('click', () => { lastScreen = 'screen-product'; startAdd('correction'); });
@@ -529,6 +583,7 @@ $('audit-back').addEventListener('click', () => {
 });
 
 askToKeepData();
+sendWaiting(); // products added while offline (or before the passcode was entered) go up now
 
 // ---------- "Scan another" ----------
 function goToScan() {

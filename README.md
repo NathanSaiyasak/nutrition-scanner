@@ -1,4 +1,4 @@
-# Nutrition Scanner — prototype v0.3 (shopper result screen)
+# Nutrition Scanner — prototype v0.4 (shared storage for products we add)
 
 A mobile web page: scan or type a product barcode and see its nutrition facts from
 [Open Food Facts](https://world.openfoodfacts.org). Version 0.2 adds the store audit tool: every scan is
@@ -26,6 +26,9 @@ and `docs/prototype-v0.3-spec.md`.
 | `score-placeholder.js` | v0.3. The **sample** score. The real scoring method isn't agreed yet, so all score logic is kept in this one file to replace or remove later. |
 | `history.js` | The History tab's list: every product found is saved in the phone's browser storage (newest first, up to 100), so it can be reopened without internet. Nothing is sent anywhere. |
 | `audit-screen.js` | v0.2. The "Audit log" screen: pass-mark summary, export, recent scans, clear the log. |
+| `shared-db.js` | v0.4. Products we type in from the pack: keeps them on the phone, sends them to the shared Supabase table (with the contributor passcode), and looks barcodes up in Open Food Facts and our table at the same time. |
+| `config.js` | v0.4. The shared database's address and public key. Empty = products stay on the phone. |
+| `supabase/setup.sql` | v0.4. Run once in Supabase: creates the table, public reading, and passcode-checked adding. |
 
 There are no frameworks, no build step, and nothing to install. The files are served exactly as they are.
 
@@ -47,6 +50,29 @@ GitHub Pages serves the files from the repository's main branch over HTTPS.
 ## How to update it
 
 Change the files, save, commit and push to GitHub. The live link updates about a minute later.
+
+## Shared product database (v0.4)
+
+Products typed in with the timed form are saved to a shared Supabase table so every phone sees them.
+Until it is set up, the app keeps them on the phone (and still shows them when that phone scans them).
+
+Set up once (free plan, no card):
+
+1. Go to https://supabase.com, sign in, and click **New project**. Pick the free plan, name it
+   `nutrition-scanner`, region **Southeast Asia (Singapore)**, let it generate a database password
+   (save it in your password manager; the app doesn't need it), click **Create new project**, wait ~2 minutes.
+2. Left menu: **SQL Editor** → **New query**. Open `supabase/setup.sql` from this repo, copy all of it, paste it.
+3. In the pasted text, replace `CHANGE-ME-PASSCODE` with the contributor passcode you pick (e.g. four random
+   words). Keep the quotes. Click **Run**. You should see "Success. No rows returned".
+4. Left menu: **Project Settings** → **Data API**: copy the **Project URL**. Then **API Keys**: copy the
+   **Publishable key** (`sb_publishable_…`; if only legacy keys show, the **anon public** key). Never copy the
+   secret / service_role key.
+5. Put those two values in `config.js` (or send them to Claude to do it). They are public by design.
+6. On each tester's phone: **Audit log** → **Shared product database** → type the passcode → **Save passcode**.
+
+To see, fix or delete added products: Supabase → **Table Editor** → `added_products`.
+To change the passcode: see the last lines of `supabase/setup.sql`. A free project pauses after 7 days
+unused; open the Supabase dashboard and click **Restore** (the app falls back to Open Food Facts meanwhile).
 
 ## Using the audit tool (v0.2)
 

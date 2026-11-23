@@ -4,6 +4,9 @@ import {
   loadLog, clearLog, summarise, toCsv, csvFileName, localDateTime,
   ADD_TARGET_SECONDS, SMALL_SAMPLE,
 } from './audit.js';
+import {
+  sharedConfigured, getPasscode, savePasscode, forgetPasscode, sendWaiting, waitingCount,
+} from './shared-db.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -65,7 +68,7 @@ export function renderAudit() {
       title: '2. Products covered with complete nutrition',
       figure: pct(s.covered.count, s.covered.of),
       detail: `${s.covered.count} of ${s.covered.of} different products have all 8 key values: `
-        + `${s.covered.count - s.coveredByHand} from Open Food Facts, ${s.coveredByHand} typed in from the label. `
+        + `${s.covered.count - s.coveredByHand} from Open Food Facts, ${s.coveredByHand} typed in from the label by testers. `
         + `Open Food Facts alone: ${pct(s.freeDb.count, s.freeDb.of)}.`
         + (s.freeDbDiffers ? ` ${s.freeDbDiffers} complete in Open Food Facts but marked as different from the label, so not counted unless corrected.` : ''),
       target: 'Target: 90% or more, counting products added by hand.',
@@ -106,6 +109,7 @@ export function renderAudit() {
     : '';
 
   renderRecent(log);
+  renderShared();
 
   $('export-button').disabled = s.scans === 0;
   $('clear-button').disabled = s.scans === 0;
@@ -189,4 +193,63 @@ $('clear-button').addEventListener('click', () => {
   if (!ok) return;
   clearLog();
   renderAudit();
+});
+
+// ---------- Shared product database (v0.4) ----------
+function renderShared(message) {
+  const configured = sharedConfigured();
+  const hasCode = Boolean(getPasscode());
+  const waiting = waitingCount();
+  const waitingText = waiting
+    ? ` ${waiting} product${waiting === 1 ? '' : 's'} added on this phone ${waiting === 1 ? 'is' : 'are'} waiting to be sent.`
+    : '';
+  $('shared-status').textContent = !configured
+    ? 'Not set up yet. Products you add are kept on this phone, and scanning them here shows them.' + waitingText
+    : hasCode
+      ? 'Connected. Products you add are shared: any phone that scans the barcode sees them.' + waitingText
+      : 'Products added by testers show on every phone. To add products for everyone, enter the contributor passcode (it is kept on this phone only).' + waitingText;
+  $('passcode-form').hidden = !configured || hasCode;
+  $('passcode-forget').hidden = !configured || !hasCode;
+  $('send-waiting').hidden = !configured || !hasCode || waiting === 0;
+  $('send-waiting').textContent = `Send ${waiting} waiting product${waiting === 1 ? '' : 's'}`;
+  const status = $('passcode-status');
+  status.textContent = message || '';
+  status.hidden = !message;
+}
+
+$('passcode-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const input = $('passcode-input');
+  const code = input.value.trim();
+  if (!code) return;
+  renderShared('Checking…');
+  const result = await savePasscode(code);
+  if (result !== 'ok') {
+    renderShared({
+      wrong: 'That passcode isn’t right. Please check it and try again.',
+      offline: 'Couldn’t reach the shared database. Check your internet and try again.',
+      storage: 'This phone couldn’t save the passcode (storage full or blocked, e.g. a private window).',
+      'not-set-up': 'The shared database isn’t set up yet.',
+    }[result]);
+    return;
+  }
+  input.value = '';
+  const sent = await sendWaiting();
+  renderShared(sent.sent ? `Passcode saved. Sent ${sent.sent} waiting product${sent.sent === 1 ? '' : 's'}.` : 'Passcode saved.');
+});
+
+$('passcode-forget').addEventListener('click', () => {
+  forgetPasscode();
+  renderShared('Passcode removed from this phone. Products you add now stay on this phone until it is entered again.');
+});
+
+$('send-waiting').addEventListener('click', async () => {
+  renderShared('Sending…');
+  const r = await sendWaiting();
+  const left = r.waiting ? ` ${r.waiting} still waiting.` : '';
+  renderShared(r.reason === 'wrong-passcode'
+    ? 'The passcode was refused, so nothing more was sent. Enter it again.'
+    : r.reason === 'offline'
+      ? `Sent ${r.sent}. Couldn’t reach the shared database for the rest; try again with internet.${left}`
+      : `Sent ${r.sent}.${left}`);
 });

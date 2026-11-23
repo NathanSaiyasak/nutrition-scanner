@@ -1,6 +1,6 @@
 # Nutrition Scanner — project context for Claude Code
 
-Read this file before doing anything. The current build spec is `docs/prototype-v0.3-spec.md` (earlier: `docs/prototype-v0.2-spec.md`, `docs/prototype-v0.1-spec.md`).
+Read this file before doing anything. The current build spec is `docs/prototype-v0.4-spec.md` (earlier: `docs/prototype-v0.3-spec.md`, `docs/prototype-v0.2-spec.md`, `docs/prototype-v0.1-spec.md`).
 
 ## What this project is
 
@@ -27,6 +27,7 @@ You may not be able to open these links. Everything you need for the current bui
 
 | Date | Decision |
 |---|---|
+| 23 Nov 2026 | Shared storage for products we add: Supabase free plan (approved by Nathan). Reads public; writes only with a shared contributor passcode checked in the database (interim until contributor sign-in is decided). Values typed from the pack are shown before Open Food Facts. Products wait on the phone until they can be sent. History stays on the phone. See `docs/prototype-v0.4-spec.md`. |
 | 23 Nov 2026 | Add the bottom navigation from the Figma design: History, Scan, Favorite. History lists found products saved on the phone (tap to reopen the result; reopening isn't logged as a scan). Favorite shows "Coming soon" until shared storage and sign-in are decided. |
 | 22 Nov 2026 | Build v0.3, the shopper result screen from Nathan's Figma redesign: scan screen, result with verdict + score, Watch out / Good points (plus Other and Not available), not-found screen. No "See full details". Audit tools kept in a closed "Store audit" box. History and Favorite tabs not built. |
 | 22 Nov 2026 | Until a scoring method is agreed, the result screen shows a **sample** score, labelled "Sample score · method not agreed yet", with all logic in `score-placeholder.js`. |
@@ -75,6 +76,7 @@ You may not be able to open these links. Everything you need for the current bui
   or estimate nutrition values.
 - **Log decisions.** When Nathan decides something new, add a row to the table above (newest first).
 - **Don't add a score, user accounts, analytics or tracking** unless a later spec says so.
+- The Supabase key in `config.js` is public by design. Never commit the contributor passcode or any secret/service key.
 
 ## What comes after v0.1 (not now)
 

@@ -304,3 +304,8 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 90px - var(--tabbar-
 .history-meta { font-size: 0.8rem; color: var(--faint); }
 .history-score { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; font-size: 1rem; }
 #history-full .score-label { margin: 0 0 4px; }
+
+/* Shared product database (v0.4) */
+.share-note { font-size: 0.9rem; color: var(--muted); margin: 10px 0 0; }
+.share-note[data-tone="ok"] { color: var(--good-text); }
+#passcode-form input { width: 100%; letter-spacing: normal; font-size: 1rem; }

@@ -9,7 +9,7 @@
 export const SCORE_LABEL = 'Sample score · method not agreed yet';
 
 export function sampleScore(view) {
-  if (view.missingCount > 2) return null;
+  if (view.missingCount > 2 || view.judged === false) return null;
   let score = 100;
   for (const item of view.items) {
     if (item.level === 'high') score -= 20;
