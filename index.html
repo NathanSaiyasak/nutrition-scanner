@@ -72,21 +72,33 @@
 
     <!-- Screen 3: result. Product, score, Watch out / Good points / Nutrition facts / Not available. -->
     <section id="screen-product" class="screen" hidden>
+      <!-- Product card (Nathan's mockup, 24 Nov 2026): photo and names on top, then the score ring and
+           three quick stats (calories, protein, fibre) for the same amount as the lists below. -->
       <div class="product-card">
-        <div class="photo">
-          <img id="product-image" alt="" hidden>
-          <svg id="product-image-placeholder" width="44" height="44" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="9" r="2" stroke="currentColor" stroke-width="1.6"/><path d="m4 18 5-5 4 4 3-3 4 4" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        <div class="product-top">
+          <div class="photo">
+            <img id="product-image" alt="" hidden>
+            <svg id="product-image-placeholder" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12h17a8.5 8.5 0 0 1-17 0z"/><path d="M8.5 3.5c-.7.8-.7 1.7 0 2.5s.7 1.7 0 2.5M12 3.5c-.7.8-.7 1.7 0 2.5s.7 1.7 0 2.5M15.5 3.5c-.7.8-.7 1.7 0 2.5s.7 1.7 0 2.5"/></svg>
+          </div>
+          <div class="product-text">
+            <span id="product-brand" class="brand-tag" hidden></span>
+            <h2 id="product-name"></h2>
+            <p id="product-name-alt" class="alt-name" hidden></p>
+          </div>
         </div>
-        <div class="product-text">
-          <span id="product-brand" class="brand-tag" hidden></span>
-          <h2 id="product-name"></h2>
-          <p id="product-name-alt" class="alt-name" hidden></p>
-          <div id="score-row" class="score-row" hidden>
-            <span id="verdict" class="verdict"></span>
-            <span id="score-dot" class="dot" aria-hidden="true"></span>
-            <span class="score"><b id="score-number"></b><small>/100</small></span>
+        <div id="product-summary" class="product-summary" hidden>
+          <div id="score-ring" class="score-ring" hidden>
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+              <circle class="ring-track" cx="50" cy="50" r="44"/>
+              <circle id="ring-arc" class="ring-arc" cx="50" cy="50" r="44" pathLength="100"/>
+            </svg>
+            <div class="ring-inner">
+              <span class="score"><b id="score-number"></b><small>/100</small></span>
+              <span id="verdict" class="verdict"></span>
+            </div>
           </div>
           <p id="score-label" class="score-label" hidden></p>
+          <ul id="quick-stats" class="quick-stats"></ul>
         </div>
       </div>
 

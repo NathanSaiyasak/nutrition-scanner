@@ -362,7 +362,7 @@ function renderProduct(p) {
 
   // Shopper view: the score (approved 24 Nov 2026), Watch out / Good points and the Nutrition facts list.
   const view = p.hasNutrition ? buildView(p) : null;
-  renderScore(computeScore(view));
+  renderScore(computeScore(view), view);
   renderGroups(view);
 
   show('screen-product');
@@ -391,26 +391,58 @@ function renderSource(p) {
   }
 }
 
-// result: null (nothing to judge: no score line), { missing } (a key value is missing: just the note),
+// result: null (nothing to judge: no score), { missing } (a key value is missing: just the note),
 // or { score, verdict, tone, note }.
-function renderScore(result) {
+// The card's lower half (Nathan's mockup, 24 Nov 2026): a ring coloured by the rating with the score
+// and label inside, and three quick stats. The ingredients note is a developer note at the very
+// bottom of the screen; "Not enough information to score yet" takes the ring's place.
+function renderScore(result, view) {
   const scored = Boolean(result && !result.missing);
-  $('score-row').hidden = !scored;
-  // The product card shows only brand, name and rating (Nathan, 24 Nov 2026). "Not enough information
-  // to score yet" is the rating, so it stays there; the ingredients note is a developer note at the
-  // very bottom of the screen.
   const note = result ? result.note : '';
   const devNote = note === SCORE_TEXT.unchecked;
-  $('score-label').hidden = !note || devNote;
-  $('score-label').textContent = devNote ? '' : note;
+  $('product-summary').hidden = !view;
+  $('score-ring').hidden = !scored;
+  $('score-label').hidden = scored || !note;
+  $('score-label').textContent = scored ? '' : note;
   $('dev-note').hidden = !devNote;
   $('dev-note').textContent = devNote ? note : '';
+  renderQuickStats(view);
   if (!scored) return;
+  const ring = $('score-ring');
+  ring.dataset.tone = result.tone;
+  ring.setAttribute('role', 'img');
+  ring.setAttribute('aria-label', `Score ${result.score} out of 100, ${result.verdict}`);
   const verdict = $('verdict');
   verdict.textContent = result.verdict;
   verdict.dataset.tone = result.tone;
-  $('score-dot').dataset.tone = result.tone;
   $('score-number').textContent = String(result.score);
+  // The ring fills from zero to the score (skipped with reduce motion, see style.css).
+  ring.style.setProperty('--score', '0');
+  ring.classList.remove('is-on');
+  void ring.getBoundingClientRect();
+  requestAnimationFrame(() => {
+    ring.style.setProperty('--score', String(result.score));
+    ring.classList.add('is-on');
+  });
+}
+
+// Calories, protein and fibre at a glance, with the same icons and amounts as the Nutrition Facts list.
+const QUICK = [['energy', 'Calories'], ['protein', 'Protein'], ['fibre', 'Fibre']];
+function renderQuickStats(view) {
+  const list = $('quick-stats');
+  list.replaceChildren();
+  if (!view) return;
+  for (const [key, label] of QUICK) {
+    const item = view.items.find((i) => i.key === key);
+    const li = el('li', 'quick-stat');
+    li.dataset.key = key;
+    const icon = el('span', 'nicon');
+    icon.setAttribute('aria-hidden', 'true');
+    const missing = !item || item.missing;
+    li.append(icon, el('span', 'quick-label', label),
+      el('span', missing ? 'quick-value na' : 'quick-value', missing ? 'Not available' : item.amount));
+    list.append(li);
+  }
 }
 
 function renderGroups(view) {

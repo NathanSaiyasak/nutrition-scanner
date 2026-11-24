@@ -57,11 +57,11 @@ export function buildGauge(gauge) {
     svg.append(svgEl('path', { d: arc(0, 1), class: 'gauge-track' }));
     svg.append(svgEl('path', { d: arc(0, 1), class: 'gauge-fill', pathLength: '100' }));
   }
-  // The marker: a knob on the arc, turned around the centre from the left end.
+  // The marker: a solid dot in the colour of the band it sits on (Nathan, 24 Nov 2026), with a thin
+  // white edge so it stands out from the band. Turned around the centre from the left end.
   const knob = svgEl('g', { class: 'gauge-knob' });
   const [kx, ky] = point(0);
-  knob.append(svgEl('circle', { cx: kx, cy: ky, r: 6.5, class: 'knob-ring' }));
-  knob.append(svgEl('circle', { cx: kx, cy: ky, r: 3, class: 'knob-dot' }));
+  knob.append(svgEl('circle', { cx: kx, cy: ky, r: 7, class: 'knob-dot' }));
   svg.append(knob);
 
   const num = document.createElement('span');
