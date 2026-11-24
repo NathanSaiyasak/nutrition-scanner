@@ -326,22 +326,33 @@ function renderProduct(p) {
   const brand = p.brands ? p.brands.split(',')[0].trim() : '';
   $('product-brand').textContent = brand;
   $('product-brand').hidden = !brand;
-  $('product-meta').textContent = p.quantity || '';
-  $('product-meta').hidden = !p.quantity;
   $('product-barcode').textContent = `Barcode ${p.barcode}`;
   renderSource(p);
 
+  // The photo fills the whole frame; the grey placeholder only shows when there is no photo or it
+  // fails to load. Handlers are set before the new src, and a late error from the previous product's
+  // photo is ignored, so the placeholder never appears beside a photo. The placeholder is an <svg>,
+  // which has no .hidden property, so the hidden attribute is set directly.
   const img = $('product-image');
+  const placeholder = $('product-image-placeholder');
+  img.onload = null;
+  img.onerror = null;
   if (p.image) {
-    img.src = p.image;
+    const src = p.image;
+    img.onload = () => placeholder.toggleAttribute('hidden', true);
+    img.onerror = () => {
+      if (img.getAttribute('src') !== src) return;
+      img.hidden = true;
+      placeholder.toggleAttribute('hidden', false);
+    };
     img.alt = `Photo of ${p.name}`;
     img.hidden = false;
-    img.onerror = () => { img.hidden = true; $('product-image-placeholder').hidden = false; };
+    img.src = src;
   } else {
     img.removeAttribute('src');
     img.hidden = true;
   }
-  $('product-image-placeholder').hidden = Boolean(p.image);
+  placeholder.toggleAttribute('hidden', Boolean(p.image));
 
   $('no-nutrition').hidden = p.hasNutrition;
   $('nutrition').hidden = !p.hasNutrition;
@@ -384,8 +395,8 @@ function renderSource(p) {
 function renderScore(result) {
   const scored = Boolean(result && !result.missing);
   $('score-row').hidden = !scored;
-  $('score-label').hidden = !result;
-  $('score-how').hidden = !scored;
+  // Only a note that carries information is shown (no ingredients, or not enough to score).
+  $('score-label').hidden = !result || !result.note;
   if (!result) return;
   $('score-label').textContent = result.note;
   if (!scored) return;
@@ -405,18 +416,32 @@ function renderGroups(view) {
     const head = el('div', 'group-head');
     head.append(el('h3', '', group.title));
     if (index === 0) head.append(el('span', 'basis', view.basisLabel));
-    const card = el('ul', 'group-card');
+    const isFacts = group.id === 'facts';
+    const card = el('ul', isFacts ? 'group-card facts-card' : 'group-card');
     for (const item of group.items) {
       const li = el('li', 'fact');
+      li.dataset.key = item.key;
       // With details: the row is a <details> dropdown (closed by default); tapping it shows the reasons.
       const hasDetails = item.details && item.details.length > 0;
       const wrap = hasDetails ? el('details', 'fact-drop') : li;
       const rowHead = hasDetails ? el('summary', 'fact-head') : el('div', 'fact-head');
       const line = el('div', 'fact-line');
-      // Nutrition facts rows that are a good point get a green tick instead of a dot.
-      const dot = el('span', item.mark === 'tick' ? 'tick' : 'dot');
-      dot.dataset.tone = item.tone;
-      if (item.mark === 'tick') dot.setAttribute('aria-label', 'Good point');
+      // Nutrition facts rows get an icon in the nutrient's own colour (Nathan, 24 Nov 2026), with a
+      // small green tick when they are a good point. Watch out and Good points keep their status dot.
+      let dot;
+      if (isFacts) {
+        dot = el('span', 'nicon');
+        if (item.mark === 'tick') {
+          dot.classList.add('nicon-tick');
+          dot.setAttribute('role', 'img');
+          dot.setAttribute('aria-label', 'Good point');
+        } else {
+          dot.setAttribute('aria-hidden', 'true');
+        }
+      } else {
+        dot = el('span', 'dot');
+        dot.dataset.tone = item.tone;
+      }
       const text = el('div', 'fact-text');
       text.append(el('span', 'fact-name', item.name), el('span', 'fact-note', item.note));
       const amount = el('span', item.pct === null ? 'fact-amount na' : 'fact-amount', item.amount);

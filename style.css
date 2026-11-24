@@ -156,9 +156,6 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 .score b { font-size: 1.15rem; }
 .score small { font-size: 0.65rem; font-weight: 700; margin-left: 1px; }
 .score-label { margin: 6px 0 0; font-size: 0.8rem; color: var(--faint); }
-.score-how { margin-top: 4px; font-size: 0.85rem; color: var(--faint); }
-.score-how summary { cursor: pointer; color: var(--muted); font-weight: 700; }
-.score-how p { margin: 4px 0 0; line-height: 1.4; }
 
 .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; background: var(--na); }
 [data-tone="bad"].dot, .bar [data-tone="bad"] { background: var(--bad); }
@@ -166,22 +163,18 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 [data-tone="good"].dot, .bar [data-tone="good"] { background: var(--good); }
 [data-tone="great"].dot { background: var(--great); }
 [data-tone="na"].dot, .bar [data-tone="na"] { background: var(--na); }
-.tick {
-  width: 18px; height: 18px; flex-shrink: 0; margin: 0 -4px; border-radius: 50%; background: var(--good)
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 8.4l2.6 2.6L12 5.6' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat;
-}
 .verdict[data-tone="bad"] { background: var(--bad-bg); color: var(--bad-text); }
 .verdict[data-tone="warn"] { background: var(--warn-bg); color: var(--warn-text); }
 .verdict[data-tone="good"] { background: var(--good-bg); color: var(--good-text); }
 .verdict[data-tone="great"] { background: var(--great); color: var(--great-text); }
 
 .group { margin-bottom: 18px; }
-.group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
-.group-head h3 { margin: 0; font-size: 1.1rem; }
-.group-hint { margin: -2px 0 8px; font-size: 0.9rem; color: var(--muted); }
+.group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.group-head h3 { margin: 0; font-size: 1.1rem; line-height: 1.25; }
+.group-hint { margin: 0 0 6px; font-size: 0.9rem; color: var(--muted); }
 .info-line { margin: 12px 0 0; }
 .basis { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
-.group-card { list-style: none; margin: 0; padding: 0 16px; background: var(--card); border-radius: 16px; }
+.group-card { list-style: none; margin: 0; padding: 0 16px; background: var(--card); border-radius: 10px; }
 .fact { padding: 14px 0; }
 .fact + .fact { border-top: 1px solid var(--line); }
 .fact-line { display: flex; align-items: center; gap: 12px; }
@@ -202,10 +195,35 @@ summary.fact-head:focus-visible { outline: 2px solid var(--accent); outline-offs
 }
 .fact-drop[open] .chevron { transform: rotate(180deg); }
 @media (prefers-reduced-motion: reduce) { .chevron { transition: none; } }
-.fact-details { margin: 10px 0 0; padding: 10px 12px; list-style: none; background: var(--na-bg); border-radius: 10px; font-size: 0.9rem; color: var(--muted); line-height: 1.45; }
+.fact-details { margin: 10px 0 0; padding: 10px 12px; list-style: none; background: var(--na-bg); border-radius: 8px; font-size: 0.9rem; color: var(--muted); line-height: 1.45; }
 .fact-details li + li { margin-top: 6px; }
 .bar { height: 6px; border-radius: 4px; background: var(--track); margin-top: 10px; overflow: hidden; }
 .bar span { display: block; height: 100%; border-radius: 4px; }
+
+/* Nutrition facts list: each nutrient has its own colour and icon (Nathan, 24 Nov 2026).
+   The colours only name the nutrient; they don't mean good or bad. A green tick marks a good point. */
+.nicon {
+  position: relative; width: 32px; height: 32px; flex-shrink: 0; border-radius: 9px;
+  background: var(--n-bg, var(--na-bg));
+}
+.nicon::before {
+  content: ""; position: absolute; inset: 7px; background: var(--n, var(--na));
+  -webkit-mask: var(--n-icon) center / contain no-repeat; mask: var(--n-icon) center / contain no-repeat;
+}
+.nicon-tick::after {
+  content: ""; position: absolute; right: -6px; bottom: -6px; width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--card); box-sizing: content-box; background: var(--good)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 8.4l2.6 2.6L12 5.6' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 10px no-repeat;
+}
+.facts-card .bar span { background: var(--n, var(--na)); }
+.fact[data-key="energy"] { --n: #6172F3; --n-bg: #EEF4FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2.5 4.5 13.5h6.5l-1 8 8.5-11h-6.5l1-8z'/%3E%3C/svg%3E"); }
+.fact[data-key="protein"] { --n: #DD2590; --n-bg: #FDF2FA; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3c-3.6 0-6.5 5.6-6.5 10.2a6.5 6.5 0 0 0 13 0C18.5 8.6 15.6 3 12 3z'/%3E%3C/svg%3E"); }
+.fact[data-key="fibre"] { --n: #099250; --n-bg: #EDFCF2; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19.5C5 11 10 5 19.5 4.5 19.5 14 14 19 5.5 19.5M5 19.5l7.5-7.5'/%3E%3C/svg%3E"); }
+.fact[data-key="carbs"] { --n: #CA8504; --n-bg: #FEFBE8; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21.5V7.5M12 7.5c-1.8-.8-2.8-2.6-2.8-4.5 1.8.3 2.8 2.2 2.8 4.5zm0 0c1.8-.8 2.8-2.6 2.8-4.5-1.8.3-2.8 2.2-2.8 4.5zM12 12.5c-2-.6-3.6-2.2-3.8-4.4 2 .2 3.6 2 3.8 4.4zm0 0c2-.6 3.6-2.2 3.8-4.4-2 .2-3.6 2-3.8 4.4zM12 17.5c-2-.6-3.6-2.2-3.8-4.4 2 .2 3.6 2 3.8 4.4zm0 0c2-.6 3.6-2.2 3.8-4.4-2 .2-3.6 2-3.8 4.4z'/%3E%3C/svg%3E"); }
+.fact[data-key="sugars"] { --n: #7F56D9; --n-bg: #F4F3FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3 4 7.5v9l8 4.5 8-4.5v-9L12 3zM4 7.5l8 4.5 8-4.5M12 12v9'/%3E%3C/svg%3E"); }
+.fact[data-key="fat"] { --n: #0BA5EC; --n-bg: #F0F9FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3s-6 7-6 11.2a6 6 0 0 0 12 0C18 10 12 3 12 3z'/%3E%3C/svg%3E"); }
+.fact[data-key="satfat"] { --n: #1570EF; --n-bg: #EFF8FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3s-6 7-6 11.2a6 6 0 0 0 12 0C18 10 12 3 12 3zM9 15.5h6'/%3E%3C/svg%3E"); }
+.fact[data-key="sodium"] { --n: #667085; --n-bg: #F2F4F7; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.5 10h9l-1.2 11H8.7L7.5 10zM7.5 10c0-3.6 2-6.5 4.5-6.5s4.5 2.9 4.5 6.5M10.5 7v.01M13.5 7v.01M12 5.5v.01'/%3E%3C/svg%3E"); }
 
 .attribution { font-size: 0.85rem; color: var(--faint); margin: 4px 0 16px; }
 
