@@ -27,6 +27,7 @@ You may not be able to open these links. Everything you need for the current bui
 
 | Date | Decision |
 |---|---|
+| 24 Nov 2026 | Replace the "Other" group with a fixed **Nutrition facts** list under Watch out / Good points: always Calories, Protein, Fibre, Carbs with amounts. Protein and fibre get a green tick at the EU claim levels (calories when low); calories are never a warning; carbs not rated. Colour rules and sample score unchanged. |
 | 23 Nov 2026 | Plainer result row wording: the line under each name says what the colour means ("A bit too much sugar", "Low in sodium", "Good amount of protein"), no percentage. The dropdown is one or two sentences: % of the Thai daily guide and the reason (UK traffic-light level, EU claim, Thai sugar tax). Criteria unchanged. |
 | 23 Nov 2026 | Result rows simplified: name, one short "% of recommended daily limit" line, amount, bar; the reasons (level, serving rule, sugar-tax note) move into a dropdown with a chevron, closed by default. Criteria unchanged. |
 | 23 Nov 2026 | Result screen criteria (Nathan approved the Notion proposal): UK traffic-light thresholds per 100 g/ml plus the UK per-serving rule (servings > 100 g / 150 ml), total fat added, calories only judged as "low" (no high warning), protein and fibre use the EU claim levels (source / high), and drinks over 6 g sugar per 100 ml get a Thai sugar tax note. See `docs/prototype-v0.3-spec.md`. |
