@@ -7,7 +7,7 @@ import { logScan, askToKeepData, setLabelCheck } from './audit.js';
 import { openAddForm, stopAddTimer } from './add-form.js';
 import { renderAudit } from './audit-screen.js';
 import { buildView } from './nutrition-view.js';
-import { sampleScore, SCORE_LABEL } from './score-placeholder.js';
+import { computeScore } from './score.js';
 import { loadHistory, addToHistory, clearHistory } from './history.js';
 
 const $ = (id) => document.getElementById(id);
@@ -348,9 +348,9 @@ function renderProduct(p) {
   if (p.hasNutrition) renderNutrition(p);
   $('audit-box').open = false;
 
-  // v0.3 shopper view: sample score and the Watch out / Good points groups.
+  // Shopper view: the score (approved 24 Nov 2026), Watch out / Good points and the Nutrition facts list.
   const view = p.hasNutrition ? buildView(p) : null;
-  renderScore(view ? sampleScore(view) : null);
+  renderScore(computeScore(view));
   renderGroups(view);
 
   show('screen-product');
@@ -379,16 +379,21 @@ function renderSource(p) {
   }
 }
 
+// result: null (nothing to judge: no score line), { missing } (a key value is missing: just the note),
+// or { score, verdict, tone, note }.
 function renderScore(result) {
-  $('score-row').hidden = !result;
+  const scored = Boolean(result && !result.missing);
+  $('score-row').hidden = !scored;
   $('score-label').hidden = !result;
+  $('score-how').hidden = !scored;
   if (!result) return;
+  $('score-label').textContent = result.note;
+  if (!scored) return;
   const verdict = $('verdict');
   verdict.textContent = result.verdict;
   verdict.dataset.tone = result.tone;
   $('score-dot').dataset.tone = result.tone;
   $('score-number').textContent = String(result.score);
-  $('score-label').textContent = SCORE_LABEL;
 }
 
 function renderGroups(view) {
@@ -408,8 +413,10 @@ function renderGroups(view) {
       const wrap = hasDetails ? el('details', 'fact-drop') : li;
       const rowHead = hasDetails ? el('summary', 'fact-head') : el('div', 'fact-head');
       const line = el('div', 'fact-line');
-      const dot = el('span', 'dot');
+      // Nutrition facts rows that are a good point get a green tick instead of a dot.
+      const dot = el('span', item.mark === 'tick' ? 'tick' : 'dot');
       dot.dataset.tone = item.tone;
+      if (item.mark === 'tick') dot.setAttribute('aria-label', 'Good point');
       const text = el('div', 'fact-text');
       text.append(el('span', 'fact-name', item.name), el('span', 'fact-note', item.note));
       const amount = el('span', item.pct === null ? 'fact-amount na' : 'fact-amount', item.amount);
@@ -443,6 +450,8 @@ function renderGroups(view) {
     else section.append(head, card);
     box.append(section);
   });
+  // Flavour enhancers such as MSG: one plain line, no points off (24 Nov 2026).
+  if (view.infoLine) box.append(el('p', 'group-hint info-line', view.infoLine));
 }
 
 function el(tag, className, text) {
@@ -687,8 +696,8 @@ function renderHistory() {
 
     button.append(photo, text);
     const view = p.hasNutrition ? buildView(p) : null;
-    const score = view ? sampleScore(view) : null;
-    if (score) {
+    const score = computeScore(view);
+    if (score && !score.missing) {
       const badge = el('span', 'history-score');
       const dot = el('span', 'dot');
       dot.dataset.tone = score.tone;

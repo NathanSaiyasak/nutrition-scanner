@@ -15,7 +15,7 @@ The v0.2 audit tool keeps working exactly as before.
 | Screen | What it shows |
 |---|---|
 | Scan | Dark camera screen: "Scan a barcode" and the live camera inside the frame, with a moving scan line. The camera starts by itself when the screen opens (the browser asks for permission the first time); A **"Tap to start the camera"** button covers the frame whenever no camera picture is showing (before it starts, if it fails, if the phone pauses it, or if nothing appears within 3 seconds), because iPhones sometimes only start the camera after a tap. "Stop camera" turns it off. An automatic start only counts as a try (FR-14) if it reads the barcode, so using a photo or typing instead isn't counted as a failed camera try. Then and a bottom panel "Can't scan it?" with **Type the barcode** and **Use a photo of the barcode**. "Audit log" stays at the top. |
-| Result | Product card: photo, brand tag, English name, Thai name underneath (when different), size. Verdict pill and score (see "Score"). Then four groups: **Watch out**, **Good points**, **Other**, **Not available**. A "Scan another" button floats at the bottom. No "See full details" (Nathan, 22 Nov 2026). |
+| Result | Product card: photo, brand tag, English name, Thai name underneath (when different), size. Verdict pill and score (see "Score"). Then **Watch out**, **Good points**, a fixed **Nutrition facts** list and **Not available** ("Other" replaced by Nutrition facts, 24 Nov 2026). A "Scan another" button floats at the bottom. No "See full details" (Nathan, 22 Nov 2026). |
 | Not found | Icon, "We don't have this product yet", the barcode, **Add this product** (the v0.2 timed form) and **Scan another product**. Error messages (network, timeout, busy) use the same layout. |
 
 The audit-only parts of the old product screen (full nutrition table to compare with the pack, "matches
@@ -38,9 +38,9 @@ Good points, Watch out, Other"). Groups use the UK front-of-pack traffic-light t
 | Fat | ≤ 3 g (drinks ≤ 1.5 g) | in between | > 17.5 g (drinks > 8.75 g) | 21 g (drinks 10.5 g) |
 | Saturated fat | ≤ 1.5 g (drinks ≤ 0.75 g) | in between | > 5 g (drinks > 2.5 g) | 6 g (drinks 3 g) |
 | Salt (sodium × 2.5) | ≤ 0.3 g | in between | > 1.5 g (drinks > 0.75 g) | 1.8 g (drinks 0.9 g) |
-| Calories | ≤ 40 kcal (drinks ≤ 20) is Good (EU "low energy") | otherwise Other | no high warning (Nathan, 23 Nov 2026) | — |
-| Protein | Good when ≥ 12% of calories come from protein; "High in protein" at ≥ 20% (EU claims) | otherwise Other | — | — |
-| Fibre | Good when ≥ 3 g or ≥ 1.5 g per 100 kcal; "High in fibre" at ≥ 6 g or ≥ 3 g per 100 kcal (EU claims) | otherwise Other | — | — |
+| Calories | ≤ 40 kcal (drinks ≤ 20) is Good (EU "low energy") | otherwise no tick | no high warning (Nathan, 23 Nov 2026) | — |
+| Protein | Good when ≥ 12% of calories come from protein; "High in protein" at ≥ 20% (EU claims) | otherwise no tick | — | — |
+| Fibre | Good when ≥ 3 g or ≥ 1.5 g per 100 kcal; "High in fibre" at ≥ 6 g or ≥ 3 g per 100 kcal (EU claims) | otherwise no tick | — | — |
 
 The serving rule (UK guidance) applies only when one serving is over 100 g (food) or 150 ml (drinks) and
 the serving size is known; the row's details then say "High in one serving". Drinks with more than 6 g sugar
@@ -66,8 +66,17 @@ heading says which.
 Grouping always compares per-100 values. When a label only gives per-serving values but the serving size
 is known (e.g. "200 ml"), the per-100 value is worked out from them (18 g in 200 ml = 9 g per 100 ml); a
 drink is anything sized in ml or litres and uses the drink thresholds. Without a serving size the facts
-can't be compared and stay in Other. The Other group has a one-line explanation under its heading
-(added 23 Nov 2026 after a Tipco orange juice showed everything in Other).
+can't be compared; they go in the Nutrition facts list with "Can't rate this yet", and a one-line
+explanation shows under its heading (added 23 Nov 2026 after a Tipco orange juice couldn't be rated).
+
+Nutrition facts list (Nathan, 24 Nov 2026: "Other" made the section less interesting, and calories and
+fibre matter). Under Watch out and Good points, a list headed **Nutrition facts** always shows
+**Calories, Protein, Fibre and Carbs**, in that order, with amounts, bars and the same dropdown. A missing
+value shows "Not available" in the list. Protein and fibre get a green tick when they meet the EU claim
+levels above, and calories get one when low; otherwise a grey dot. Calories are never a warning. Carbs are
+not rated ("For information, not rated"; bar uses the Thai daily guide, 300 g). These four no longer
+appear under Good points; Good points now lists the "low in" nutrients to limit. The colour rules and the
+sample score are unchanged (carbs, and fibre without a value, don't count as missing).
 
 ## Score
 
@@ -88,7 +97,7 @@ have them (the public GitHub repo only has the Japanese version).
 1. A found product shows the product card, verdict and sample score, and the four groups, with no full
    nutrition table on screen.
 2. Mama tom yum (per 100 g: 455 kcal, sat fat 9.1 g, sugar 5.5 g, sodium 3,200 mg) puts sodium, saturated
-   fat and calories in Watch out (red) and sugar in Watch out (orange); protein goes in Other.
+   fat and calories in Watch out (red) and sugar in Watch out (orange); protein goes in Nutrition facts.
 3. A missing key fact appears under Not available, never as 0.
 4. Products found with no nutrition show "Product found, but no nutrition facts yet" and no score.
 5. Thai names display correctly.

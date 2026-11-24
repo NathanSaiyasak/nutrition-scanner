@@ -260,6 +260,11 @@ export function fromAdded(rec, source) {
     completeness: { present: countAddedValues(rec.values || {}), total: 8 },
     source,
     addedAt: rec.savedAt,
+    // The add form doesn't ask for ingredients yet, so additives can't be checked for these.
+    ingredientsKnown: false,
+    additives: [],
+    categories: [],
+    fruitVegNuts: null,
   };
 }
 

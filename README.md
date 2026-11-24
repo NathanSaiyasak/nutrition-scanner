@@ -5,7 +5,7 @@ A mobile web page: scan or type a product barcode and see its nutrition facts fr
 recorded on the phone, the record can be exported as a spreadsheet, missing products can be typed in with
 a timer, and an "Audit log" screen shows the figures against the go/no-go pass marks.
 Version 0.3 redesigns what a shopper sees, from Nathan's Figma design: a dark scan screen, and a result
-screen with a sample score and the key facts sorted into **Watch out**, **Good points**, **Other** and
+screen with the 0–100 score (approved 24 Nov 2026) and the key facts sorted into **Watch out**, **Good points**, a **Nutrition facts** list (calories, protein, fibre, carbs) and
 **Not available**. The audit tools are still there, in a closed "Store audit" box on the result screen.
 Project rules are in `CLAUDE.md`. Build specs: `docs/prototype-v0.1-spec.md`, `docs/prototype-v0.2-spec.md`
 and `docs/prototype-v0.3-spec.md`.
@@ -22,8 +22,9 @@ and `docs/prototype-v0.3-spec.md`.
 | `lookup.js` | Asks Open Food Facts about a barcode and tidies up the answer. Missing values stay missing (shown as "Not available"), never 0. |
 | `audit.js` | v0.2. The scan log: saves each scan in the phone's browser storage, makes the CSV spreadsheet, and works out the pass-mark figures. |
 | `add-form.js` | v0.2. The timed "Add this product" form for products Open Food Facts doesn't have. |
-| `nutrition-view.js` | v0.3. Sorts the key facts into Watch out / Good points / Other / Not available, with the "% of a day" bars. Thresholds are in the v0.3 spec. |
-| `score-placeholder.js` | v0.3. The **sample** score. The real scoring method isn't agreed yet, so all score logic is kept in this one file to replace or remove later. |
+| `nutrition-view.js` | v0.3. Sorts the key facts into Watch out / Good points / Nutrition facts / Not available, with the "% of a day" bars. Thresholds are in the v0.3 spec. |
+| `score.js` | v0.5. The 0–100 score and its Great / Good / OK / Poor / Bad label (`docs/prototype-v0.5-spec.md`). |
+| `additives.js` | v0.5. Additives of concern, sweeteners, "mostly fruit, vegetables or nuts" and the healthy-fat check. |
 | `history.js` | The History tab's list: every product found is saved in the phone's browser storage (newest first, up to 100), so it can be reopened without internet. Nothing is sent anywhere. |
 | `audit-screen.js` | v0.2. The "Audit log" screen: pass-mark summary, export, recent scans, clear the log. |
 | `shared-db.js` | v0.4. Products we type in from the pack: keeps them on the phone, sends them to the shared Supabase table (with the contributor passcode), and looks barcodes up in Open Food Facts and our table at the same time. |

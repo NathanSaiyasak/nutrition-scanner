@@ -10,6 +10,8 @@ const TIMEOUT_MS = 8000;
 const FIELDS = [
   'code', 'product_name', 'product_name_en', 'product_name_th',
   'brands', 'quantity', 'serving_size', 'image_front_small_url', 'nutriments',
+  // For the score (24 Nov 2026): additives, whether there is an ingredients list, product type.
+  'ingredients_text', 'ingredients_n', 'additives_tags', 'categories_tags',
 ].join(',');
 
 // The nutrition table rows, in display order.
@@ -83,6 +85,18 @@ export function normalise(raw, barcode) {
   const hasAny = rows.some((r) => r.per100 !== null || r.perServing !== null);
   const hasServing = rows.some((r) => r.perServing !== null);
 
+  // Ingredients and additives, for the score. Additives come from Open Food Facts' own list, plus any
+  // INS / E numbers written in the ingredients text (Thai labels write "INS 211"), which Open Food
+  // Facts may miss when it can't read the Thai text.
+  const ingredientsText = clean(raw.ingredients_text);
+  const additives = Array.isArray(raw.additives_tags) ? raw.additives_tags.map(String) : [];
+  if (ingredientsText) {
+    for (const m of ingredientsText.matchAll(/\b(?:INS|E)\s*-?\s*(\d{3})(?!\d)/gi)) additives.push(`ins:${m[1]}`);
+  }
+  const fvn = readNumber(n['fruits-vegetables-nuts-estimate-from-ingredients_100g'])
+    ?? readNumber(n['fruits-vegetables-legumes-estimate-from-ingredients_100g'])
+    ?? readNumber(n['fruits-vegetables-nuts_100g']);
+
   return {
     barcode: clean(raw.code) || barcode,
     name,
@@ -96,6 +110,10 @@ export function normalise(raw, barcode) {
     hasNutrition: hasAny,
     hasServing,
     completeness: { present, total: counted.length },
+    ingredientsKnown: Boolean(ingredientsText) || Number(raw.ingredients_n) > 0,
+    additives,
+    categories: Array.isArray(raw.categories_tags) ? raw.categories_tags.map(String) : [],
+    fruitVegNuts: fvn,
   };
 }
 

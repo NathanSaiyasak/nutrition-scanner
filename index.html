@@ -13,7 +13,7 @@
   <header class="top">
     <div>
       <h1>Nutrition Scanner</h1>
-      <p class="tag">Prototype v0.4</p>
+      <p class="tag">Prototype v0.5</p>
     </div>
     <button id="audit-link" class="link-button" type="button">Audit log</button>
   </header>
@@ -70,7 +70,7 @@
       </div>
     </section>
 
-    <!-- Screen 3: result. Product, sample score, Watch out / Good points / Other / Not available. -->
+    <!-- Screen 3: result. Product, score, Watch out / Good points / Nutrition facts / Not available. -->
     <section id="screen-product" class="screen" hidden>
       <div class="product-card">
         <div class="photo">
@@ -88,6 +88,14 @@
             <span class="score"><b id="score-number"></b><small>/100</small></span>
           </div>
           <p id="score-label" class="score-label" hidden></p>
+          <details id="score-how" class="score-how" hidden>
+            <summary>How the score works</summary>
+            <p>Every product starts at 100. Points come off for each orange or red item in Watch out,
+            including additives of concern, and a few points are added for protein, fibre, and for
+            products that are mostly fruit, vegetables or nuts.</p>
+            <p>A red warning keeps the score at 70 or below, and sweeteners at 50 or below. Great (90 and
+            up) needs nothing in Watch out, at least one good point and a known ingredients list.</p>
+          </details>
         </div>
       </div>
 
@@ -174,7 +182,6 @@
       </div>
       <div id="history-full" hidden>
         <ul id="history-list" class="history-list"></ul>
-        <p class="score-label center">Scores are samples · method not agreed yet</p>
         <button id="history-clear" class="secondary danger" type="button">Clear history</button>
         <p class="hint center">Clearing history doesn’t touch the audit log.</p>
       </div>
