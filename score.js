@@ -1,0 +1,87 @@
+// score.js — the 0–100 score, approved by Nathan on 24 Nov 2026 (docs/prototype-v0.5-spec.md;
+// Notion "Scoring method proposal: the 0–100 score"). It is built from the same levels as the
+// Watch out / Good points rows (nutrition-view.js, additives.js), so the score and the colours agree.
+//
+// 1. Start at 100.
+// 2. Take points off for each nutrient in Watch out (POINTS below; sugar counts double in a drink
+//    over 6 g per 100 ml, the Thai sugar tax line).
+// 3. Take points off for additives of concern (−15 or −8 each, at most −30; additives.js).
+// 4. Add points for Good points: protein, fibre (+5 source, +10 high), mostly fruit/vegetables/nuts (+10).
+//    At most +20.
+// 5. Ceilings: any orange, no Good point, or no ingredients list → 89 (so Great needs none of these);
+//    1 red → 70, 2 reds → 45, 3 or more → 20 (a red additive counts as a red); sweeteners → 50.
+// 6. Labels: 90+ Great, 75+ Good, 50+ OK, 25+ Poor, else Bad.
+// Shown only when calories, sugar, fat, saturated fat and sodium can all be judged.
+
+const POINTS = {
+  sugars: { medium: 15, high: 35 },
+  sodium: { medium: 15, high: 35 },
+  satfat: { medium: 12, high: 30 },
+  fat: { medium: 8, high: 20 },
+};
+const SUGARY_DRINK = 6; // g per 100 ml (Thai sugar tax line): sugar points count double
+const BONUS = { protein: { good: 5, high: 10 }, fibre: { good: 5, high: 10 } };
+const BONUS_MAX = 20;
+const REQUIRED = ['energy', 'sugars', 'fat', 'satfat', 'sodium'];
+
+export const SCORE_TEXT = {
+  checked: 'Based on nutrition and additives.',
+  unchecked: 'Ingredients not available, so additives weren\'t checked.',
+  missing: 'Not enough information to score yet.',
+};
+
+/**
+ * Score a view from nutrition-view.js buildView().
+ * Returns null when there is nothing to judge, { missing: true } when a key value is missing,
+ * otherwise { score, verdict, tone, note }.
+ */
+export function computeScore(view) {
+  if (!view || !view.judged) return null;
+  const known = (key) => view.facts.some((f) => f.key === key && f.judge100 !== null);
+  if (!REQUIRED.every(known)) return { missing: true, note: SCORE_TEXT.missing };
+
+  let minus = 0;
+  let reds = 0;
+  let oranges = 0;
+  for (const item of view.items) {
+    const pts = POINTS[item.key];
+    if (!pts || (item.level !== 'medium' && item.level !== 'high')) continue;
+    let p = pts[item.level];
+    if (item.key === 'sugars' && view.drink) {
+      const sugar = view.facts.find((f) => f.key === 'sugars').judge100;
+      if (sugar > SUGARY_DRINK) p *= 2;
+    }
+    minus += p;
+    if (item.level === 'high') reds += 1; else oranges += 1;
+  }
+
+  const extras = view.extras.items;
+  minus += view.extras.additivePoints;
+  for (const item of extras) {
+    if (item.group !== 'watch') continue;
+    if (item.level === 'high') reds += 1; else oranges += 1;
+  }
+
+  let bonus = 0;
+  for (const item of view.items) {
+    const b = BONUS[item.key];
+    if (b && item.level === 'good') bonus += item.why === 'high' ? b.high : b.good;
+  }
+  if (extras.some((i) => i.extra === 'fruit')) bonus += 10;
+  bonus = Math.min(bonus, BONUS_MAX);
+
+  let ceiling = 100;
+  if (oranges > 0 || bonus === 0 || !view.ingredientsKnown) ceiling = 89;
+  if (reds === 1) ceiling = 70;
+  else if (reds === 2) ceiling = 45;
+  else if (reds >= 3) ceiling = 20;
+  if (view.extras.sweetener) ceiling = Math.min(ceiling, 50);
+
+  const score = Math.max(0, Math.min(ceiling, 100 - minus + bonus));
+  const [verdict, tone] = score >= 90 ? ['Great', 'great']
+    : score >= 75 ? ['Good', 'good']
+      : score >= 50 ? ['OK', 'warn']
+        : score >= 25 ? ['Poor', 'bad']
+          : ['Bad', 'bad'];
+  return { score, verdict, tone, note: view.ingredientsKnown ? SCORE_TEXT.checked : SCORE_TEXT.unchecked };
+}

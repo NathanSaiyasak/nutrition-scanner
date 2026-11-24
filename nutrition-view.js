@@ -1,6 +1,8 @@
-// nutrition-view.js — v0.3 (criteria updated 23 Nov 2026). Turns a product from lookup.js into the shopper view:
-// Watch out / Good points / Other / Not available. Rules and thresholds: docs/prototype-v0.3-spec.md.
+// nutrition-view.js — v0.3 (criteria updated 23 Nov 2026; healthy fats and extra rows added 24 Nov 2026).
+// Turns a product from lookup.js into the shopper view: Watch out / Good points / Other / Not available.
+// Rules and thresholds: docs/prototype-v0.3-spec.md and docs/prototype-v0.5-spec.md.
 // Never invents a value: a missing number goes in "Not available".
+import { extraRows, nutType } from './additives.js';
 
 // Thai daily guide amounts, used for the "% of a day" bars.
 const DAILY = { energy: 2000, sugars: 65, fat: 65, satfat: 20, sodium: 2000, protein: 50, fibre: 25 };
@@ -29,7 +31,7 @@ const THAI_SUGAR_TAX = 6;
 
 /**
  * Build the shopper view of a product.
- * Returns { basisLabel, groups: [{ id, title, items }], missingCount }
+ * Returns { basisLabel, groups: [{ id, title, items }], items, facts, drink, healthyFat, extras, ingredientsKnown, judged }
  * Each item: { key, name, amount, note, details (string[]), pct (0–100+ or null), tone: 'bad'|'warn'|'good'|'na', level }
  */
 export function buildView(p) {
@@ -80,6 +82,12 @@ export function buildView(p) {
   }
 
   const energy100 = facts[0].judge100;
+  // Mostly healthy fats (approved 24 Nov 2026): nuts, seeds and plain plant oils where less than a
+  // quarter of the fat is saturated aren't warned about for fat or saturated fat.
+  const type = nutType(p, drink);
+  const fat100 = facts.find((f) => f.key === 'fat').judge100;
+  const sat100 = facts.find((f) => f.key === 'satfat').judge100;
+  const healthyFat = Boolean(type) && fat100 !== null && sat100 !== null && fat100 > 0 && sat100 / fat100 < 0.25;
   const items = facts.map((f) => {
     const amountValue = useServing ? f.perServing : f.per100;
     if (amountValue === null) {
@@ -87,39 +95,48 @@ export function buildView(p) {
     }
     const pct = Math.round((amountValue / DAILY[f.key]) * 100);
     const amount = `${f.lessThan ? '<' : ''}${format(amountValue, f.unit)} ${f.unit}`;
-    const { level, why } = classify(f, drink, energy100);
+    const { level, why } = healthyFat && (f.key === 'fat' || f.key === 'satfat')
+      ? { level: 'neutral', why: 'healthyFat' } : classify(f, drink, energy100);
     // The row shows one plain line ("A bit too much sugar"); a one- or two-sentence dropdown under it
     // gives the % of the daily guide and why (Nathan, 23 Nov 2026). All wording is in TEXT below.
     const note = subtitle(f, level, why, energy100);
     const details = [explain(f, { level, why, drink, pct, useServing, energy100 })];
     const tone = { high: 'bad', medium: 'warn', low: 'good', good: 'good', neutral: 'na' }[level];
     const group = level === 'high' || level === 'medium' ? 'watch' : level === 'neutral' ? 'other' : 'good';
-    return { key: f.key, name: f.name, amount, note, details, pct, tone, level, group };
+    return { key: f.key, name: f.name, amount, note, details, pct, tone, level, why, group };
   });
 
+  // Additives, sweeteners and "mostly fruit, vegetables or nuts" (approved 24 Nov 2026).
+  const sugar100 = facts.find((f) => f.key === 'sugars').judge100;
+  const extras = extraRows(p, { drink, sugar100, nutType: type });
+  const all = [...items, ...extras.items];
+
   const order = { high: 0, medium: 1 };
-  const watch = items.filter((i) => i.group === 'watch')
-    .sort((a, b) => (order[a.level] - order[b.level]) || (b.pct - a.pct));
+  const watch = all.filter((i) => i.group === 'watch')
+    .sort((a, b) => (order[a.level] - order[b.level]) || ((b.pct ?? -1) - (a.pct ?? -1)));
 
   // judged: at least one fact could be compared with the limits (needs a per-100 value, or a
   // per-serving value with a known serving size). If none could, there are no colours and no sample score.
   const judged = facts.some((f) => f.judge100 !== null);
-  const otherItems = items.filter((i) => i.group === 'other');
-  const unjudgedOther = otherItems.some((i) => facts.find((f) => f.key === i.key).judge100 === null);
+  const otherItems = all.filter((i) => i.group === 'other');
+  const unjudgedOther = otherItems.some((i) => !i.extra && facts.find((f) => f.key === i.key).judge100 === null);
+  const plainOther = otherItems.some((i) => i.extra || i.why === 'healthyFat');
   const otherHint = unjudgedOther
     ? 'The label was typed in per serving without the serving size, so we can\'t compare these with the limits yet.'
-    : 'In the middle: not high enough to watch out for, not low enough to count as a good point.';
+    : plainOther ? 'Not a warning and not a good point.'
+      : 'In the middle, not high enough to watch out for and not low enough to count as a good point.';
 
   const groups = [
     { id: 'watch', title: 'Watch out', items: watch },
-    { id: 'good', title: 'Good points', items: items.filter((i) => i.group === 'good') },
+    { id: 'good', title: 'Good points', items: all.filter((i) => i.group === 'good') },
     { id: 'other', title: 'Other', hint: otherHint, items: otherItems },
     { id: 'missing', title: 'Not available', items: items.filter((i) => i.group === 'missing') },
   ].filter((g) => g.items.length > 0);
 
-  // Fat (added 23 Nov 2026) isn't counted here, so the sample score shows for the same products as before.
-  const missingCount = items.filter((i) => i.group === 'missing' && i.key !== 'fat').length;
-  return { basisLabel, groups, missingCount, items, judged };
+  return {
+    basisLabel, groups, items, facts, drink, healthyFat, extras, judged,
+    ingredientsKnown: Boolean(p.ingredientsKnown),
+  };
 }
 
 // All shopper-facing wording for the rows, in one place so it can be translated to Thai later.
@@ -137,6 +154,7 @@ const TEXT = {
   notMuch: 'Not much {n}',
   notLowCalories: 'Not low in calories',
   cantRate: 'Can\'t rate this yet',
+  healthyFats: 'Mostly healthy fats',
   // Dropdown, first sentence: share of the Thai daily guide.
   shareLimit: '{basis} {pct}% of the recommended daily limit, based on the Thai daily guide ({daily} a day).',
   shareAmount: '{basis} {pct}% of the recommended daily amount, based on the Thai daily guide ({daily} a day).',
@@ -161,6 +179,7 @@ const TEXT = {
   fibreSource: 'Enough to count as a source of fibre under EU rules.',
   fibreLow: 'Not enough to count as a source of fibre under EU rules.',
   noServingSize: 'The label didn\'t give the serving size, so we can\'t rate it yet.',
+  healthyFatWhy: 'Less than a quarter of the fat is saturated, which is typical of nuts, seeds and plant oils, so it isn\'t a warning.',
 };
 
 function say(key, vars = {}) {
@@ -173,6 +192,7 @@ const LIMIT_KEYS = ['sugars', 'fat', 'satfat', 'sodium'];
 function subtitle(f, level, why, energy100) {
   const n = TEXT.noun[f.key];
   if (f.judge100 === null) return say('cantRate');
+  if (why === 'healthyFat') return say('healthyFats');
   if (LIMIT_KEYS.includes(f.key)) {
     if (level === 'high') return say(why === 'portion' ? 'tooMuchServing' : 'tooMuch', { n });
     return say(level === 'medium' ? 'bitTooMuch' : 'lowIn', { n });
@@ -192,6 +212,7 @@ function explain(f, { level, why, drink, pct, useServing, energy100 }) {
   const v = f.judge100;
   let reason = null;
   if (v === null) reason = say('noServingSize');
+  else if (why === 'healthyFat') reason = say('healthyFatWhy');
   else if (LIMIT_KEYS.includes(f.key)) {
     const tax = f.key === 'sugars' && drink && v > THAI_SUGAR_TAX ? 'Tax' : '';
     if (level === 'high') reason = say((why === 'portion' ? 'ratePortion' : 'rateHigh') + tax);

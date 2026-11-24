@@ -1,6 +1,6 @@
 # Nutrition Scanner — project context for Claude Code
 
-Read this file before doing anything. The current build spec is `docs/prototype-v0.4-spec.md` (earlier: `docs/prototype-v0.3-spec.md`, `docs/prototype-v0.2-spec.md`, `docs/prototype-v0.1-spec.md`).
+Read this file before doing anything. The current build spec is `docs/prototype-v0.5-spec.md` (the score; earlier: `docs/prototype-v0.4-spec.md`, `docs/prototype-v0.3-spec.md`, `docs/prototype-v0.2-spec.md`, `docs/prototype-v0.1-spec.md`).
 
 ## What this project is
 
@@ -27,6 +27,8 @@ You may not be able to open these links. Everything you need for the current bui
 
 | Date | Decision |
 |---|---|
+| 24 Nov 2026 | Score wording on screen uses plain sentences with no colons, e.g. "Contains sodium nitrite, a preservative used in processed meat". |
+| 24 Nov 2026 | 0–100 score approved (replaces the sample score): start at 100, points off per orange/red nutrient, additives of concern −15/−8 (max −30, MSG not penalised), bonus for protein, fibre and mostly fruit/veg/nuts (max +20), ceilings for warnings and sweeteners (50); healthy-fat rule for nuts, seeds and plant oils; labels Great 90+ (needs nothing in Watch out, a good point and an ingredients list), Good 75, OK 50, Poor 25, Bad. See `docs/prototype-v0.5-spec.md`. |
 | 23 Nov 2026 | Plainer result row wording: the line under each name says what the colour means ("A bit too much sugar", "Low in sodium", "Good amount of protein"), no percentage. The dropdown is one or two sentences: % of the Thai daily guide and the reason (UK traffic-light level, EU claim, Thai sugar tax). Criteria unchanged. |
 | 23 Nov 2026 | Result rows simplified: name, one short "% of recommended daily limit" line, amount, bar; the reasons (level, serving rule, sugar-tax note) move into a dropdown with a chevron, closed by default. Criteria unchanged. |
 | 23 Nov 2026 | Result screen criteria (Nathan approved the Notion proposal): UK traffic-light thresholds per 100 g/ml plus the UK per-serving rule (servings > 100 g / 150 ml), total fat added, calories only judged as "low" (no high warning), protein and fibre use the EU claim levels (source / high), and drinks over 6 g sugar per 100 ml get a Thai sugar tax note. See `docs/prototype-v0.3-spec.md`. |
@@ -78,7 +80,7 @@ You may not be able to open these links. Everything you need for the current bui
 - **Honest data display.** Show the data source, show "not available" for missing values, never invent
   or estimate nutrition values.
 - **Log decisions.** When Nathan decides something new, add a row to the table above (newest first).
-- **Don't add a score, user accounts, analytics or tracking** unless a later spec says so.
+- **Don't add user accounts, analytics or tracking** unless a later spec says so. The score follows `docs/prototype-v0.5-spec.md`.
 - The Supabase key in `config.js` is public by design. Never commit the contributor passcode or any secret/service key.
 
 ## What comes after v0.1 (not now)
