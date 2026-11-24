@@ -53,3 +53,19 @@ the README ("Shared product database").
 3. A wrong passcode is refused; products stay on the phone and are sent later.
 4. Direct writes to the table with the public key are refused (tested against PostgreSQL 16 with the SQL file).
 5. Works at 390 px wide with no sideways scrolling.
+
+## UX fixes (24 Nov 2026)
+
+From the UX review (https://claude.ai/artifact/43ymoagdNx1rnD9b7kKNzJ); Nathan approved all five. Layout and wording
+only: no change to the scoring, colours or criteria.
+
+1. **Scan**: "Type the barcode" and "Use a photo" sit side by side, and the camera box is lower (shorter still on
+   small phones like the iPhone SE), so both buttons show above the bottom tabs, even with a camera message. Camera
+   messages are shorter.
+2. **Result**: the floating "Scan another" button is gone. It covered row text, and the Scan tab does the same.
+3. **Errors**: network, timeout and busy screens get a **Try again** button (looks the barcode up again) and plain
+   titles: "No internet connection", "This is taking too long", "Too many lookups right now".
+4. **Found, no nutrition facts**: an **Add the nutrition facts** button opens the timed form (same as the one in the
+   Store audit box), so shoppers aren't stuck.
+5. **Wording and size**: on-screen text has no colons ("Barcode 885…", "Nutrition data from Open Food Facts",
+   "Check it against the pack (store audit)"), and row notes, dropdowns and the source line are 14 px or more.
