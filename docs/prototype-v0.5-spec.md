@@ -32,8 +32,8 @@ dropdown explains it in plain words.
 ## New rows and rules (`additives.js`, `nutrition-view.js`)
 
 - **Mostly healthy fats.** Nuts, seeds, nut butters and plain plant oils (Open Food Facts category, or the
-  name; never drinks) where less than a quarter of the fat is saturated: fat and saturated fat go to Other
-  with "Mostly healthy fats" and take no points off.
+  name; never drinks) where less than a quarter of the fat is saturated: fat and saturated fat go to the
+  Nutrition facts list with "Mostly healthy fats" and take no points off.
 - **Sweeteners** (INS 950, 951, 952, 954, 955, 960, 961, 962, 969, or a drink with ≤ 0.5 g sugar whose
   name says Zero / Diet / Sugar free / No sugar / ไม่มีน้ำตาล): orange row "Contains sweeteners", score
   at most 50.
@@ -50,7 +50,7 @@ dropdown explains it in plain words.
   | Benzoates | 210–213 | −8, orange | "Contains sodium benzoate, a preservative" |
   | Sulphites | 220–228 | −8, orange | "Contains sodium metabisulphite, a preservative that can trigger asthma" |
   | Fat preservatives | 319, 321 | −8, orange | "Contains TBHQ, a preservative for fats and oils" |
-  | Flavour enhancers | 621, 627, 631, 635 | 0, Other | "Contains MSG, a flavour enhancer" |
+  | Flavour enhancers | 621, 627, 631, 635 | 0, info line | "Also contains MSG, a flavour enhancer. It is considered safe at normal amounts, so it doesn't change the score." (one plain line under the lists) |
 
 Screen wording uses plain sentences with no colons (Nathan, 24 Nov 2026).
 

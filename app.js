@@ -341,7 +341,7 @@ function renderProduct(p) {
   if (p.hasNutrition) renderNutrition(p);
   $('audit-box').open = false;
 
-  // Shopper view: the score (approved 24 Nov 2026) and the Watch out / Good points groups.
+  // Shopper view: the score (approved 24 Nov 2026), Watch out / Good points and the Nutrition facts list.
   const view = p.hasNutrition ? buildView(p) : null;
   renderScore(computeScore(view));
   renderGroups(view);
@@ -406,8 +406,10 @@ function renderGroups(view) {
       const wrap = hasDetails ? el('details', 'fact-drop') : li;
       const rowHead = hasDetails ? el('summary', 'fact-head') : el('div', 'fact-head');
       const line = el('div', 'fact-line');
-      const dot = el('span', 'dot');
+      // Nutrition facts rows that are a good point get a green tick instead of a dot.
+      const dot = el('span', item.mark === 'tick' ? 'tick' : 'dot');
       dot.dataset.tone = item.tone;
+      if (item.mark === 'tick') dot.setAttribute('aria-label', 'Good point');
       const text = el('div', 'fact-text');
       text.append(el('span', 'fact-name', item.name), el('span', 'fact-note', item.note));
       const amount = el('span', item.pct === null ? 'fact-amount na' : 'fact-amount', item.amount);
@@ -441,6 +443,8 @@ function renderGroups(view) {
     else section.append(head, card);
     box.append(section);
   });
+  // Flavour enhancers such as MSG: one plain line, no points off (24 Nov 2026).
+  if (view.infoLine) box.append(el('p', 'group-hint info-line', view.infoLine));
 }
 
 function el(tag, className, text) {

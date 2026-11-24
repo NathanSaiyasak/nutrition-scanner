@@ -41,11 +41,8 @@ const GROUPS = {
     note: 'Contains {name}, a preservative for fats and oils',
     why: 'There is a strict limit on how much of it is safe to eat each day.',
   },
-  enhancer: {
-    level: 'info', points: 0,
-    note: 'Contains {name}, a flavour enhancer',
-    why: 'The EU food safety authority considers it safe at normal amounts, so it doesn\'t change the score. Its sodium is already counted above.',
-  },
+  // Flavour enhancers: a plain info line under the lists, no points off (MSG not penalised, 24 Nov 2026).
+  enhancer: { level: 'info', points: 0 },
   sweetener: { level: 'sweetener', points: 0 },
 };
 
@@ -86,6 +83,9 @@ const TEXT = {
   fruitNote: 'Mostly fruit or vegetables',
   nutsNote: 'Mostly nuts',
   fruitWhy: 'At least 80% of it is fruit, vegetables, pulses or nuts. Adds 10 points to the score.',
+  enhancerOne: 'Also contains {list}, a flavour enhancer. It is considered safe at normal amounts, so it doesn\'t change the score.',
+  enhancerMany: 'Also contains {list}, flavour enhancers. They are considered safe at normal amounts, so they don\'t change the score.',
+  and: '{a} and {b}',
 };
 
 function say(key, vars = {}) {
@@ -104,19 +104,21 @@ export function additiveCodes(p) {
 
 /**
  * Extra rows for the result screen and what the score needs from them.
- * Returns { items, additivePoints, sweetener }
+ * Returns { items, additivePoints, sweetener, infoLine }
  *   items: rows shaped like nutrition-view.js items, with group 'watch' | 'good' | 'other'.
  */
 export function extraRows(p, { drink, sugar100, nutType }) {
   const items = [];
   let additivePoints = 0;
   const sweeteners = [];
+  const enhancers = [];
 
   if (p.ingredientsKnown) {
     for (const code of additiveCodes(p)) {
       const [name, groupKey] = ADDITIVES[code];
       const g = GROUPS[groupKey];
       if (g.level === 'sweetener') { sweeteners.push(name); continue; }
+      if (g.level === 'info') { enhancers.push(name); continue; }
       const details = [g.why];
       if (g.points) details.push(say('pointsOff', { n: g.points }));
       details.push(say('insCode', { code }));
@@ -127,9 +129,9 @@ export function extraRows(p, { drink, sugar100, nutType }) {
         note: g.note.replace('{name}', name),
         details: [details.join(' ')],
         pct: null,
-        tone: g.level === 'high' ? 'bad' : g.level === 'medium' ? 'warn' : 'na',
-        level: g.level === 'info' ? 'neutral' : g.level,
-        group: g.level === 'info' ? 'other' : 'watch',
+        tone: g.level === 'high' ? 'bad' : 'warn',
+        level: g.level,
+        group: 'watch',
         extra: 'additive',
         points: g.points,
       });
@@ -176,7 +178,15 @@ export function extraRows(p, { drink, sugar100, nutType }) {
     });
   }
 
-  return { items, additivePoints: Math.min(additivePoints, ADDITIVE_POINTS_MAX), sweetener: items.some((i) => i.extra === 'sweetener') };
+  const list = enhancers.length > 1
+    ? say('and', { a: enhancers.slice(0, -1).join(', '), b: enhancers[enhancers.length - 1] }) : enhancers[0];
+  const infoLine = enhancers.length ? say(enhancers.length > 1 ? 'enhancerMany' : 'enhancerOne', { list }) : null;
+  return {
+    items,
+    additivePoints: Math.min(additivePoints, ADDITIVE_POINTS_MAX),
+    sweetener: items.some((i) => i.extra === 'sweetener'),
+    infoLine,
+  };
 }
 
 /**

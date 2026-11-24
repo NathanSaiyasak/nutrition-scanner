@@ -159,6 +159,10 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 [data-tone="good"].dot, .bar [data-tone="good"] { background: var(--good); }
 [data-tone="great"].dot { background: var(--great); }
 [data-tone="na"].dot, .bar [data-tone="na"] { background: var(--na); }
+.tick {
+  width: 18px; height: 18px; flex-shrink: 0; margin: 0 -4px; border-radius: 50%; background: var(--good)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 8.4l2.6 2.6L12 5.6' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat;
+}
 .verdict[data-tone="bad"] { background: var(--bad-bg); color: var(--bad-text); }
 .verdict[data-tone="warn"] { background: var(--warn-bg); color: var(--warn-text); }
 .verdict[data-tone="good"] { background: var(--good-bg); color: var(--good-text); }
@@ -168,6 +172,7 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 .group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
 .group-head h3 { margin: 0; font-size: 1.1rem; }
 .group-hint { margin: -2px 0 8px; font-size: 0.8rem; color: var(--muted); }
+.info-line { margin: 12px 0 0; }
 .basis { font-size: 0.72rem; font-weight: 700; color: var(--muted); }
 .group-card { list-style: none; margin: 0; padding: 0 16px; background: var(--card); border-radius: 16px; }
 .fact { padding: 14px 0; }
