@@ -59,7 +59,7 @@ export function buildView(p) {
   facts.push(fact('fibre', 'Fibre', 'g', row('fiber')));
   facts.push(fact('carbs', 'Carbs', 'g', row('carbohydrates')));
   // The facts that decide the basis, the colours and the sample score: the same set as before
-  // 24 Nov 2026 (fibre only when it has a value). Carbs are shown for information only, never rated.
+  // 24 Nov 2026 (fibre only when it has a value). Carbs are shown with a plain description, never rated.
   const core = facts.filter((f) => f.key !== 'carbs' && !(f.key === 'fibre' && f.per100 === null && f.perServing === null));
 
   // Per serving only when every fact that has a value also has a per-serving value, and either the
@@ -103,7 +103,7 @@ export function buildView(p) {
       ? { level: 'neutral', why: 'healthyFat' } : classify(f, drink, energy100);
     // The row shows one plain line ("A bit too much sugar"); a one- or two-sentence dropdown under it
     // gives the % of the daily guide and why (Nathan, 23 Nov 2026). All wording is in TEXT below.
-    const note = subtitle(f, level, why, energy100);
+    const note = subtitle(f, level, why, energy100, pct);
     const details = [explain(f, { level, why, drink, pct, useServing, energy100 })];
     const gauge = gaugeFor(f, { level, why, drink, pct, amountValue, useServing, servingAmount });
     const tone = { high: 'bad', medium: 'warn', low: 'good', good: 'good', neutral: 'na' }[level];
@@ -163,35 +163,43 @@ const TEXT = {
   lowIn: 'Low in {n}',
   highIn: 'High in {n}',
   goodAmount: 'Good amount of {n}',
+  highForCalories: 'High in {n} for its calories',
+  goodForCalories: 'Good amount of {n} for its calories',
   notMuch: 'Not much {n}',
-  notLowCalories: 'Not low in calories',
+  some: 'Some {n}',
+  fairAmount: 'A fair amount of {n}',
+  // Calories and carbs: a neutral size word that matches the bar (share of a day), never a warning
+  // (Nathan, 24 Nov 2026: "Not low in calories" beside a short bar was confusing).
+  caloriesLight: 'Light on calories',
+  caloriesModerate: 'Moderate calories',
+  caloriesRich: 'Energy-rich',
+  carbsSmall: 'Light on carbs',
+  carbsModerate: 'Moderate carbs',
+  carbsLarge: 'Carb-rich',
   cantRate: 'Can\'t rate this yet',
   healthyFats: 'Mostly healthy fats',
-  forInfo: 'For information, not rated',
   // Dropdown, first sentence: share of the Thai daily guide.
-  shareLimit: '{basis} {pct}% of the recommended daily limit, based on the Thai daily guide ({daily} a day).',
-  shareAmount: '{basis} {pct}% of the recommended daily amount, based on the Thai daily guide ({daily} a day).',
-  shareCalories: '{basis} {pct}% of a day\'s calories, based on the Thai daily guide ({daily} a day).',
+  shareLimit: '{basis} {pct}% of the daily limit in the Thai daily guide ({daily} a day).',
+  shareAmount: '{basis} {pct}% of the daily amount in the Thai daily guide ({daily} a day).',
+  shareCalories: '{basis} {pct}% of a day\'s calories in the Thai daily guide ({daily} a day).',
   basisServing: 'One serving has',
   basisFood: '100 g of this has',
   basisDrink: '100 ml of this has',
-  // Dropdown, second sentence: why it got its colour.
-  rateHigh: 'Rated high by the UK traffic-light guide.',
-  rateHighTax: 'Rated high by the UK traffic-light guide, and taxed as a sugary drink in Thailand.',
-  ratePortion: 'Rated high by the UK traffic-light guide because one serving is large.',
-  ratePortionTax: 'Rated high by the UK traffic-light guide because one serving is large, and taxed as a sugary drink in Thailand.',
-  rateMedium: 'Rated medium by the UK traffic-light guide.',
-  rateMediumTax: 'Rated medium by the UK traffic-light guide, and taxed as a sugary drink in Thailand.',
-  rateLow: 'Rated low by the UK traffic-light guide.',
-  lowCalories: 'Counts as low in calories under EU rules.',
+  // Dropdown, second sentence (only when it adds something).
+  sugarTax: 'Drinks this sweet are taxed as sugary drinks in Thailand.',
+  portionBig: 'One serving is large, so it counts as too much.',
+  caloriesLightWhy: 'About as much as a light snack.',
+  caloriesModerateWhy: 'About as much as a big snack.',
+  caloriesRichWhy: 'About as much as a meal.',
+  lowCalories: 'Low enough to count as a low-calorie food.',
   proteinHigh: 'At least 20% of its calories come from protein.',
   proteinSource: 'At least 12% of its calories come from protein.',
   proteinLow: 'Less than 12% of its calories come from protein.',
   proteinNoCalories: 'It can\'t be rated without the calories.',
-  fibreHigh: 'Enough to count as high in fibre under EU rules.',
-  fibreSource: 'Enough to count as a source of fibre under EU rules.',
-  fibreLow: 'Not enough to count as a source of fibre under EU rules.',
-  carbsInfo: 'Carbs aren\'t rated, so they get no colour.',
+  fibreHigh: 'Enough to count as high in fibre.',
+  fibreSource: 'Enough to count as a source of fibre.',
+  fibreLow: 'Not enough to count as a source of fibre.',
+  carbsAbout: 'Carbs are the body\'s main source of energy.',
   noServingSize: 'The label didn\'t give the serving size, so we can\'t rate it yet.',
   healthyFatWhy: 'Less than a quarter of the fat is saturated, which is typical of nuts, seeds and plant oils, so it isn\'t a warning.',
 };
@@ -205,19 +213,28 @@ const LIMIT_KEYS = ['sugars', 'fat', 'satfat', 'sodium'];
 const FACT_KEYS = ['energy', 'protein', 'fibre', 'carbs'];
 
 // The one-line subtitle under a row's name. Describes what classify() decided; never changes it.
-function subtitle(f, level, why, energy100) {
+function subtitle(f, level, why, energy100, pct) {
   const n = TEXT.noun[f.key];
-  if (f.key === 'carbs') return say('forInfo');
+  // Carbs and calories: a size word that matches the bar (share of a day). Thresholds 10% and 25%.
+  const size = pct < 10 ? 0 : pct < 25 ? 1 : 2;
+  if (f.key === 'carbs') return say(['carbsSmall', 'carbsModerate', 'carbsLarge'][size]);
   if (f.judge100 === null) return say('cantRate');
   if (why === 'healthyFat') return say('healthyFats');
   if (LIMIT_KEYS.includes(f.key)) {
     if (level === 'high') return say(why === 'portion' ? 'tooMuchServing' : 'tooMuch', { n });
     return say(level === 'medium' ? 'bitTooMuch' : 'lowIn', { n });
   }
-  if (f.key === 'energy') return level === 'low' ? say('lowIn', { n }) : say('notLowCalories');
+  if (f.key === 'energy') {
+    return level === 'low' ? say('lowIn', { n }) : say(['caloriesLight', 'caloriesModerate', 'caloriesRich'][size]);
+  }
   if (f.key === 'protein' && !energy100) return say('cantRate');
-  if (level === 'good') return say(why === 'high' ? 'highIn' : 'goodAmount', { n });
-  return say('notMuch', { n });
+  // Protein and fibre: a good point is judged against the calories (EU claims), so a short bar gets
+  // "for its calories" to explain it. Otherwise the words follow the bar.
+  if (level === 'good') {
+    if (pct < 10) return say(why === 'high' ? 'highForCalories' : 'goodForCalories', { n });
+    return say(why === 'high' ? 'highIn' : 'goodAmount', { n });
+  }
+  return say(['notMuch', 'some', 'fairAmount'][size], { n });
 }
 
 // The dropdown text: one or two short sentences (Nathan, 23 Nov 2026: understandable at a glance).
@@ -228,16 +245,18 @@ function explain(f, { level, why, drink, pct, useServing, energy100 }) {
   const share = say(shareKey, { basis, pct, daily });
   const v = f.judge100;
   let reason = null;
-  if (f.key === 'carbs') reason = say('carbsInfo');
+  const size = pct < 10 ? 0 : pct < 25 ? 1 : 2;
+  if (f.key === 'carbs') reason = say('carbsAbout');
   else if (v === null) reason = say('noServingSize');
   else if (why === 'healthyFat') reason = say('healthyFatWhy');
   else if (LIMIT_KEYS.includes(f.key)) {
-    const tax = f.key === 'sugars' && drink && v > THAI_SUGAR_TAX ? 'Tax' : '';
-    if (level === 'high') reason = say((why === 'portion' ? 'ratePortion' : 'rateHigh') + tax);
-    else if (level === 'medium') reason = say('rateMedium' + tax);
-    else reason = say('rateLow');
+    // The UK traffic-light sentence is gone (Nathan, 24 Nov 2026: too much text); the colour says it.
+    if (f.key === 'sugars' && drink && v > THAI_SUGAR_TAX) reason = say('sugarTax');
+    else if (level === 'high' && why === 'portion') reason = say('portionBig');
   } else if (f.key === 'energy') {
+    // The snack or meal comparison only makes sense for one serving, not for 100 g.
     if (level === 'low') reason = say('lowCalories');
+    else if (useServing) reason = say(['caloriesLightWhy', 'caloriesModerateWhy', 'caloriesRichWhy'][size]);
   } else if (f.key === 'protein') {
     reason = !energy100 ? say('proteinNoCalories')
       : level === 'good' ? say(why === 'high' ? 'proteinHigh' : 'proteinSource') : say('proteinLow');

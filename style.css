@@ -140,22 +140,45 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 
 /* ---------- Result screen ---------- */
 #screen-product { padding-bottom: 16px; }
-.product-card { display: flex; gap: 14px; align-items: center; background: var(--card); border-radius: 12px; padding: 14px; margin: 4px 0 20px; }
+/* Product card (Nathan's mockup, 24 Nov 2026): photo and names, a thin line, then the score ring and
+   three quick stats. Small corners as before. */
+.product-card { background: var(--card); border-radius: 12px; padding: 16px; margin: 4px 0 20px; }
+.product-top { display: flex; gap: 14px; align-items: center; }
 .photo {
-  width: 104px; height: 104px; flex-shrink: 0; border-radius: 8px; background: var(--na-bg);
+  width: 88px; height: 88px; flex-shrink: 0; border-radius: 10px; background: var(--na-bg);
   display: flex; align-items: center; justify-content: center; color: var(--faint); overflow: hidden;
 }
 .photo img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
 .product-text { min-width: 0; flex: 1; }
-.brand-tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--muted); background: var(--na-bg); border-radius: 6px; padding: 2px 8px; margin-bottom: 4px; }
-.product-text h2 { margin: 0; font-size: 1rem; line-height: 1.3; overflow-wrap: anywhere; }
-.alt-name { margin: 2px 0 0; color: var(--muted); font-size: 0.85rem; overflow-wrap: anywhere; }
+.brand-tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--muted); background: var(--na-bg); border-radius: 999px; padding: 2px 10px; margin-bottom: 6px; }
+.product-text h2 { margin: 0; font-size: 1.05rem; line-height: 1.3; overflow-wrap: anywhere; }
+.alt-name { margin: 3px 0 0; color: var(--muted); font-size: 0.875rem; overflow-wrap: anywhere; }
 .product-text .meta { margin-top: 2px; font-size: 0.85rem; }
-.score-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-.verdict { font-size: 0.85rem; font-weight: 700; border-radius: 8px; padding: 2px 10px; }
-.score b { font-size: 1.15rem; }
+.product-summary { display: flex; align-items: center; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.score-ring { position: relative; width: 96px; height: 96px; flex-shrink: 0; --score: 0; --ring: var(--na); }
+.score-ring svg { width: 100%; height: 100%; display: block; transform: rotate(-90deg); }
+.ring-track, .ring-arc { fill: none; stroke-width: 7; }
+.ring-track { stroke: var(--track); }
+.ring-arc { stroke: var(--ring); stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: calc(100 - var(--score)); }
+.score-ring.is-on .ring-arc { transition: stroke-dashoffset 0.7s cubic-bezier(0.22, 0.61, 0.36, 1); }
+@media (prefers-reduced-motion: reduce) { .score-ring.is-on .ring-arc { transition: none; } }
+.score-ring[data-tone="bad"] { --ring: var(--bad); --ring-text: var(--bad-text); }
+.score-ring[data-tone="warn"] { --ring: var(--warn); --ring-text: var(--warn-text); }
+.score-ring[data-tone="good"] { --ring: var(--good); --ring-text: var(--good-text); }
+.score-ring[data-tone="great"] { --ring: var(--great); --ring-text: var(--great); }
+.ring-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.score { color: var(--ring-text, var(--text)); line-height: 1; }
+.score b { font-size: 1.25rem; }
 .score small { font-size: 0.65rem; font-weight: 700; margin-left: 1px; }
-.score-label { margin: 6px 0 0; font-size: 0.8rem; color: var(--faint); }
+.verdict { font-size: 0.85rem; font-weight: 700; border-radius: 6px; padding: 2px 10px; }
+.score-label { margin: 0; width: 96px; flex-shrink: 0; font-size: 0.8rem; color: var(--faint); }
+.quick-stats { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 0; display: flex; justify-content: space-between; gap: 10px; }
+.quick-stat { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.quick-stat .nicon { width: 28px; height: 28px; border-radius: 8px; margin-bottom: 6px; }
+.quick-stat .nicon::before { inset: 6px; }
+.quick-label { font-size: 0.75rem; color: var(--faint); }
+.quick-value { font-size: 1rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.quick-value.na { font-size: 0.75rem; font-weight: 400; white-space: normal; }
 
 .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; background: var(--na); }
 [data-tone="bad"].dot, .bar [data-tone="bad"] { background: var(--bad); }
@@ -197,7 +220,7 @@ summary.fact-head:focus-visible { outline: 2px solid var(--accent); outline-offs
 @media (prefers-reduced-motion: reduce) { .chevron { transition: none; } }
 .fact-body { overflow: hidden; }
 .fact-inner { display: flex; align-items: center; gap: 14px; padding-top: 14px; }
-.fact-details { flex: 1; min-width: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.45; }
+.fact-details { flex: 1; min-width: 0; font-size: 0.875rem; color: var(--muted); line-height: 1.45; }
 .fact-details p { margin: 0; }
 .fact-details p + p { margin-top: 6px; }
 
@@ -214,8 +237,10 @@ summary.fact-head:focus-visible { outline: 2px solid var(--accent); outline-offs
 .gauge.is-on .gauge-fill { stroke-dashoffset: var(--off); opacity: 1; }
 .gauge-knob { transform-box: view-box; transform-origin: 60px 58px; transform: rotate(0deg); }
 .gauge.is-on .gauge-knob { transform: rotate(calc(var(--pos) * 180deg)); }
-.knob-ring { fill: #fff; stroke: var(--text); stroke-width: 2; }
-.knob-dot { fill: var(--text); }
+.knob-dot { fill: var(--text); stroke: #fff; stroke-width: 2.5; filter: drop-shadow(0 1px 1.5px rgba(16, 24, 40, 0.25)); }
+.gauge[data-tone="good"] .knob-dot { fill: var(--good); }
+.gauge[data-tone="warn"] .knob-dot { fill: var(--warn); }
+.gauge[data-tone="bad"] .knob-dot { fill: var(--bad); }
 .gauge-num {
   position: absolute; left: 0; right: 0; bottom: 0; text-align: center;
   font-size: 1.35rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; color: var(--text);
@@ -247,14 +272,14 @@ summary.fact-head:focus-visible { outline: 2px solid var(--accent); outline-offs
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 8.4l2.6 2.6L12 5.6' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 10px no-repeat;
 }
 .facts-card .bar span { background: var(--n, var(--na)); }
-.fact[data-key="energy"] { --n: #6172F3; --n-bg: #EEF4FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2.5 4.5 13.5h6.5l-1 8 8.5-11h-6.5l1-8z'/%3E%3C/svg%3E"); }
-.fact[data-key="protein"] { --n: #DD2590; --n-bg: #FDF2FA; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3c-3.6 0-6.5 5.6-6.5 10.2a6.5 6.5 0 0 0 13 0C18.5 8.6 15.6 3 12 3z'/%3E%3C/svg%3E"); }
-.fact[data-key="fibre"] { --n: #099250; --n-bg: #EDFCF2; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19.5C5 11 10 5 19.5 4.5 19.5 14 14 19 5.5 19.5M5 19.5l7.5-7.5'/%3E%3C/svg%3E"); }
-.fact[data-key="carbs"] { --n: #CA8504; --n-bg: #FEFBE8; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 11A4 4 0 0 1 7.5 3.5h9a4 4 0 0 1 1 7.5v8.5a1 1 0 0 1-1 1h-10a1 1 0 0 1-1-1z'/%3E%3C/svg%3E"); }
-.fact[data-key="sugars"] { --n: #7F56D9; --n-bg: #F4F3FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3 4 7.5v9l8 4.5 8-4.5v-9L12 3zM4 7.5l8 4.5 8-4.5M12 12v9'/%3E%3C/svg%3E"); }
-.fact[data-key="fat"] { --n: #0BA5EC; --n-bg: #F0F9FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3s-6 7-6 11.2a6 6 0 0 0 12 0C18 10 12 3 12 3z'/%3E%3C/svg%3E"); }
-.fact[data-key="satfat"] { --n: #1570EF; --n-bg: #EFF8FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3s-6 7-6 11.2a6 6 0 0 0 12 0C18 10 12 3 12 3zM9 15.5h6'/%3E%3C/svg%3E"); }
-.fact[data-key="sodium"] { --n: #667085; --n-bg: #F2F4F7; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.5 10h9l-1.2 11H8.7L7.5 10zM7.5 10c0-3.6 2-6.5 4.5-6.5s4.5 2.9 4.5 6.5M10.5 7v.01M13.5 7v.01M12 5.5v.01'/%3E%3C/svg%3E"); }
+li[data-key="energy"] { --n: #6172F3; --n-bg: #EEF4FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2.5 4.5 13.5h6.5l-1 8 8.5-11h-6.5l1-8z'/%3E%3C/svg%3E"); }
+li[data-key="protein"] { --n: #DD2590; --n-bg: #FDF2FA; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3c-3.6 0-6.5 5.6-6.5 10.2a6.5 6.5 0 0 0 13 0C18.5 8.6 15.6 3 12 3z'/%3E%3C/svg%3E"); }
+li[data-key="fibre"] { --n: #099250; --n-bg: #EDFCF2; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19.5C5 11 10 5 19.5 4.5 19.5 14 14 19 5.5 19.5M5 19.5l7.5-7.5'/%3E%3C/svg%3E"); }
+li[data-key="carbs"] { --n: #CA8504; --n-bg: #FEFBE8; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 11A4 4 0 0 1 7.5 3.5h9a4 4 0 0 1 1 7.5v8.5a1 1 0 0 1-1 1h-10a1 1 0 0 1-1-1z'/%3E%3C/svg%3E"); }
+li[data-key="sugars"] { --n: #7F56D9; --n-bg: #F4F3FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3 4 7.5v9l8 4.5 8-4.5v-9L12 3zM4 7.5l8 4.5 8-4.5M12 12v9'/%3E%3C/svg%3E"); }
+li[data-key="fat"] { --n: #0BA5EC; --n-bg: #F0F9FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3s-6 7-6 11.2a6 6 0 0 0 12 0C18 10 12 3 12 3z'/%3E%3C/svg%3E"); }
+li[data-key="satfat"] { --n: #1570EF; --n-bg: #EFF8FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3s-6 7-6 11.2a6 6 0 0 0 12 0C18 10 12 3 12 3zM9 15.5h6'/%3E%3C/svg%3E"); }
+li[data-key="sodium"] { --n: #667085; --n-bg: #F2F4F7; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.5 10h9l-1.2 11H8.7L7.5 10zM7.5 10c0-3.6 2-6.5 4.5-6.5s4.5 2.9 4.5 6.5M10.5 7v.01M13.5 7v.01M12 5.5v.01'/%3E%3C/svg%3E"); }
 
 .attribution { font-size: 0.85rem; color: var(--faint); margin: 4px 0 16px; }
 .dev-note { font-size: 0.75rem; color: var(--faint); margin: 14px 0 0; text-align: center; }
@@ -408,4 +433,12 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 90px - var(--tabbar-
   .gauge-num { font-size: 1.1rem; }
   .fact-inner { gap: 12px; }
   .group-basis { font-size: 0.75rem; }
+  .product-card { padding: 14px; }
+  .photo { width: 76px; height: 76px; }
+  .product-summary { gap: 12px; }
+  .score-ring { width: 84px; height: 84px; }
+  .score b { font-size: 1.1rem; }
+  .verdict { font-size: 0.8rem; padding: 1px 8px; }
+  .quick-stats { gap: 8px; }
+  .quick-value { font-size: 0.875rem; }
 }
