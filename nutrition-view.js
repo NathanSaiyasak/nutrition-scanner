@@ -1,9 +1,9 @@
 // nutrition-view.js — v0.3 (criteria updated 23 Nov 2026). Turns a product from lookup.js into the shopper view:
-// Watch out / Good points / Other / Not available. Rules and thresholds: docs/prototype-v0.3-spec.md.
+// Watch out / Good points / Nutrition facts / Not available. Rules and thresholds: docs/prototype-v0.3-spec.md.
 // Never invents a value: a missing number goes in "Not available".
 
 // Thai daily guide amounts, used for the "% of a day" bars.
-const DAILY = { energy: 2000, sugars: 65, fat: 65, satfat: 20, sodium: 2000, protein: 50, fibre: 25 };
+const DAILY = { energy: 2000, sugars: 65, fat: 65, satfat: 20, sodium: 2000, protein: 50, fibre: 25, carbs: 300 };
 
 // UK front-of-pack traffic-light thresholds (FSA guidance, 2016), per 100 g (food) or per 100 ml
 // (drinks): [low ≤, high >]. Salt is in g (sodium mg ÷ 400).
@@ -54,12 +54,15 @@ export function buildView(p) {
     fact('sodium', 'Sodium', 'mg', { per100: sodium100, perServing: sodiumServ, lessThan: sodiumLess }),
     fact('protein', 'Protein', 'g', row('proteins')),
   ];
-  const fibre = row('fiber');
-  if (fibre.per100 !== null || fibre.perServing !== null) facts.push(fact('fibre', 'Fibre', 'g', fibre));
+  facts.push(fact('fibre', 'Fibre', 'g', row('fiber')));
+  facts.push(fact('carbs', 'Carbs', 'g', row('carbohydrates')));
+  // The facts that decide the basis, the colours and the sample score: the same set as before
+  // 24 Nov 2026 (fibre only when it has a value). Carbs are shown for information only, never rated.
+  const core = facts.filter((f) => f.key !== 'carbs' && !(f.key === 'fibre' && f.per100 === null && f.perServing === null));
 
   // Per serving only when every fact that has a value also has a per-serving value, and either the
   // serving size is known or there are no per-100 values at all (a label typed in "per serving").
-  const present = facts.filter((f) => f.per100 !== null || f.perServing !== null);
+  const present = core.filter((f) => f.per100 !== null || f.perServing !== null);
   const allServing = present.length > 0 && present.every((f) => f.perServing !== null);
   const useServing = allServing && (Boolean(p.servingSize) || present.every((f) => f.per100 === null));
   const basisLabel = useServing
@@ -83,7 +86,8 @@ export function buildView(p) {
   const items = facts.map((f) => {
     const amountValue = useServing ? f.perServing : f.per100;
     if (amountValue === null) {
-      return { key: f.key, name: f.name, amount: 'Not available', note: missingNote, details: [], pct: null, tone: 'na', group: 'missing' };
+      const group = FACT_KEYS.includes(f.key) ? 'facts' : 'missing';
+      return { key: f.key, name: f.name, amount: 'Not available', note: missingNote, details: [], pct: null, tone: 'na', group, missing: true };
     }
     const pct = Math.round((amountValue / DAILY[f.key]) * 100);
     const amount = `${f.lessThan ? '<' : ''}${format(amountValue, f.unit)} ${f.unit}`;
@@ -93,8 +97,12 @@ export function buildView(p) {
     const note = subtitle(f, level, why, energy100);
     const details = [explain(f, { level, why, drink, pct, useServing, energy100 })];
     const tone = { high: 'bad', medium: 'warn', low: 'good', good: 'good', neutral: 'na' }[level];
-    const group = level === 'high' || level === 'medium' ? 'watch' : level === 'neutral' ? 'other' : 'good';
-    return { key: f.key, name: f.name, amount, note, details, pct, tone, level, group };
+    // Calories, protein, fibre and carbs always go in the Nutrition facts list (Nathan, 24 Nov 2026),
+    // with a green tick when they are a good point. The rules that decide good are unchanged.
+    const group = FACT_KEYS.includes(f.key) ? 'facts'
+      : level === 'high' || level === 'medium' ? 'watch' : level === 'neutral' ? 'facts' : 'good';
+    const mark = group === 'facts' && tone === 'good' ? 'tick' : null;
+    return { key: f.key, name: f.name, amount, note, details, pct, tone, level, group, mark };
   });
 
   const order = { high: 0, medium: 1 };
@@ -103,22 +111,26 @@ export function buildView(p) {
 
   // judged: at least one fact could be compared with the limits (needs a per-100 value, or a
   // per-serving value with a known serving size). If none could, there are no colours and no sample score.
-  const judged = facts.some((f) => f.judge100 !== null);
-  const otherItems = items.filter((i) => i.group === 'other');
-  const unjudgedOther = otherItems.some((i) => facts.find((f) => f.key === i.key).judge100 === null);
-  const otherHint = unjudgedOther
-    ? 'The label was typed in per serving without the serving size, so we can\'t compare these with the limits yet.'
-    : 'In the middle: not high enough to watch out for, not low enough to count as a good point.';
+  const judged = core.some((f) => f.judge100 !== null);
+  // Nutrition facts: calories, protein, fibre, carbs in that order, then any fact that couldn't be rated.
+  const rank = (i) => (FACT_KEYS.includes(i.key) ? FACT_KEYS.indexOf(i.key) : FACT_KEYS.length);
+  const factItems = items.filter((i) => i.group === 'facts').sort((a, b) => rank(a) - rank(b));
+  const unjudged = factItems.some((i) => !i.missing && i.key !== 'carbs'
+    && facts.find((f) => f.key === i.key).judge100 === null);
+  const factsHint = unjudged
+    ? 'The label was typed in per serving without the serving size, so we can\'t rate these yet.'
+    : null;
 
   const groups = [
     { id: 'watch', title: 'Watch out', items: watch },
     { id: 'good', title: 'Good points', items: items.filter((i) => i.group === 'good') },
-    { id: 'other', title: 'Other', hint: otherHint, items: otherItems },
+    { id: 'facts', title: 'Nutrition facts', hint: factsHint, items: factItems },
     { id: 'missing', title: 'Not available', items: items.filter((i) => i.group === 'missing') },
   ].filter((g) => g.items.length > 0);
 
   // Fat (added 23 Nov 2026) isn't counted here, so the sample score shows for the same products as before.
-  const missingCount = items.filter((i) => i.group === 'missing' && i.key !== 'fat').length;
+  // Carbs, and fibre with no value, weren't counted before 24 Nov 2026, so they aren't counted now.
+  const missingCount = items.filter((i) => i.missing && !['fat', 'carbs', 'fibre'].includes(i.key)).length;
   return { basisLabel, groups, missingCount, items, judged };
 }
 
@@ -126,7 +138,7 @@ export function buildView(p) {
 // {n} = nutrient word, {pct} = % of the daily guide, {daily} = the daily guide amount. Each entry is a
 // whole sentence or phrase (no pieces glued together), so a translation can change the word order.
 const TEXT = {
-  noun: { energy: 'calories', sugars: 'sugar', fat: 'fat', satfat: 'saturated fat', sodium: 'sodium', protein: 'protein', fibre: 'fibre' },
+  noun: { energy: 'calories', sugars: 'sugar', fat: 'fat', satfat: 'saturated fat', sodium: 'sodium', protein: 'protein', fibre: 'fibre', carbs: 'carbs' },
   // Row subtitle, by level.
   tooMuch: 'Too much {n}',
   tooMuchServing: 'Too much {n} per serving',
@@ -137,6 +149,7 @@ const TEXT = {
   notMuch: 'Not much {n}',
   notLowCalories: 'Not low in calories',
   cantRate: 'Can\'t rate this yet',
+  forInfo: 'For information, not rated',
   // Dropdown, first sentence: share of the Thai daily guide.
   shareLimit: '{basis} {pct}% of the recommended daily limit, based on the Thai daily guide ({daily} a day).',
   shareAmount: '{basis} {pct}% of the recommended daily amount, based on the Thai daily guide ({daily} a day).',
@@ -160,6 +173,7 @@ const TEXT = {
   fibreHigh: 'Enough to count as high in fibre under EU rules.',
   fibreSource: 'Enough to count as a source of fibre under EU rules.',
   fibreLow: 'Not enough to count as a source of fibre under EU rules.',
+  carbsInfo: 'Carbs aren\'t rated, so they get no colour.',
   noServingSize: 'The label didn\'t give the serving size, so we can\'t rate it yet.',
 };
 
@@ -168,10 +182,13 @@ function say(key, vars = {}) {
 }
 
 const LIMIT_KEYS = ['sugars', 'fat', 'satfat', 'sodium'];
+// Always listed under "Nutrition facts", in this order (Nathan, 24 Nov 2026).
+const FACT_KEYS = ['energy', 'protein', 'fibre', 'carbs'];
 
 // The one-line subtitle under a row's name. Describes what classify() decided; never changes it.
 function subtitle(f, level, why, energy100) {
   const n = TEXT.noun[f.key];
+  if (f.key === 'carbs') return say('forInfo');
   if (f.judge100 === null) return say('cantRate');
   if (LIMIT_KEYS.includes(f.key)) {
     if (level === 'high') return say(why === 'portion' ? 'tooMuchServing' : 'tooMuch', { n });
@@ -191,7 +208,8 @@ function explain(f, { level, why, drink, pct, useServing, energy100 }) {
   const share = say(shareKey, { basis, pct, daily });
   const v = f.judge100;
   let reason = null;
-  if (v === null) reason = say('noServingSize');
+  if (f.key === 'carbs') reason = say('carbsInfo');
+  else if (v === null) reason = say('noServingSize');
   else if (LIMIT_KEYS.includes(f.key)) {
     const tax = f.key === 'sugars' && drink && v > THAI_SUGAR_TAX ? 'Tax' : '';
     if (level === 'high') reason = say((why === 'portion' ? 'ratePortion' : 'rateHigh') + tax);
