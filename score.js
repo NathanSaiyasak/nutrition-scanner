@@ -25,7 +25,7 @@ const BONUS_MAX = 20;
 const REQUIRED = ['energy', 'sugars', 'fat', 'satfat', 'sodium'];
 
 export const SCORE_TEXT = {
-  checked: 'Based on nutrition and additives.',
+  checked: '', // nothing shown when the ingredients were checked (Nathan, 24 Nov 2026)
   unchecked: 'Ingredients not available, so additives weren\'t checked.',
   missing: 'Not enough information to score yet.',
 };
