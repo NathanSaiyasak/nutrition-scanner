@@ -6,8 +6,9 @@ import { startScanner, scanPhoto } from './scanner.js';
 import { logScan, askToKeepData, setLabelCheck } from './audit.js';
 import { openAddForm, stopAddTimer } from './add-form.js';
 import { renderAudit } from './audit-screen.js';
-import { buildView } from './nutrition-view.js';
-import { computeScore } from './score.js';
+import { buildView, servingText } from './nutrition-view.js';
+import { computeScore, SCORE_TEXT } from './score.js';
+import { buildGauge, setupDropdown } from './dropdown.js';
 import { loadHistory, addToHistory, clearHistory } from './history.js';
 
 const $ = (id) => document.getElementById(id);
@@ -395,10 +396,15 @@ function renderSource(p) {
 function renderScore(result) {
   const scored = Boolean(result && !result.missing);
   $('score-row').hidden = !scored;
-  // Only a note that carries information is shown (no ingredients, or not enough to score).
-  $('score-label').hidden = !result || !result.note;
-  if (!result) return;
-  $('score-label').textContent = result.note;
+  // The product card shows only brand, name and rating (Nathan, 24 Nov 2026). "Not enough information
+  // to score yet" is the rating, so it stays there; the ingredients note is a developer note at the
+  // very bottom of the screen.
+  const note = result ? result.note : '';
+  const devNote = note === SCORE_TEXT.unchecked;
+  $('score-label').hidden = !note || devNote;
+  $('score-label').textContent = devNote ? '' : note;
+  $('dev-note').hidden = !devNote;
+  $('dev-note').textContent = devNote ? note : '';
   if (!scored) return;
   const verdict = $('verdict');
   verdict.textContent = result.verdict;
@@ -415,7 +421,7 @@ function renderGroups(view) {
     const section = el('section', 'group');
     const head = el('div', 'group-head');
     head.append(el('h3', '', group.title));
-    if (index === 0) head.append(el('span', 'basis', view.basisLabel));
+    if (index === 0) head.append(el('span', 'group-basis', view.basisLabel));
     const isFacts = group.id === 'facts';
     const card = el('ul', isFacts ? 'group-card facts-card' : 'group-card');
     for (const item of group.items) {
@@ -464,9 +470,16 @@ function renderGroups(view) {
       if (foot.childElementCount > 0) rowHead.append(foot);
       wrap.append(rowHead);
       if (hasDetails) {
-        const more = el('ul', 'fact-details');
-        for (const d of item.details) more.append(el('li', '', d));
-        wrap.append(more);
+        // Dropdown: the gauge (when the row has a % of the daily guide) and one or two sentences.
+        const body = el('div', 'fact-body');
+        const inner = el('div', 'fact-inner');
+        if (item.gauge) inner.append(buildGauge(item.gauge));
+        const copy = el('div', 'fact-details');
+        for (const d of item.details) copy.append(el('p', '', d));
+        inner.append(copy);
+        body.append(inner);
+        wrap.append(body);
+        setupDropdown(wrap);
         li.append(wrap);
       }
       card.append(li);
@@ -501,7 +514,7 @@ function renderNutrition(p) {
   $('per100-head').hidden = !show100;
   // Per-serving column only when there are per-serving values.
   $('serving-head').hidden = !p.hasServing;
-  $('serving-head').textContent = p.servingSize ? `Per serving (${p.servingSize})` : 'Per serving';
+  $('serving-head').textContent = servingText(p.servingSize);
 
   const body = $('nutrition-body');
   body.replaceChildren();
