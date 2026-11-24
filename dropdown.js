@@ -31,8 +31,21 @@ function svgEl(tag, attrs) {
   return node;
 }
 
+// The amount in the middle, written like the row's amount: whole kcal and mg, g to one decimal.
+function formatAmount(value, unit) {
+  if (unit === 'kcal' || unit === 'mg') return Math.round(value).toLocaleString('en-US');
+  if (value === 0) return '0';
+  if (value < 0.1) return value.toFixed(2);
+  return String(Math.round(value * 10) / 10);
+}
+
+function showAmount(box, value) {
+  const numEl = box.querySelector('.gauge-value');
+  numEl.textContent = `${box.dataset.less === 'true' && value > 0 ? '<' : ''}${formatAmount(value, box.dataset.unit)}`;
+}
+
 /**
- * gauge: { kind: 'bands' | 'fill', pos (0–1), pct, tone }. Returns the gauge element.
+ * gauge: { kind: 'bands' | 'fill', pos (0–1), value, unit, less, tone }. Returns the gauge element.
  * Starts at zero; setupDropdown moves it to its value when the dropdown opens.
  */
 export function buildGauge(gauge) {
@@ -42,7 +55,9 @@ export function buildGauge(gauge) {
   box.setAttribute('aria-hidden', 'true'); // the sentences beside it say the same thing in words
   box.style.setProperty('--pos', String(gauge.pos));
   box.style.setProperty('--off', String(100 - gauge.pos * 100));
-  box.dataset.pct = String(gauge.pct);
+  box.dataset.value = String(gauge.value);
+  box.dataset.unit = gauge.unit;
+  box.dataset.less = String(Boolean(gauge.less));
 
   const svg = svgEl('svg', { viewBox: '0 0 120 66', class: 'gauge-svg' });
   if (gauge.kind === 'bands') {
@@ -57,17 +72,23 @@ export function buildGauge(gauge) {
     svg.append(svgEl('path', { d: arc(0, 1), class: 'gauge-track' }));
     svg.append(svgEl('path', { d: arc(0, 1), class: 'gauge-fill', pathLength: '100' }));
   }
-  // The marker: a solid dot in the colour of the band it sits on (Nathan, 24 Nov 2026), with a thin
-  // white edge so it stands out from the band. Turned around the centre from the left end.
+  // The marker: a solid dot a little darker than the band it sits on and a little wider than the band,
+  // with no white edge (Nathan, 24 Nov 2026). Turned around the centre from the left end.
   const knob = svgEl('g', { class: 'gauge-knob' });
   const [kx, ky] = point(0);
-  knob.append(svgEl('circle', { cx: kx, cy: ky, r: 7, class: 'knob-dot' }));
+  knob.append(svgEl('circle', { cx: kx, cy: ky, r: 8.5, class: 'knob-dot' }));
   svg.append(knob);
 
   const num = document.createElement('span');
   num.className = 'gauge-num';
-  num.textContent = '0%';
+  const value = document.createElement('b');
+  value.className = 'gauge-value';
+  const unit = document.createElement('small');
+  unit.className = 'gauge-unit';
+  unit.textContent = gauge.unit;
+  num.append(value, unit);
   box.append(svg, num);
+  showAmount(box, 0);
   return box;
 }
 
@@ -75,26 +96,25 @@ export function buildGauge(gauge) {
 function runGauge(body, on) {
   const box = body.querySelector('.gauge');
   if (!box) return;
-  const num = box.querySelector('.gauge-num');
-  const target = Number(box.dataset.pct);
+  const target = Number(box.dataset.value);
   cancelAnimationFrame(Number(box.dataset.raf || 0));
   if (!on) {
     box.classList.remove('is-on');
-    num.textContent = '0%';
+    showAmount(box, 0);
     return;
   }
   // Force the start state to be painted before moving, so the transition runs.
   void box.getBoundingClientRect();
   box.classList.add('is-on');
   if (reducedMotion()) {
-    num.textContent = `${target}%`;
+    showAmount(box, target);
     return;
   }
   const start = performance.now();
   const step = (now) => {
     const t = Math.min(1, (now - start) / GAUGE_MS);
     const eased = 1 - (1 - t) ** 3;
-    num.textContent = `${Math.round(target * eased)}%`;
+    showAmount(box, t < 1 ? target * eased : target);
     if (t < 1) box.dataset.raf = String(requestAnimationFrame(step));
   };
   box.dataset.raf = String(requestAnimationFrame(step));
