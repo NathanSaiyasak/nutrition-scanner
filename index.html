@@ -44,7 +44,6 @@
 
       <div class="sheet">
         <p class="sheet-title">Can’t scan it?</p>
-        <button id="type-toggle" class="btn-outline" type="button">Type the barcode</button>
         <form id="manual-form" autocomplete="off" hidden>
           <label for="barcode-input" class="visually-hidden">Barcode number</label>
           <div class="row">
@@ -54,7 +53,11 @@
           </div>
           <p id="manual-error" class="field-error" hidden></p>
         </form>
-        <label id="photo-label" class="btn-outline" for="photo-input">Use a photo of the barcode</label>
+        <!-- Side by side, so both fit above the tabs on an iPhone even when a camera message shows. -->
+        <div class="fallbacks">
+          <button id="type-toggle" class="btn-outline" type="button">Type the barcode</button>
+          <label id="photo-label" class="btn-outline" for="photo-input">Use a photo</label>
+        </div>
         <input id="photo-input" type="file" accept="image/*" hidden>
       </div>
     </section>
@@ -88,11 +91,15 @@
         </div>
       </div>
 
-      <p id="no-nutrition" class="notice" hidden>Product found, but no nutrition facts yet.</p>
+      <div id="no-nutrition" class="notice" hidden>
+        <p>Product found, but no nutrition facts yet.</p>
+        <p>You can add them from the label on the pack.</p>
+        <button id="no-nutrition-add" class="primary" type="button" hidden>Add the nutrition facts</button>
+      </div>
       <div id="groups"></div>
 
       <p class="attribution">
-        <span id="source-off">Nutrition data: <a id="off-link" href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>
+        <span id="source-off">Nutrition data from <a id="off-link" href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>
         (open database, ODbL).</span>
         <span id="source-ours" hidden></span>
         % of a day uses the Thai daily guide (2,000 kcal). If the pack says something
@@ -101,7 +108,7 @@
 
       <!-- Store audit (v0.2 tools). Closed by default so shoppers don't see it. -->
       <details id="audit-box" class="audit-box">
-        <summary>Store audit: check against the pack</summary>
+        <summary>Check it against the pack (store audit)</summary>
         <p class="meta mono" id="product-barcode"></p>
         <p id="history-note" class="meta" hidden>Opened from History. To check it against the pack, scan it again.</p>
         <div id="nutrition" hidden>
@@ -130,9 +137,6 @@
         <p class="saved-note" hidden></p>
       </details>
 
-      <div class="dock"><button class="again dock-button" type="button">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M7 12h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        Scan another</button></div>
     </section>
 
     <!-- Screen 4: not found, or an error -->
@@ -148,6 +152,7 @@
         <p id="message-share" class="share-note" hidden></p>
       </div>
       <div class="message-actions">
+        <button id="message-retry" class="primary" type="button" hidden>Try again</button>
         <button id="message-add" class="primary" type="button" hidden>Add this product</button>
         <button class="secondary again" type="button">Scan another product</button>
       </div>
@@ -196,7 +201,7 @@
           <h2 id="add-title">Add a product</h2>
           <p class="timer" aria-live="off"><span id="add-timer" class="mono">0:00</span></p>
         </div>
-        <p class="meta">Barcode <span id="add-barcode" class="mono"></span> · The timer measures how long adding takes (target: 3 minutes).</p>
+        <p class="meta">Barcode <span id="add-barcode" class="mono"></span> · The timer measures how long adding takes (the target is 3 minutes).</p>
 
         <label class="secondary-button" for="label-photo-input">Take or pick a photo of the label</label>
         <input id="label-photo-input" type="file" accept="image/*" hidden>
@@ -252,7 +257,7 @@
 
       <div class="card">
         <h3 class="first">Save the log</h3>
-        <p class="hint">The log is kept in this browser on this phone only. Export it after every store visit: iPhone Safari can delete a website's saved data if the site isn't opened for 7 days.</p>
+        <p class="hint">The log is kept in this browser on this phone only. Export it after every store visit. iPhone Safari can delete a website's saved data if the site isn't opened for 7 days.</p>
         <button id="export-button" class="primary" type="button">Download CSV spreadsheet</button>
         <button id="share-button" class="secondary" type="button" hidden>Share CSV (Files, Mail, LINE…)</button>
         <p id="export-status" class="small-status" hidden></p>
