@@ -142,6 +142,9 @@ $('add-form').addEventListener('submit', (event) => {
     basis: b,
     servingSize: b === 'per serving' ? ($('add-serving').value.trim() || null) : null,
     values,
+    // Free text, kept as typed. The score finds the INS numbers in both (shared-db.js fromAdded).
+    ingredients: $('add-ingredients').value.trim() || null,
+    insNumbers: $('add-ins').value.trim() || null,
   };
   const saved = attachAddedProduct(current.entry, added);
   if (!saved) {

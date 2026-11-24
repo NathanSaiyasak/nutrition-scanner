@@ -56,7 +56,15 @@ Screen wording uses plain sentences with no colons (Nathan, 24 Nov 2026).
 
 ## Not in this step
 
-- The add form doesn't ask for ingredients, additive numbers or "nuts, seeds or plant oil" yet, so
-  products we add ourselves show "Ingredients not available, so additives weren't checked" and can't reach
-  Great. Adding those boxes needs new columns in the shared database (a separate step).
+- The add form doesn't ask "nuts, seeds or plant oil" yet.
+
+## Added later (24 Nov 2026): ingredients in the add form
+
+- Two optional free-text boxes under the nutrition boxes, "Ingredients list" and "INS or E numbers".
+  Saved on the phone, in the CSV export and in the shared database (columns `ingredients` and
+  `ins_numbers`, added by `supabase/add-ingredients.sql`; older rows just have them empty).
+- Either box filled counts as having the ingredients list, so additives are checked and Great is possible.
+  Every three digit number in the INS box counts; in the ingredients text only numbers after INS or E.
+- When both boxes are empty and Open Food Facts has ingredients for the barcode, those are used instead.
+- No change to the scoring rules.
 - Organic, emulsifiers and phosphates.

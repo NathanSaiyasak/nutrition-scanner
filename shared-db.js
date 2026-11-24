@@ -70,7 +70,7 @@ export function waitingCount() {
 /**
  * Keep a product typed in from the label, then try to send it to the shared database.
  * added: the record the timed form saves to the audit log ({ kind, seconds, name, brand, quantity,
- * basis, servingSize, values }). Resolves { status, reason } where status is
+ * basis, servingSize, values, ingredients, insNumbers }). Resolves { status, reason } where status is
  * 'shared' | 'phone-only' | 'not-saved'.
  */
 export async function keepAddedProduct(barcode, added) {
@@ -86,6 +86,8 @@ export async function keepAddedProduct(barcode, added) {
     basis: added.basis,
     servingSize: added.servingSize,
     values: added.values,
+    ingredients: added.ingredients || null,
+    insNumbers: added.insNumbers || null,
     shared: false,
   };
   const list = loadAdded();
@@ -151,6 +153,9 @@ function toDbRow(rec) {
     serving_size: rec.servingSize || null,
     add_seconds: Number.isFinite(rec.seconds) ? rec.seconds : null,
     added_at: rec.savedAt,
+    // Older databases without these two columns simply ignore them (see supabase/add-ingredients.sql).
+    ingredients: rec.ingredients || null,
+    ins_numbers: rec.insNumbers || null,
   };
   for (const f of ADD_FIELDS) {
     const v = rec.values ? rec.values[f.key] : null;
@@ -180,6 +185,13 @@ export async function findProduct(barcode) {
       product.image = offProduct.image; // photo from Open Food Facts, values from the label
       product.offUrl = offProduct.offUrl;
       product.photoFromOff = Boolean(offProduct.image);
+      // Nothing typed about ingredients: use what Open Food Facts knows, so additives are still checked.
+      if (!product.ingredientsKnown && offProduct.ingredientsKnown) {
+        product.ingredientsKnown = true;
+        product.additives = offProduct.additives;
+      }
+      if (!product.categories.length) product.categories = offProduct.categories || [];
+      if (product.fruitVegNuts == null) product.fruitVegNuts = offProduct.fruitVegNuts ?? null;
     }
     // For the audit's "free databases alone" figure: did Open Food Facts have complete values too?
     product.offComplete = offProduct
@@ -215,6 +227,8 @@ async function lookupShared(barcode) {
     basis: r.basis,
     servingSize: r.serving_size,
     values,
+    ingredients: r.ingredients || null, // missing on rows added before 24 Nov 2026
+    insNumbers: r.ins_numbers || null,
   };
 }
 
@@ -260,12 +274,23 @@ export function fromAdded(rec, source) {
     completeness: { present: countAddedValues(rec.values || {}), total: 8 },
     source,
     addedAt: rec.savedAt,
-    // The add form doesn't ask for ingredients yet, so additives can't be checked for these.
-    ingredientsKnown: false,
-    additives: [],
+    // Typed in the add form (24 Nov 2026). Either box counts as having read the ingredients.
+    ingredientsKnown: Boolean(rec.ingredients || rec.insNumbers),
+    additives: insCodes(rec.ingredients, rec.insNumbers),
     categories: [],
     fruitVegNuts: null,
   };
+}
+
+// INS / E numbers typed in the add form, as additive tags the score reads ("ins:211").
+// In the INS box every three digit number counts ("211, 621", "E102", "INS 150d").
+// In the ingredients text only numbers written after INS or E count, the same as lookup.js, so
+// "100 g" or "250 ml" isn't mistaken for an additive. Longer codes (like 1422) aren't scored.
+export function insCodes(ingredients, insNumbers) {
+  const codes = new Set();
+  for (const m of String(insNumbers || '').matchAll(/(?<!\d)(\d{3})(?!\d)/g)) codes.add(`ins:${m[1]}`);
+  for (const m of String(ingredients || '').matchAll(/\b(?:INS|E)\s*-?\s*(\d{3})(?!\d)/gi)) codes.add(`ins:${m[1]}`);
+  return [...codes];
 }
 
 // ---------- Talking to Supabase (its standard REST interface; no extra library needed) ----------

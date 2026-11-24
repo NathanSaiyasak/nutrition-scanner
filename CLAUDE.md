@@ -27,6 +27,7 @@ You may not be able to open these links. Everything you need for the current bui
 
 | Date | Decision |
 |---|---|
+| 24 Nov 2026 | Add form gets two optional free-text boxes, Ingredients list and INS or E numbers, saved on the phone and in Supabase (new columns `ingredients`, `ins_numbers`, see `supabase/add-ingredients.sql`). Either box filled counts as having the ingredients, so additives are checked. When both are empty, Open Food Facts' ingredients are used if it has them. Scoring rules unchanged. |
 | 24 Nov 2026 | Score wording on screen uses plain sentences with no colons, e.g. "Contains sodium nitrite, a preservative used in processed meat". |
 | 24 Nov 2026 | 0–100 score approved (replaces the sample score): start at 100, points off per orange/red nutrient, additives of concern −15/−8 (max −30, MSG not penalised), bonus for protein, fibre and mostly fruit/veg/nuts (max +20), ceilings for warnings and sweeteners (50); healthy-fat rule for nuts, seeds and plant oils; labels Great 90+ (needs nothing in Watch out, a good point and an ingredients list), Good 75, OK 50, Poor 25, Bad. See `docs/prototype-v0.5-spec.md`. |
 | 24 Nov 2026 | Replace the "Other" group with a fixed **Nutrition facts** list under Watch out / Good points: always Calories, Protein, Fibre, Carbs with amounts. Protein and fibre get a green tick at the EU claim levels (calories when low); calories are never a warning; carbs not rated. Colour rules and sample score unchanged. |

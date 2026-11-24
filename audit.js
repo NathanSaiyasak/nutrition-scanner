@@ -210,6 +210,8 @@ const CSV_COLUMNS = [
   ['added_values_per', (r) => r.added?.basis],
   ['added_serving_size', (r) => r.added?.servingSize],
   ...ADD_FIELDS.map((f) => [`added_${f.key}`, (r) => r.added?.values?.[f.key]]),
+  ['added_ingredients', (r) => r.added?.ingredients],
+  ['added_ins_numbers', (r) => r.added?.insNumbers],
   ['added_values_present', (r) => (r.added ? `${countAddedValues(r.added.values)} of 8` : '')],
 ];
 
