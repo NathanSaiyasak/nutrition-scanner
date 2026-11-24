@@ -68,7 +68,7 @@ export function buildView(p) {
   const allServing = present.length > 0 && present.every((f) => f.perServing !== null);
   const useServing = allServing && (Boolean(p.servingSize) || present.every((f) => f.per100 === null));
   const basisLabel = useServing
-    ? (p.servingSize ? `Per serving (${p.servingSize})` : 'Per serving')
+    ? servingText(p.servingSize)
     : `Per 100 ${per}`;
   const missingNote = p.source === 'shared' || p.source === 'phone' ? 'Not typed in from the label' : 'Not in the database yet';
 
@@ -105,13 +105,14 @@ export function buildView(p) {
     // gives the % of the daily guide and why (Nathan, 23 Nov 2026). All wording is in TEXT below.
     const note = subtitle(f, level, why, energy100);
     const details = [explain(f, { level, why, drink, pct, useServing, energy100 })];
+    const gauge = gaugeFor(f, { level, why, drink, pct, amountValue, useServing, servingAmount });
     const tone = { high: 'bad', medium: 'warn', low: 'good', good: 'good', neutral: 'na' }[level];
     // Calories, protein, fibre and carbs always go in the Nutrition facts list (Nathan, 24 Nov 2026),
     // with a green tick when they are a good point. The rules that decide good are unchanged.
     const group = FACT_KEYS.includes(f.key) ? 'facts'
       : level === 'high' || level === 'medium' ? 'watch' : level === 'neutral' ? 'facts' : 'good';
     const mark = group === 'facts' && tone === 'good' ? 'tick' : null;
-    return { key: f.key, name: f.name, amount, note, details, pct, tone, level, why, group, mark };
+    return { key: f.key, name: f.name, amount, note, details, pct, tone, level, why, group, mark, gauge };
   });
 
   // Additives, sweeteners and "mostly fruit, vegetables or nuts" (approved 24 Nov 2026).
@@ -137,10 +138,10 @@ export function buildView(p) {
     : null;
 
   const groups = [
-    { id: 'watch', title: 'Watch out', items: watch },
-    { id: 'good', title: 'Good points', items: all.filter((i) => i.group === 'good') },
-    { id: 'facts', title: 'Nutrition facts', hint: factsHint, items: factItems },
-    { id: 'missing', title: 'Not available', items: items.filter((i) => i.group === 'missing') },
+    { id: 'watch', title: 'Watch Out', items: watch },
+    { id: 'good', title: 'Good Points', items: all.filter((i) => i.group === 'good') },
+    { id: 'facts', title: 'Nutrition Facts', hint: factsHint, items: factItems },
+    { id: 'missing', title: 'Not Available', items: items.filter((i) => i.group === 'missing') },
   ].filter((g) => g.items.length > 0);
 
   return {
@@ -244,6 +245,59 @@ function explain(f, { level, why, drink, pct, useServing, energy100 }) {
     reason = level === 'good' ? say(why === 'high' ? 'fibreHigh' : 'fibreSource') : say('fibreLow');
   }
   return reason ? `${share} ${reason}` : share;
+}
+
+// The gauge in a row's dropdown (Nathan's mockup, 24 Nov 2026). It never decides anything: it draws
+// what classify() already decided.
+// - 'bands': nutrients to limit that got a colour (Watch Out and Good Points). Three equal bands, the
+//   same three colours as the rows (low green, medium orange, high red), because the UK traffic-light
+//   guide has exactly three levels. The marker sits in the band of the row's own rating, at the spot
+//   between that band's limits (the UK limits turned into the amount shown, per serving or per 100).
+// - 'fill': everything else with a % of the daily guide (Nutrition Facts). These aren't rated against
+//   the daily guide, so the arc simply fills to the % of the day, in the nutrient's own colour.
+// pos and pct: 0 to 1 along the arc. pct: the % of the daily guide shown in the middle.
+function gaugeFor(f, { level, why, drink, pct, amountValue, useServing, servingAmount }) {
+  if (pct === null) return null;
+  const fill = { kind: 'fill', pct, pos: Math.min(1, pct / 100) };
+  const band = { low: 0, medium: 1, high: 2 }[level];
+  if (!LIMIT_KEYS.includes(f.key) || band === undefined || why === 'healthyFat') return fill;
+  const kind = drink ? 'drink' : 'food';
+  const limitKey = f.key === 'sodium' ? 'salt' : f.key;
+  const fromSalt = f.key === 'sodium' ? 400 : 1; // salt g → sodium mg
+  // The UK limits are per 100 g/ml. Turn them into the amount on screen (per serving needs the size).
+  const scale = useServing ? (servingAmount ? servingAmount / 100 : null) : 1;
+  let edges = null;
+  if (scale) {
+    const [low, high] = LIMITS[limitKey][kind].map((t) => t * fromSalt * scale);
+    // Big servings: the UK portion rule can make "high" start earlier.
+    const top = useServing && f.portion !== null ? Math.min(high, PORTION_HIGH[limitKey][kind] * fromSalt) : high;
+    edges = [0, Math.min(low, top), top, top * 2];
+  }
+  let within = 0.5;
+  if (edges && edges[band + 1] > edges[band]) {
+    within = (amountValue - edges[band]) / (edges[band + 1] - edges[band]);
+  }
+  // Keep the marker inside its own band, so it always matches the row's colour.
+  within = Math.min(0.9, Math.max(0.1, within));
+  return { kind: 'bands', pct, tone: ['good', 'warn', 'bad'][band], pos: (band + within) / 3 };
+}
+
+// "0.5 bag (30 g)" → "Per serving of 30 g (half a bag)". Open Food Facts writes serving sizes in many
+// ways; the weight or volume comes first because the values are for that amount.
+const HOW_MANY = { '0.5': 'half a', '1/2': 'half a', '0.25': 'a quarter of a', '1/4': 'a quarter of a', '1': '1' };
+export function servingText(size) {
+  if (!size) return 'Per serving';
+  const text = String(size).trim().replace(/\s+/g, ' ');
+  const amount = (t) => t.replace(/(\d)\s*(g|ml|mg|kg|l|cl|กรัม|มล)(?![a-z])/gi, '$1 $2').trim();
+  const m = text.match(/^(.*?)\s*\(([^()]*\d[^()]*)\)$/);
+  if (m && m[1] && /\d\s*(g|ml|l|cl|กรัม|มล)/i.test(m[2])) {
+    let what = m[1].trim();
+    const n = what.match(/^(\d+(?:[.,]\d+)?|\d\/\d)\s+(.+)$/);
+    if (n && HOW_MANY[n[1].replace(',', '.')]) what = `${HOW_MANY[n[1].replace(',', '.')]} ${n[2]}`;
+    return `Per serving of ${amount(m[2])} (${what})`;
+  }
+  if (/^\d+(?:[.,]\d+)?\s*(g|ml|l|cl|กรัม|มล)$/i.test(text)) return `Per serving of ${amount(text)}`;
+  return `Per serving, ${text}`;
 }
 
 // high / medium / low for nutrients to limit; good / neutral for the others. Uses per-100 values.

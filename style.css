@@ -140,9 +140,9 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 
 /* ---------- Result screen ---------- */
 #screen-product { padding-bottom: 16px; }
-.product-card { display: flex; gap: 14px; align-items: center; background: var(--card); border-radius: 20px; padding: 14px; margin: 4px 0 20px; }
+.product-card { display: flex; gap: 14px; align-items: center; background: var(--card); border-radius: 12px; padding: 14px; margin: 4px 0 20px; }
 .photo {
-  width: 104px; height: 104px; flex-shrink: 0; border-radius: 16px; background: var(--na-bg);
+  width: 104px; height: 104px; flex-shrink: 0; border-radius: 8px; background: var(--na-bg);
   display: flex; align-items: center; justify-content: center; color: var(--faint); overflow: hidden;
 }
 .photo img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
@@ -169,11 +169,11 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 .verdict[data-tone="great"] { background: var(--great); color: var(--great-text); }
 
 .group { margin-bottom: 18px; }
-.group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
-.group-head h3 { margin: 0; font-size: 1.1rem; line-height: 1.25; }
+.group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+.group-head h3 { margin: 0; font-size: 1.1rem; line-height: 1.25; white-space: nowrap; }
 .group-hint { margin: 0 0 6px; font-size: 0.9rem; color: var(--muted); }
 .info-line { margin: 12px 0 0; }
-.basis { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+.group-basis { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-align: right; }
 .group-card { list-style: none; margin: 0; padding: 0 16px; background: var(--card); border-radius: 10px; }
 .fact { padding: 14px 0; }
 .fact + .fact { border-top: 1px solid var(--line); }
@@ -190,13 +190,44 @@ summary.fact-head:focus-visible { outline: 2px solid var(--accent); outline-offs
 .fact-foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
 .fact-foot .bar { flex: 1; margin-top: 0; }
 .chevron {
-  width: 16px; height: 16px; flex-shrink: 0; margin-left: auto; transition: transform 0.2s;
+  width: 16px; height: 16px; flex-shrink: 0; margin-left: auto; transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M3.5 6l4.5 4.5L12.5 6' stroke='%239ca3af' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }
-.fact-drop[open] .chevron { transform: rotate(180deg); }
+.fact-drop.is-open .chevron { transform: rotate(180deg); }
 @media (prefers-reduced-motion: reduce) { .chevron { transition: none; } }
-.fact-details { margin: 10px 0 0; padding: 10px 12px; list-style: none; background: var(--na-bg); border-radius: 8px; font-size: 0.9rem; color: var(--muted); line-height: 1.45; }
-.fact-details li + li { margin-top: 6px; }
+.fact-body { overflow: hidden; }
+.fact-inner { display: flex; align-items: center; gap: 14px; padding-top: 14px; }
+.fact-details { flex: 1; min-width: 0; font-size: 0.9rem; color: var(--muted); line-height: 1.45; }
+.fact-details p { margin: 0; }
+.fact-details p + p { margin-top: 6px; }
+
+/* Gauge in the dropdown (Nathan's mockup, 24 Nov 2026): a half-circle dial, % of the daily guide in the
+   middle. Three bands for rated rows, a plain fill in the nutrient's colour for Nutrition Facts. */
+.gauge { position: relative; width: 108px; flex-shrink: 0; }
+.gauge-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.gauge-band, .gauge-track, .gauge-fill { fill: none; stroke-width: 9; stroke-linecap: round; }
+.band-good { stroke: var(--good); }
+.band-warn { stroke: var(--warn); }
+.band-bad { stroke: var(--bad); }
+.gauge-track { stroke: var(--track); }
+.gauge-fill { stroke: var(--n, var(--na)); stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; }
+.gauge.is-on .gauge-fill { stroke-dashoffset: var(--off); opacity: 1; }
+.gauge-knob { transform-box: view-box; transform-origin: 60px 58px; transform: rotate(0deg); }
+.gauge.is-on .gauge-knob { transform: rotate(calc(var(--pos) * 180deg)); }
+.knob-ring { fill: #fff; stroke: var(--text); stroke-width: 2; }
+.knob-dot { fill: var(--text); }
+.gauge-num {
+  position: absolute; left: 0; right: 0; bottom: 0; text-align: center;
+  font-size: 1.35rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; color: var(--text);
+}
+.gauge[data-tone="good"] .gauge-num { color: var(--good-text); }
+.gauge[data-tone="warn"] .gauge-num { color: var(--warn-text); }
+.gauge[data-tone="bad"] .gauge-num { color: var(--bad-text); }
+.gauge-fill ~ .gauge-knob .knob-dot { fill: var(--n, var(--na)); }
+.gauge-fill, .gauge-knob { transition: stroke-dashoffset 0.42s cubic-bezier(0.22, 0.61, 0.36, 1), transform 0.42s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.1s; }
+.gauge:not(.is-on) .gauge-fill, .gauge:not(.is-on) .gauge-knob { transition: none; }
+@media (prefers-reduced-motion: reduce) { .gauge-fill, .gauge-knob { transition: none; } }
+.facts-card .gauge-num { color: var(--n, var(--text)); }
 .bar { height: 6px; border-radius: 4px; background: var(--track); margin-top: 10px; overflow: hidden; }
 .bar span { display: block; height: 100%; border-radius: 4px; }
 
@@ -219,13 +250,14 @@ summary.fact-head:focus-visible { outline: 2px solid var(--accent); outline-offs
 .fact[data-key="energy"] { --n: #6172F3; --n-bg: #EEF4FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2.5 4.5 13.5h6.5l-1 8 8.5-11h-6.5l1-8z'/%3E%3C/svg%3E"); }
 .fact[data-key="protein"] { --n: #DD2590; --n-bg: #FDF2FA; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3c-3.6 0-6.5 5.6-6.5 10.2a6.5 6.5 0 0 0 13 0C18.5 8.6 15.6 3 12 3z'/%3E%3C/svg%3E"); }
 .fact[data-key="fibre"] { --n: #099250; --n-bg: #EDFCF2; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19.5C5 11 10 5 19.5 4.5 19.5 14 14 19 5.5 19.5M5 19.5l7.5-7.5'/%3E%3C/svg%3E"); }
-.fact[data-key="carbs"] { --n: #CA8504; --n-bg: #FEFBE8; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21.5V7.5M12 7.5c-1.8-.8-2.8-2.6-2.8-4.5 1.8.3 2.8 2.2 2.8 4.5zm0 0c1.8-.8 2.8-2.6 2.8-4.5-1.8.3-2.8 2.2-2.8 4.5zM12 12.5c-2-.6-3.6-2.2-3.8-4.4 2 .2 3.6 2 3.8 4.4zm0 0c2-.6 3.6-2.2 3.8-4.4-2 .2-3.6 2-3.8 4.4zM12 17.5c-2-.6-3.6-2.2-3.8-4.4 2 .2 3.6 2 3.8 4.4zm0 0c2-.6 3.6-2.2 3.8-4.4-2 .2-3.6 2-3.8 4.4z'/%3E%3C/svg%3E"); }
+.fact[data-key="carbs"] { --n: #CA8504; --n-bg: #FEFBE8; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 11A4 4 0 0 1 7.5 3.5h9a4 4 0 0 1 1 7.5v8.5a1 1 0 0 1-1 1h-10a1 1 0 0 1-1-1z'/%3E%3C/svg%3E"); }
 .fact[data-key="sugars"] { --n: #7F56D9; --n-bg: #F4F3FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3 4 7.5v9l8 4.5 8-4.5v-9L12 3zM4 7.5l8 4.5 8-4.5M12 12v9'/%3E%3C/svg%3E"); }
 .fact[data-key="fat"] { --n: #0BA5EC; --n-bg: #F0F9FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3s-6 7-6 11.2a6 6 0 0 0 12 0C18 10 12 3 12 3z'/%3E%3C/svg%3E"); }
 .fact[data-key="satfat"] { --n: #1570EF; --n-bg: #EFF8FF; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3s-6 7-6 11.2a6 6 0 0 0 12 0C18 10 12 3 12 3zM9 15.5h6'/%3E%3C/svg%3E"); }
 .fact[data-key="sodium"] { --n: #667085; --n-bg: #F2F4F7; --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.5 10h9l-1.2 11H8.7L7.5 10zM7.5 10c0-3.6 2-6.5 4.5-6.5s4.5 2.9 4.5 6.5M10.5 7v.01M13.5 7v.01M12 5.5v.01'/%3E%3C/svg%3E"); }
 
 .attribution { font-size: 0.85rem; color: var(--faint); margin: 4px 0 16px; }
+.dev-note { font-size: 0.75rem; color: var(--faint); margin: 14px 0 0; text-align: center; }
 
 .audit-box { background: var(--card); border: 1px dashed var(--line); border-radius: 16px; padding: 4px 16px; }
 .audit-box summary { cursor: pointer; padding: 12px 0; font-weight: 700; font-size: 0.9rem; color: var(--muted); }
@@ -368,4 +400,12 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 90px - var(--tabbar-
   .scan-hero h2 { margin-bottom: 10px; font-size: 1.2rem; }
   .scan-stage { aspect-ratio: 3 / 1; }
   .scan-hint { margin-top: 8px; }
+}
+
+/* Narrow phones (iPhone SE): a smaller gauge, so the sentences beside it keep a readable width. */
+@media (max-width: 380px) {
+  .gauge { width: 88px; }
+  .gauge-num { font-size: 1.1rem; }
+  .fact-inner { gap: 12px; }
+  .group-basis { font-size: 0.75rem; }
 }
