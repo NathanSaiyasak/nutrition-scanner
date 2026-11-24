@@ -394,7 +394,7 @@ function renderSource(p) {
 // result: null (nothing to judge: no score), { missing } (a key value is missing: just the note),
 // or { score, verdict, tone, note }.
 // The card's lower half (Nathan's mockup, 24 Nov 2026): a ring coloured by the rating with the score
-// and label inside, and three quick stats. The ingredients note is a developer note at the very
+// inside, then the rating tag above the quick stats. The ingredients note is a developer note at the very
 // bottom of the screen; "Not enough information to score yet" takes the ring's place.
 function renderScore(result, view) {
   const scored = Boolean(result && !result.missing);
@@ -402,6 +402,7 @@ function renderScore(result, view) {
   const devNote = note === SCORE_TEXT.unchecked;
   $('product-summary').hidden = !view;
   $('score-ring').hidden = !scored;
+  $('verdict').hidden = !scored;
   $('score-label').hidden = scored || !note;
   $('score-label').textContent = scored ? '' : note;
   $('dev-note').hidden = !devNote;

@@ -21,13 +21,14 @@
   <main>
     <!-- Screen 1: scan. Dark camera screen, with typing and photo as fallbacks (v0.3 design). -->
     <section id="screen-start" class="screen scan-screen">
+      <!-- The live camera fills the whole screen behind the scan screen (Nathan, 24 Nov 2026). -->
+      <div id="camera" class="camera" hidden>
+        <video id="camera-video" playsinline muted autoplay></video>
+      </div>
       <div class="scan-hero">
         <h2>Scan a barcode</h2>
         <p class="scan-sub">Point the camera at the barcode on the pack</p>
         <div class="scan-stage">
-          <div id="camera" class="camera" hidden>
-            <video id="camera-video" playsinline muted autoplay></video>
-          </div>
           <button id="scan-button" class="scan-start" type="button">
             <span id="scan-button-text" class="scan-start-text">Tap to start the camera</span>
           </button>
@@ -94,11 +95,14 @@
             </svg>
             <div class="ring-inner">
               <span class="score"><b id="score-number"></b><small>/100</small></span>
-              <span id="verdict" class="verdict"></span>
             </div>
           </div>
           <p id="score-label" class="score-label" hidden></p>
-          <ul id="quick-stats" class="quick-stats"></ul>
+          <!-- The rating tag sits above the quick stats, outside the ring (Nathan, 24 Nov 2026). -->
+          <div class="summary-side">
+            <span id="verdict" class="verdict" hidden></span>
+            <ul id="quick-stats" class="quick-stats"></ul>
+          </div>
         </div>
       </div>
 
