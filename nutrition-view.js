@@ -2,7 +2,7 @@
 // Turns a product from lookup.js into the shopper view: Watch out / Good points / Nutrition facts / Not available.
 // Rules and thresholds: docs/prototype-v0.3-spec.md and docs/prototype-v0.5-spec.md.
 // Never invents a value: a missing number goes in "Not available".
-import { extraRows, nutType } from './additives.js';
+import { extraRows, nutType } from './additives.js?v=r6';
 
 // Thai daily guide amounts, used for the "% of a day" bars.
 const DAILY = { energy: 2000, sugars: 65, fat: 65, satfat: 20, sodium: 2000, protein: 50, fibre: 25, carbs: 300 };
@@ -180,15 +180,11 @@ const TEXT = {
   carbsLarge: 'Carb-rich',
   cantRate: 'Can\'t rate this yet',
   healthyFats: 'Mostly healthy fats',
-  // Dropdown, first sentence: the amount and the Thai daily guide amount, in g, mg or kcal (Nathan,
-  // 24 Nov 2026: real amounts are easier to understand than a %).
-  shareLimit: '{basis} {amount} of {n}, and the Thai daily guide says no more than {daily} a day.',
-  shareAmount: '{basis} {amount} of {n}, and the Thai daily guide is {daily} a day.',
-  shareCalories: '{basis} {amount}, and the Thai daily guide is {daily} a day.',
-  lessThan: 'less than {amount}',
-  basisServing: 'One serving has',
-  basisFood: '100 g of this has',
-  basisDrink: '100 ml of this has',
+  // Dropdown, first sentence: the Thai daily guide amount. The amount itself is on the row and in the
+  // gauge, so "One serving has…" was dropped (Nathan, 24 Nov 2026: redundant).
+  shareLimit: 'The Thai daily guide says no more than {daily} of {n} a day.',
+  shareAmount: 'The Thai daily guide is {daily} of {n} a day.',
+  shareCalories: 'The Thai daily guide is {daily} a day.',
   // Dropdown, second sentence (only when it adds something).
   sugarTax: 'Drinks this sweet are taxed as sugary drinks in Thailand.',
   portionBig: 'One serving is large, so it counts as too much.',
@@ -242,13 +238,10 @@ function subtitle(f, level, why, energy100, pct) {
 }
 
 // The dropdown text: one or two short sentences (Nathan, 23 Nov 2026: understandable at a glance).
-function explain(f, { level, why, drink, pct, amountValue, useServing, energy100 }) {
-  const basis = say(useServing ? 'basisServing' : drink ? 'basisDrink' : 'basisFood');
+function explain(f, { level, why, drink, pct, useServing, energy100 }) {
   const daily = `${format(DAILY[f.key], f.unit)} ${f.unit}`;
-  const plain = `${format(amountValue, f.unit)} ${f.unit}`;
-  const amount = f.lessThan ? say('lessThan', { amount: plain }) : plain;
   const shareKey = LIMIT_KEYS.includes(f.key) ? 'shareLimit' : f.key === 'energy' ? 'shareCalories' : 'shareAmount';
-  const share = say(shareKey, { basis, amount, daily, n: TEXT.noun[f.key] });
+  const share = say(shareKey, { daily, n: TEXT.noun[f.key] });
   const v = f.judge100;
   let reason = null;
   const size = pct < 10 ? 0 : pct < 25 ? 1 : 2;

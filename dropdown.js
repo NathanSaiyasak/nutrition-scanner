@@ -63,11 +63,11 @@ export function buildGauge(gauge) {
   if (gauge.kind === 'bands') {
     // Three equal bands joined with no gaps: low (green), medium (orange), high (red). Flat ends where
     // they meet, round ends only at the very start and end of the arc (Nathan, 24 Nov 2026).
-    // Green and red reach a little under orange, so no hairline shows at the joins.
-    const tuck = 0.01;
-    svg.append(svgEl('path', { d: arc(0, 1 / 3 + tuck), class: 'gauge-band band-good' }));
-    svg.append(svgEl('path', { d: arc(2 / 3 - tuck, 1), class: 'gauge-band band-bad' }));
-    svg.append(svgEl('path', { d: arc(1 / 3, 2 / 3), class: 'gauge-band band-warn' }));
+    // Each band is drawn over the start of the next one (red first, then orange, then green on top),
+    // so every join is one colour edge on another colour and no light seam can show between them.
+    svg.append(svgEl('path', { d: arc(1 / 2, 1), class: 'gauge-band band-bad' }));
+    svg.append(svgEl('path', { d: arc(1 / 6, 2 / 3), class: 'gauge-band band-warn' }));
+    svg.append(svgEl('path', { d: arc(0, 1 / 3), class: 'gauge-band band-good' }));
     const [sx, sy] = point(0);
     const [ex, ey] = point(1);
     svg.append(svgEl('circle', { cx: sx, cy: sy, r: 4.5, class: 'band-cap band-good' }));
