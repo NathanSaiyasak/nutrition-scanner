@@ -94,7 +94,9 @@ export function buildView(p) {
   const items = facts.map((f) => {
     const amountValue = useServing ? f.perServing : f.per100;
     if (amountValue === null) {
-      const group = FACT_KEYS.includes(f.key) ? 'facts' : 'missing';
+      // A fact with no value isn't listed under Nutrition Facts or in the card's quick stats (Nathan,
+      // 24 Nov 2026). It goes in the "Not Available" list at the bottom, so a blank is never hidden.
+      const group = 'missing';
       return { key: f.key, name: f.name, amount: 'Not available', note: missingNote, details: [], pct: null, tone: 'na', group, missing: true };
     }
     const pct = Math.round((amountValue / DAILY[f.key]) * 100);
@@ -104,7 +106,7 @@ export function buildView(p) {
     // The row shows one plain line ("A bit too much sugar"); a one- or two-sentence dropdown under it
     // gives the % of the daily guide and why (Nathan, 23 Nov 2026). All wording is in TEXT below.
     const note = subtitle(f, level, why, energy100, pct);
-    const details = [explain(f, { level, why, drink, pct, useServing, energy100 })];
+    const details = [explain(f, { level, why, drink, pct, amountValue, useServing, energy100 })];
     const gauge = gaugeFor(f, { level, why, drink, pct, amountValue, useServing, servingAmount });
     const tone = { high: 'bad', medium: 'warn', low: 'good', good: 'good', neutral: 'na' }[level];
     // Calories, protein, fibre and carbs always go in the Nutrition facts list (Nathan, 24 Nov 2026),
@@ -178,10 +180,12 @@ const TEXT = {
   carbsLarge: 'Carb-rich',
   cantRate: 'Can\'t rate this yet',
   healthyFats: 'Mostly healthy fats',
-  // Dropdown, first sentence: share of the Thai daily guide.
-  shareLimit: '{basis} {pct}% of the daily limit in the Thai daily guide ({daily} a day).',
-  shareAmount: '{basis} {pct}% of the daily amount in the Thai daily guide ({daily} a day).',
-  shareCalories: '{basis} {pct}% of a day\'s calories in the Thai daily guide ({daily} a day).',
+  // Dropdown, first sentence: the amount and the Thai daily guide amount, in g, mg or kcal (Nathan,
+  // 24 Nov 2026: real amounts are easier to understand than a %).
+  shareLimit: '{basis} {amount} of {n}, and the Thai daily guide says no more than {daily} a day.',
+  shareAmount: '{basis} {amount} of {n}, and the Thai daily guide is {daily} a day.',
+  shareCalories: '{basis} {amount}, and the Thai daily guide is {daily} a day.',
+  lessThan: 'less than {amount}',
   basisServing: 'One serving has',
   basisFood: '100 g of this has',
   basisDrink: '100 ml of this has',
@@ -238,11 +242,13 @@ function subtitle(f, level, why, energy100, pct) {
 }
 
 // The dropdown text: one or two short sentences (Nathan, 23 Nov 2026: understandable at a glance).
-function explain(f, { level, why, drink, pct, useServing, energy100 }) {
+function explain(f, { level, why, drink, pct, amountValue, useServing, energy100 }) {
   const basis = say(useServing ? 'basisServing' : drink ? 'basisDrink' : 'basisFood');
   const daily = `${format(DAILY[f.key], f.unit)} ${f.unit}`;
+  const plain = `${format(amountValue, f.unit)} ${f.unit}`;
+  const amount = f.lessThan ? say('lessThan', { amount: plain }) : plain;
   const shareKey = LIMIT_KEYS.includes(f.key) ? 'shareLimit' : f.key === 'energy' ? 'shareCalories' : 'shareAmount';
-  const share = say(shareKey, { basis, pct, daily });
+  const share = say(shareKey, { basis, amount, daily, n: TEXT.noun[f.key] });
   const v = f.judge100;
   let reason = null;
   const size = pct < 10 ? 0 : pct < 25 ? 1 : 2;
@@ -274,10 +280,12 @@ function explain(f, { level, why, drink, pct, useServing, energy100 }) {
 //   between that band's limits (the UK limits turned into the amount shown, per serving or per 100).
 // - 'fill': everything else with a % of the daily guide (Nutrition Facts). These aren't rated against
 //   the daily guide, so the arc simply fills to the % of the day, in the nutrient's own colour.
-// pos and pct: 0 to 1 along the arc. pct: the % of the daily guide shown in the middle.
+// pos: 0 to 1 along the arc. value, unit, less: the amount shown in the middle, in g, mg or kcal
+// (Nathan, 24 Nov 2026; it used to be the % of the daily guide).
 function gaugeFor(f, { level, why, drink, pct, amountValue, useServing, servingAmount }) {
   if (pct === null) return null;
-  const fill = { kind: 'fill', pct, pos: Math.min(1, pct / 100) };
+  const shown = { value: amountValue, unit: f.unit, less: Boolean(f.lessThan) };
+  const fill = { kind: 'fill', ...shown, pos: Math.min(1, pct / 100) };
   const band = { low: 0, medium: 1, high: 2 }[level];
   if (!LIMIT_KEYS.includes(f.key) || band === undefined || why === 'healthyFat') return fill;
   const kind = drink ? 'drink' : 'food';
@@ -298,7 +306,7 @@ function gaugeFor(f, { level, why, drink, pct, amountValue, useServing, servingA
   }
   // Keep the marker inside its own band, so it always matches the row's colour.
   within = Math.min(0.9, Math.max(0.1, within));
-  return { kind: 'bands', pct, tone: ['good', 'warn', 'bad'][band], pos: (band + within) / 3 };
+  return { kind: 'bands', ...shown, tone: ['good', 'warn', 'bad'][band], pos: (band + within) / 3 };
 }
 
 // "0.5 bag (30 g)" → "Per serving of 30 g (half a bag)". Open Food Facts writes serving sizes in many

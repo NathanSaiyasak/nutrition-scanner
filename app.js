@@ -427,20 +427,21 @@ function renderScore(result, view) {
 }
 
 // Calories, protein and fibre at a glance, with the same icons and amounts as the Nutrition Facts list.
+// Only the ones with a value are shown, and no stats at all when none has one (Nathan, 24 Nov 2026);
+// missing values are listed under "Not Available" further down.
 const QUICK = [['energy', 'Calories'], ['protein', 'Protein'], ['fibre', 'Fibre']];
 function renderQuickStats(view) {
   const list = $('quick-stats');
   list.replaceChildren();
-  if (!view) return;
-  for (const [key, label] of QUICK) {
-    const item = view.items.find((i) => i.key === key);
+  const shown = view ? QUICK.map(([key, label]) => [label, view.items.find((i) => i.key === key)])
+    .filter(([, item]) => item && !item.missing) : [];
+  list.hidden = shown.length === 0;
+  for (const [label, item] of shown) {
     const li = el('li', 'quick-stat');
-    li.dataset.key = key;
+    li.dataset.key = item.key;
     const icon = el('span', 'nicon');
     icon.setAttribute('aria-hidden', 'true');
-    const missing = !item || item.missing;
-    li.append(icon, el('span', 'quick-label', label),
-      el('span', missing ? 'quick-value na' : 'quick-value', missing ? 'Not available' : item.amount));
+    li.append(icon, el('span', 'quick-label', label), el('span', 'quick-value', item.amount));
     list.append(li);
   }
 }
@@ -484,6 +485,13 @@ function renderGroups(view) {
       text.append(el('span', 'fact-name', item.name), el('span', 'fact-note', item.note));
       const amount = el('span', item.pct === null ? 'fact-amount na' : 'fact-amount', item.amount);
       line.append(dot, text, amount);
+      // The chevron sits at the right end of the title line, centred on it, so it is in the same spot
+      // on every row, with or without a bar (Nathan, 24 Nov 2026: additive rows have no bar).
+      if (hasDetails) {
+        const chevron = el('span', 'chevron');
+        chevron.setAttribute('aria-hidden', 'true');
+        line.append(chevron);
+      }
       rowHead.append(line);
       const foot = el('div', 'fact-foot');
       if (item.pct !== null) {
@@ -493,11 +501,6 @@ function renderGroups(view) {
         fill.style.width = `${Math.max(2, Math.min(100, item.pct))}%`;
         bar.append(fill);
         foot.append(bar);
-      }
-      if (hasDetails) {
-        const chevron = el('span', 'chevron');
-        chevron.setAttribute('aria-hidden', 'true');
-        foot.append(chevron);
       }
       if (foot.childElementCount > 0) rowHead.append(foot);
       wrap.append(rowHead);
