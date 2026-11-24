@@ -63,16 +63,16 @@ function dropAutoTry() {
 }
 
 const CAMERA_ERRORS = {
-  denied: ['Camera access was blocked',
-    'Allow camera access for this site in your browser settings, then tap the camera box to try again. You can also use a photo or type the number below.'],
+  denied: ['Camera access is blocked',
+    'Allow the camera in your browser settings, then tap the camera box. Or type the barcode or use a photo.'],
   'no-camera': ['No camera found',
-    "This device or browser doesn't offer a camera to the page. Use a photo of the barcode or type the number below instead."],
+    "This browser can't use a camera here. Type the barcode or use a photo instead."],
   'in-use': ['Camera is busy',
-    'Another app may be using the camera. Close it and try again, or type the number below.'],
+    'Another app may be using it. Close that app and try again, or type the barcode.'],
   insecure: ['Camera needs a secure link',
-    'Browsers only allow the camera on https:// pages. Open the hosted link, or type the number below.'],
+    'Browsers only allow the camera on https:// pages. Open the hosted link, or type the barcode.'],
   unknown: ["Couldn't start the camera",
-    'Try again, or type the barcode number below.'],
+    'Try again, or type the barcode.'],
 };
 
 function startCamera(ignore = null, auto = false) {
@@ -228,12 +228,14 @@ $('manual-form').addEventListener('submit', (event) => {
 // ---------- Lookup ----------
 let currentLookup = 0;
 
+let lastHow = { method: 'typed' }; // how the last barcode was read, reused by "Try again"
 let currentEntry = null; // audit log entry number of the product on screen
 let currentProduct = null; // the found product on screen, if any
 
 export async function handleBarcode(barcode, how = { method: 'typed' }) {
   const lookupId = ++currentLookup;
   lastBarcode = barcode;
+  lastHow = how;
   openedFromHistory = false;
   const tries = Math.max(1, attempt.tries + (how.method === 'typed' ? 1 : 0));
   attempt = newAttempt(); // the next scan starts counting from zero
@@ -266,6 +268,7 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
 
   const canAdd = entry !== null;
   $('message-add').hidden = true;
+  $('message-retry').hidden = true;
   switch (result.kind) {
     case 'found':
       currentProduct = result.product;
@@ -279,16 +282,19 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
       $('message-add').hidden = !canAdd;
       break;
     case 'timeout':
-      showMessage('Lookup timed out',
-        'Open Food Facts took too long to answer. Check your connection and try again.', barcode);
+      showMessage('This is taking too long',
+        'The connection is slow right now. Please try again in a moment.', barcode);
+      $('message-retry').hidden = false;
       break;
     case 'busy':
-      showMessage('Too many lookups',
-        'Open Food Facts is busy or limiting requests. Wait a minute and try again.', barcode);
+      showMessage('Too many lookups right now',
+        'The product database is busy. Wait a minute, then try again.', barcode);
+      $('message-retry').hidden = false;
       break;
     default:
-      showMessage('Network error',
-        "Couldn't reach Open Food Facts. Check your internet connection and try again.", barcode);
+      showMessage('No internet connection',
+        'Check your mobile data or wifi, then try again.', barcode);
+      $('message-retry').hidden = false;
   }
 }
 
@@ -304,10 +310,11 @@ function showSavedNote(entry) {
 
 export function showMessage(title, text, barcode, done = false) {
   $('message-share').hidden = true;
+  if (done) $('message-retry').hidden = true;
   $('screen-message').dataset.done = String(done); // a success message hides the "search" icon
   $('message-title').textContent = title;
   $('message-text').textContent = text;
-  $('message-barcode').textContent = barcode ? `Barcode: ${barcode}` : '';
+  $('message-barcode').textContent = barcode ? `Barcode ${barcode}` : '';
   show('screen-message');
 }
 
@@ -321,7 +328,7 @@ function renderProduct(p) {
   $('product-brand').hidden = !brand;
   $('product-meta').textContent = p.quantity || '';
   $('product-meta').hidden = !p.quantity;
-  $('product-barcode').textContent = `Barcode: ${p.barcode}`;
+  $('product-barcode').textContent = `Barcode ${p.barcode}`;
   renderSource(p);
 
   const img = $('product-image');
@@ -368,7 +375,7 @@ function renderSource(p) {
     a.target = '_blank';
     a.rel = 'noopener';
     a.textContent = 'Open Food Facts';
-    box.append(' Photo: ', a, ' (ODbL).');
+    box.append(' Photo from ', a, ' (ODbL).');
   }
 }
 
@@ -547,6 +554,8 @@ function updateProductAdd() {
   const p = currentProduct;
   const incomplete = p && p.completeness.present < p.completeness.total;
   $('product-add').hidden = currentEntry === null || !p || !(incomplete || labelCheck === 'differs');
+  // A product found with no nutrition facts at all gets a button the shopper can see (outside Store audit).
+  $('no-nutrition-add').hidden = currentEntry === null || !p || p.hasNutrition;
   $('product-add').textContent = labelCheck === 'differs'
     ? 'Correct the values from the label (timed)'
     : 'Add the nutrition facts from the label (timed)';
@@ -569,7 +578,7 @@ function startAdd(mode) {
       for (const el of document.querySelectorAll('.saved-note')) el.hidden = true;
       shareNote('Saving the product…');
       keepAddedProduct(barcode, added).then((r) => {
-        if ($('screen-message').hidden || $('message-barcode').textContent !== `Barcode: ${barcode}`) return;
+        if ($('screen-message').hidden || $('message-barcode').textContent !== `Barcode ${barcode}`) return;
         shareNote(SHARE_TEXT[r.status === 'shared' ? 'shared' : r.status === 'not-saved' ? 'not-saved' : r.reason]
           || SHARE_TEXT.offline, r.status === 'shared');
       });
@@ -580,11 +589,11 @@ function startAdd(mode) {
 }
 // What happened to a product typed in from the label (shown under "Product added").
 const SHARE_TEXT = {
-  shared: 'Added to the shared database: anyone who scans this barcode now sees these values.',
-  'not-set-up': 'Saved on this phone: scanning this barcode here shows these values. The shared database isn’t set up yet.',
-  'no-passcode': 'Saved on this phone only. To share it with everyone, enter the contributor passcode on the Audit log screen; it is sent then.',
-  'wrong-passcode': 'Saved on this phone only: the contributor passcode was refused. Enter it again on the Audit log screen; it is sent then.',
-  offline: 'Saved on this phone only: couldn’t reach the shared database. It is sent automatically next time the app opens with internet.',
+  shared: 'Added to the shared database. Anyone who scans this barcode now sees these values.',
+  'not-set-up': 'Saved on this phone. Scanning this barcode here shows these values. The shared database isn’t set up yet.',
+  'no-passcode': 'Saved on this phone only. To share it with everyone, enter the contributor passcode on the Audit log screen and it is sent then.',
+  'wrong-passcode': 'Saved on this phone only, because the contributor passcode was refused. Enter it again on the Audit log screen and it is sent then.',
+  offline: 'Saved on this phone only, because the shared database couldn’t be reached. It is sent automatically next time the app opens with internet.',
   'not-saved': 'This phone couldn’t keep a copy of the product (storage full or blocked). It is still in the audit log.',
 };
 function shareNote(text, ok = false) {
@@ -597,6 +606,8 @@ function shareNote(text, ok = false) {
 let lastScreen = 'screen-start';
 $('message-add').addEventListener('click', () => { lastScreen = 'screen-message'; startAdd('new'); });
 $('product-add').addEventListener('click', () => { lastScreen = 'screen-product'; startAdd('correction'); });
+$('no-nutrition-add').addEventListener('click', () => { lastScreen = 'screen-product'; startAdd('correction'); });
+$('message-retry').addEventListener('click', () => { if (lastBarcode) handleBarcode(lastBarcode, lastHow); });
 
 $('audit-link').addEventListener('click', () => {
   currentLookup++; // a lookup still running is logged, but no longer shown
