@@ -61,22 +61,26 @@ export function buildGauge(gauge) {
 
   const svg = svgEl('svg', { viewBox: '0 0 120 66', class: 'gauge-svg' });
   if (gauge.kind === 'bands') {
-    // Three equal bands with small gaps: low (green), medium (orange), high (red).
-    const gap = 0.075;
-    ['good', 'warn', 'bad'].forEach((tone, i) => {
-      const from = i / 3 + (i === 0 ? 0 : gap / 2);
-      const to = (i + 1) / 3 - (i === 2 ? 0 : gap / 2);
-      svg.append(svgEl('path', { d: arc(from, to), class: `gauge-band band-${tone}` }));
-    });
+    // Three equal bands joined with no gaps: low (green), medium (orange), high (red). Flat ends where
+    // they meet, round ends only at the very start and end of the arc (Nathan, 24 Nov 2026).
+    // Green and red reach a little under orange, so no hairline shows at the joins.
+    const tuck = 0.01;
+    svg.append(svgEl('path', { d: arc(0, 1 / 3 + tuck), class: 'gauge-band band-good' }));
+    svg.append(svgEl('path', { d: arc(2 / 3 - tuck, 1), class: 'gauge-band band-bad' }));
+    svg.append(svgEl('path', { d: arc(1 / 3, 2 / 3), class: 'gauge-band band-warn' }));
+    const [sx, sy] = point(0);
+    const [ex, ey] = point(1);
+    svg.append(svgEl('circle', { cx: sx, cy: sy, r: 4.5, class: 'band-cap band-good' }));
+    svg.append(svgEl('circle', { cx: ex, cy: ey, r: 4.5, class: 'band-cap band-bad' }));
   } else {
     svg.append(svgEl('path', { d: arc(0, 1), class: 'gauge-track' }));
     svg.append(svgEl('path', { d: arc(0, 1), class: 'gauge-fill', pathLength: '100' }));
   }
   // The marker: a solid dot a little darker than the band it sits on and a little wider than the band,
-  // with no white edge (Nathan, 24 Nov 2026). Turned around the centre from the left end.
+  // with no white edge, made a touch smaller in round 5 (Nathan, 24 Nov 2026). Turned around the centre from the left end.
   const knob = svgEl('g', { class: 'gauge-knob' });
   const [kx, ky] = point(0);
-  knob.append(svgEl('circle', { cx: kx, cy: ky, r: 8.5, class: 'knob-dot' }));
+  knob.append(svgEl('circle', { cx: kx, cy: ky, r: 7.5, class: 'knob-dot' }));
   svg.append(knob);
 
   const num = document.createElement('span');

@@ -90,16 +90,36 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
   position: absolute; inset: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.04); padding: 0;
   display: flex; align-items: center; justify-content: center; border-radius: 18px; z-index: 2;
 }
-.camera:not([hidden]) ~ .scan-start { background: rgba(0, 0, 0, 0.55); }
+.scan-screen:has(#camera:not([hidden])) .scan-start { background: rgba(0, 0, 0, 0.55); }
 .scan-start-text {
   font-size: 1rem; font-weight: 700; padding: 12px 20px; border-radius: 999px;
   background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.35);
 }
 .scan-start[data-state="starting"] .scan-start-text { opacity: 0.75; }
-.camera { position: absolute; inset: 0; border-radius: 18px; overflow: hidden; background: #000; }
-.camera video { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Full-screen camera (Nathan, 24 Nov 2026): the live picture fills the whole screen behind the scan
+   screen. It sits under everything (z-index -1, over the page's dark background), and a soft dark
+   gradient at the top and bottom keeps the title and hint readable. The reader still looks at the
+   whole camera picture, so a barcode anywhere in view is read; the frame is a guide for aiming. */
+.camera { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: #000; }
+.camera video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.camera::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.15) 32%, rgba(0, 0, 0, 0.15) 60%, rgba(0, 0, 0, 0.55) 100%);
+}
+/* Text and panels sit above the camera picture. */
+body[data-screen="screen-start"] .top,
+.scan-hero > :not(.scan-stage),
+.scan-screen .sheet { position: relative; z-index: 1; }
 .frame-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
-.corners { position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200' fill='none'%3E%3Cpath d='M3 44V21A18 18 0 0 1 21 3h23M256 3h23a18 18 0 0 1 18 18v23M297 156v23a18 18 0 0 1-18 18h-23M44 197H21A18 18 0 0 1 3 179v-23' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+.corners {
+  /* One corner image in each corner, so the corners mark the frame's real edges at any frame shape. */
+  position: absolute; inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none'%3E%3Cpath d='M3 44V21A18 18 0 0 1 21 3h23' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") left top / 40px 40px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none'%3E%3Cpath d='M4 3h23a18 18 0 0 1 18 18v23' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") right top / 40px 40px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none'%3E%3Cpath d='M45 4v23a18 18 0 0 1-18 18H4' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") right bottom / 40px 40px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none'%3E%3Cpath d='M44 45H21A18 18 0 0 1 3 27V4' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") left bottom / 40px 40px no-repeat;
+}
 .scan-line {
   position: absolute; left: 8%; right: 8%; top: 50%; height: 3px; border-radius: 2px;
   background: var(--good); box-shadow: 0 0 12px var(--good);
@@ -109,8 +129,12 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 .scan-start[hidden] ~ .frame-overlay .scan-line { animation: sweep 2.2s ease-in-out infinite alternate; }
 @keyframes sweep { from { top: 18%; } to { top: 82%; } }
 @media (prefers-reduced-motion: reduce) { .scan-start[hidden] ~ .frame-overlay .scan-line { animation: none; } }
-.ghost-dark { margin-top: 14px; background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.35); padding: 10px 18px; }
-.scan-hint { margin: 12px 0 0; opacity: 0.7; font-size: 0.9rem; }
+.ghost-dark {
+  margin-top: 14px; color: #fff; border: 1px solid rgba(255, 255, 255, 0.45); padding: 10px 18px;
+  background: rgba(0, 0, 0, 0.45); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.scan-hint { margin: 12px 0 0; color: rgba(255, 255, 255, 0.85); font-size: 0.9rem; }
+.scan-hero h2, .scan-sub, .scan-hint, .scan-status { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
 .scan-status { margin: 10px 0 0; font-size: 0.95rem; }
 .scan-hero .notice { text-align: left; }
 /* While a camera message shows, drop the hint so the typing and photo buttons stay in view. */
@@ -155,7 +179,7 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 .alt-name { margin: 3px 0 0; color: var(--muted); font-size: 0.875rem; overflow-wrap: anywhere; }
 .product-text .meta { margin-top: 2px; font-size: 0.85rem; }
 .product-summary { display: flex; align-items: center; gap: 24px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
-.score-ring { position: relative; width: 112px; height: 112px; flex-shrink: 0; --score: 0; --ring: var(--na); }
+.score-ring { position: relative; width: 104px; height: 104px; flex-shrink: 0; --score: 0; --ring: var(--na); }
 .score-ring svg { width: 100%; height: 100%; display: block; transform: rotate(-90deg); }
 .ring-track, .ring-arc { fill: none; stroke-width: 7; }
 .ring-track { stroke: var(--track); }
@@ -166,13 +190,17 @@ h3 { margin: 16px 0 8px; font-size: 1.05rem; }
 .score-ring[data-tone="warn"] { --ring: var(--warn); --ring-text: var(--warn-text); }
 .score-ring[data-tone="good"] { --ring: var(--good); --ring-text: var(--good-text); }
 .score-ring[data-tone="great"] { --ring: var(--great); --ring-text: var(--great); }
-.ring-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.ring-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .score { color: var(--ring-text, var(--text)); line-height: 1; }
 .score b { font-size: 1.5rem; }
 .score small { font-size: 0.72rem; font-weight: 700; margin-left: 1px; }
 .verdict { font-size: 0.9rem; font-weight: 700; border-radius: 6px; padding: 2px 10px; }
-.score-label { margin: 0; width: 112px; flex-shrink: 0; font-size: 0.8rem; color: var(--faint); }
-.quick-stats { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 0; display: flex; justify-content: flex-start; gap: 22px; }
+/* Right of the ring: the rating tag on top, left-aligned with Calories, then the quick stats. */
+.summary-side { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.summary-side .verdict { font-size: 1rem; padding: 3px 12px; }
+.summary-side:not(:has(> :not([hidden]))) { display: none; }
+.score-label { margin: 0; width: 104px; flex-shrink: 0; font-size: 0.8rem; color: var(--faint); }
+.quick-stats { list-style: none; margin: 0; padding: 0; align-self: stretch; min-width: 0; display: flex; justify-content: flex-start; gap: 22px; }
 .quick-stats[hidden] { display: none; }
 .quick-stat { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
 .quick-stat .nicon { width: 28px; height: 28px; border-radius: 8px; margin-bottom: 6px; }
@@ -229,9 +257,14 @@ summary.fact-head:focus-visible { outline: 2px solid var(--accent); outline-offs
 .gauge { position: relative; width: 108px; flex-shrink: 0; }
 .gauge-svg { display: block; width: 100%; height: auto; overflow: visible; }
 .gauge-band, .gauge-track, .gauge-fill { fill: none; stroke-width: 9; stroke-linecap: round; }
+/* The three bands meet with flat ends; the round start and end are small circles (see dropdown.js). */
+.gauge-band { stroke-linecap: butt; }
 .band-good { stroke: var(--good); }
 .band-warn { stroke: var(--warn); }
 .band-bad { stroke: var(--bad); }
+.band-cap { stroke: none; }
+.band-cap.band-good { fill: var(--good); }
+.band-cap.band-bad { fill: var(--bad); }
 .gauge-track { stroke: var(--track); }
 .gauge-fill { stroke: var(--n, var(--na)); stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; }
 .gauge.is-on .gauge-fill { stroke-dashoffset: var(--off); opacity: 1; }
@@ -430,6 +463,9 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 90px - var(--tabbar-
   .scan-hero h2 { margin-bottom: 10px; font-size: 1.2rem; }
   .scan-stage { aspect-ratio: 3 / 1; }
   .scan-hint { margin-top: 8px; }
+  /* A camera message on a short phone: a little tighter, so both buttons clear the tabs. */
+  .scan-hero .notice { margin-top: 8px; padding: 8px 12px; font-size: 0.9rem; }
+  .scan-hero:has(#camera-error:not([hidden])) { padding-bottom: 8px; }
 }
 
 /* Narrow phones (iPhone SE): a smaller gauge, so the sentences beside it keep a readable width. */
@@ -442,10 +478,11 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 90px - var(--tabbar-
   .product-card { padding: 14px; }
   .photo { width: 76px; height: 76px; }
   .product-summary { gap: 18px; }
-  .score-ring { width: 100px; height: 100px; }
-  .score-label { width: 100px; }
+  .score-ring { width: 94px; height: 94px; }
+  .score-label { width: 94px; }
   .score b { font-size: 1.3rem; }
-  .verdict { font-size: 0.8rem; padding: 1px 8px; }
+  .summary-side { gap: 10px; }
+  .summary-side .verdict { font-size: 0.9rem; padding: 2px 10px; }
   .quick-stats { gap: 12px; }
   .quick-value { font-size: 0.875rem; }
 }
@@ -453,8 +490,8 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 90px - var(--tabbar-
 /* Smallest phones (320 px wide): a slightly smaller ring so three quick stats fit beside it. */
 @media (max-width: 340px) {
   .product-summary { gap: 14px; }
-  .score-ring, .score-label { width: 92px; }
-  .score-ring { height: 92px; }
+  .score-ring, .score-label { width: 86px; }
+  .score-ring { height: 86px; }
   .score b { font-size: 1.2rem; }
   .quick-stats { gap: 10px; }
   .quick-value { font-size: 0.82rem; }
