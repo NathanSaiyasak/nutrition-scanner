@@ -1,7 +1,7 @@
 // add-form.js — the v0.2 timed form for typing in a product that Open Food Facts doesn't have.
 // app.js shows the screen after calling openAddForm. The timer measures the "manual add in 3 minutes or less" pass mark. Values are stored exactly
 // as typed: a blank box stays blank (not on the label), never 0.
-import { ADD_FIELDS, attachAddedProduct } from './audit.js';
+import { ADD_FIELDS, attachAddedProduct } from './audit.js?v=r6';
 
 const $ = (id) => document.getElementById(id);
 

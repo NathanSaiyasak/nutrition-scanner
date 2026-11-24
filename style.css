@@ -247,7 +247,12 @@ summary.fact-head:focus-visible { outline: 2px solid var(--accent); outline-offs
 .fact-drop.is-open .chevron { transform: rotate(180deg); }
 @media (prefers-reduced-motion: reduce) { .chevron { transition: none; } }
 .fact-body { overflow: hidden; }
-.fact-inner { display: flex; align-items: center; gap: 14px; padding-top: 14px; }
+/* A thin line where the dropdown begins (Nathan, 24 Nov 2026). */
+.fact-inner { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+/* Text-only dropdowns (additives, sweeteners): the text lines up with the row title above it,
+   past the status dot (10 px dot + 12 px gap) or the nutrient icon. */
+.fact-inner.text-only { padding-left: 22px; }
+.facts-card .fact-inner.text-only { padding-left: 44px; }
 .fact-details { flex: 1; min-width: 0; font-size: 0.875rem; color: var(--muted); line-height: 1.45; }
 .fact-details p { margin: 0; }
 .fact-details p + p { margin-top: 6px; }
