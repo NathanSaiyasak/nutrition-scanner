@@ -250,6 +250,7 @@ h3.first { margin-top: 0; }
 .timer { margin: 0; font-size: 1.4rem; font-weight: 700; color: var(--accent); }
 .timer .over { color: var(--error); }
 #add-form input[type="text"] { width: 100%; letter-spacing: normal; font-size: 1rem; margin-bottom: 12px; }
+#add-form textarea { display: block; width: 100%; font: inherit; font-size: 1rem; padding: 12px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 12px; color: var(--text); resize: vertical; }
 #add-form label { margin-bottom: 4px; font-size: 0.95rem; }
 .req { font-weight: 400; color: var(--muted); font-size: 0.85rem; }
 input.invalid { border-color: var(--error); box-shadow: 0 0 0 1px var(--error); }

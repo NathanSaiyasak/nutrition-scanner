@@ -9,6 +9,7 @@
 --
 -- BEFORE RUNNING: replace  CHANGE-ME-PASSCODE  near the bottom with the passcode you pick
 -- (for example four random words). Keep the quotes.
+-- Then also run add-ingredients.sql (it adds the Ingredients and INS numbers columns).
 
 create extension if not exists pgcrypto with schema extensions;
 

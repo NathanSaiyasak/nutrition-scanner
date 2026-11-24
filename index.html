@@ -246,6 +246,14 @@
         <div id="add-nutrients" class="nutrient-grid"></div>
         <p id="add-number-error" class="field-error" hidden>Some boxes have something that isn't a number. Please check the boxes marked in red.</p>
 
+        <h3>Ingredients</h3>
+        <p class="hint">These let the app check for additives. Copy them from the pack if you have time. If not, the INS numbers alone are enough.</p>
+        <label for="add-ingredients">Ingredients list</label>
+        <textarea id="add-ingredients" rows="4" maxlength="5000" placeholder="e.g. Wheat flour, palm oil, salt, sugar"></textarea>
+        <label for="add-ins">INS or E numbers</label>
+        <input id="add-ins" type="text" maxlength="500" placeholder="e.g. 211, 621, E102">
+        <p class="hint">Type every number you see, with commas between them. Leave it empty if there are none.</p>
+
         <button class="primary" type="submit">Save</button>
         <button id="add-cancel" class="secondary" type="button">Cancel (nothing is saved)</button>
         <p id="add-save-error" class="field-error" hidden>This phone couldn't save the entry. Its storage may be full or blocked (for example in a private window).</p>
