@@ -1,15 +1,15 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r6';
-import { startScanner, scanPhoto } from './scanner.js?v=r6';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r6';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r6';
-import { renderAudit } from './audit-screen.js?v=r6';
-import { buildView, servingText } from './nutrition-view.js?v=r6';
-import { computeScore, SCORE_TEXT } from './score.js?v=r6';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r6';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r6';
+import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r7';
+import { startScanner, scanPhoto } from './scanner.js?v=r7';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r7';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r7';
+import { renderAudit } from './audit-screen.js?v=r7';
+import { buildView, servingText } from './nutrition-view.js?v=r7';
+import { computeScore, SCORE_TEXT } from './score.js?v=r7';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r7';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r7';
 
 const $ = (id) => document.getElementById(id);
 const SCREENS = ['screen-start', 'screen-loading', 'screen-product', 'screen-message',
