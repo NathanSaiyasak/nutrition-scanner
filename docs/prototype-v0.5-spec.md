@@ -17,12 +17,15 @@ MSG is not penalised). Replaces the sample score from v0.3. Everything else in v
    | Total fat | −8 | −20 |
    | Calories | 0 | — |
 
-3. Take points off for additives of concern (below): −15 or −8 each, at most −30 in total.
+3. Take points off for additives of concern (below): −15 or −8 each, at most −30 in total. Benzoates
+   are flagged but take no points off (changed 25 Nov 2026).
 4. Add points for Good points: protein and fibre +5 (source) or +10 (high); mostly fruit, vegetables,
    pulses or nuts (80% or more) +10. At most +20 in total.
 5. Ceilings: any orange item, no Good point, or no ingredients list → at most 89. One red → 70, two reds
-   → 45, three or more → 20 (a red additive counts as a red). Sweeteners → 50.
-6. Labels: 90–100 Great (dark green), 75–89 Good, 50–74 OK, 25–49 Poor, 0–24 Bad.
+   → 45, three or more → 20 (a red additive counts as a red).
+6. Sweeteners take 10 points off, after the ceilings, so they always count (changed 25 Nov 2026; this
+   replaces the old "at most 50" ceiling). Example, Singha lemon soda zero sugar: 89 → 79 Good.
+7. Labels: 90–100 Great (dark green), 75–89 Good, 50–74 OK, 25–49 Poor, 0–24 Bad.
 
 The score is shown only when calories, sugar, fat, saturated fat and sodium can all be judged; otherwise
 the screen says "Not enough information to score yet." Under the score: "Based on nutrition and
@@ -35,8 +38,9 @@ dropdown explains it in plain words.
   name; never drinks) where less than a quarter of the fat is saturated: fat and saturated fat go to the
   Nutrition facts list with "Mostly healthy fats" and take no points off.
 - **Sweeteners** (INS 950, 951, 952, 954, 955, 960, 961, 962, 969, or a drink with ≤ 0.5 g sugar whose
-  name says Zero / Diet / Sugar free / No sugar / ไม่มีน้ำตาล): orange row "Contains sweeteners", score
-  at most 50.
+  name says Zero / Diet / Sugar free / No sugar / ไม่มีน้ำตาล): orange row "Contains sweeteners", 10 points
+  off the score (until 25 Nov 2026 the score was capped at 50). Dropdown: "Sweeteners replace sugar, and
+  the WHO advises against using them to control weight. Takes 10 points off the score." plus what was found.
 - **Fruit, vegetables or nuts** (Open Food Facts estimate ≥ 80%, or "100%" juice in the name): green row.
 - **Additives** (only when there is an ingredients list), from Open Food Facts' additive tags plus any
   "INS 211" / "E211" written in the ingredients text:
@@ -47,12 +51,22 @@ dropdown explains it in plain words.
   | Banned in Europe | 171 | −15, red | "Contains titanium dioxide, a colour banned in Europe" |
   | Possible carcinogen | 320 | −15, red | "Contains BHA, a preservative rated possibly cancer-causing" |
   | Colours with EU hyperactivity warning | 102, 104, 110, 122, 124, 129 | −8, orange | "Contains sunset yellow, a colour linked to hyperactivity in children" |
-  | Benzoates | 210–213 | −8, orange | "Contains sodium benzoate, a preservative" |
+  | Benzoates | 210–213 | 0, orange flag only (was −8 until 25 Nov 2026) | "Contains sodium benzoate, a preservative". Dropdown: "With vitamin C it can form small amounts of benzene, and one study linked it to hyperactivity in children. It is allowed at normal levels, so it is only flagged and takes no points off." |
   | Sulphites | 220–228 | −8, orange | "Contains sodium metabisulphite, a preservative that can trigger asthma" |
   | Fat preservatives | 319, 321 | −8, orange | "Contains TBHQ, a preservative for fats and oils" |
   | Flavour enhancers | 621, 627, 631, 635 | 0, info line | "Also contains MSG, a flavour enhancer. It is considered safe at normal amounts, so it doesn't change the score." (one plain line under the lists) |
 
 Screen wording uses plain sentences with no colons (Nathan, 24 Nov 2026).
+
+## Changed 25 Nov 2026 (Nathan)
+
+- Sweeteners: the "at most 50" ceiling is gone. They now take 10 points off, applied after the ceilings
+  (applied before, a zero-calorie diet drink would hit the 89 ceiling and score the same as water).
+- Benzoates (INS 210–213): still an orange row in Watch out, which also keeps the product out of Great,
+  but no points off. The dropdown says why it is flagged.
+- "Not enough information to score yet." stays as it is for now (to be improved in a later version).
+- Sample scores: Singha lemon soda zero sugar (sucralose and sodium benzoate) 50 OK → 79 Good; Singha
+  soda water (no sweetener) 89 Good, unchanged.
 
 ## Not in this step
 

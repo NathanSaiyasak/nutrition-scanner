@@ -1,6 +1,7 @@
 // additives.js — the extra result rows approved with the score on 24 Nov 2026 (docs/prototype-v0.5-spec.md):
 // additives of concern, sweeteners, "mostly fruit, vegetables or nuts" and the "mostly healthy fats" check.
-// Only additives that an official body has banned or warned about take points off. All wording is
+// Only additives that an official body has banned or warned about take points off. Benzoates are
+// flagged in Watch out but take no points off, and sweeteners take 10 points off (Nathan, 25 Nov 2026). All wording is
 // whole sentences with no colons (Nathan, 24 Nov 2026), ready for a Thai translation later.
 
 // Additive groups. points: taken off the score for each additive found (all additives together at most 30).
@@ -26,10 +27,11 @@ const GROUPS = {
     note: 'Contains {name}, a colour linked to hyperactivity in children',
     why: 'In Europe, food with this colour must carry a warning that it may affect activity and attention in children.',
   },
+  // Flag only, no points off (Nathan, 25 Nov 2026).
   benzoate: {
-    level: 'medium', points: 8,
+    level: 'medium', points: 0,
     note: 'Contains {name}, a preservative',
-    why: 'With vitamin C it can form small amounts of benzene.',
+    why: 'With vitamin C it can form small amounts of benzene, and one study linked it to hyperactivity in children. It is allowed at normal levels, so it is only flagged and takes no points off.',
   },
   sulphite: {
     level: 'medium', points: 8,
@@ -70,13 +72,14 @@ const ADDITIVES = {
 };
 
 export const ADDITIVE_POINTS_MAX = 30;
+export const SWEETENER_POINTS = 10; // replaces the old "at most 50" ceiling (Nathan, 25 Nov 2026)
 
 const TEXT = {
   pointsOff: 'Takes {n} points off the score.',
   insCode: 'Shown on the pack as INS {code}.',
   sweetenerName: 'Sweeteners',
   sweetenerNote: 'Contains sweeteners',
-  sweetenerWhy: 'Sweeteners replace sugar. A product with sweeteners can score 50 at most.',
+  sweetenerWhy: 'Sweeteners replace sugar, and the WHO advises against using them to control weight. Takes {n} points off the score.',
   sweetenerFound: 'Found {list}.',
   sweetenerByName: 'The product name says it has no sugar, which usually means sweeteners.',
   fruitName: 'Fruit, vegetables or nuts',
@@ -150,12 +153,13 @@ export function extraRows(p, { drink, sugar100, nutType }) {
       name: say('sweetenerName'),
       amount: '',
       note: say('sweetenerNote'),
-      details: [`${say('sweetenerWhy')} ${sweeteners.length ? say('sweetenerFound', { list: sweeteners.join(', ') }) : say('sweetenerByName')}`],
+      details: [`${say('sweetenerWhy', { n: SWEETENER_POINTS })} ${sweeteners.length ? say('sweetenerFound', { list: sweeteners.join(', ') }) : say('sweetenerByName')}`],
       pct: null,
       tone: 'warn',
       level: 'medium',
       group: 'watch',
       extra: 'sweetener',
+      points: SWEETENER_POINTS,
     });
   }
 
