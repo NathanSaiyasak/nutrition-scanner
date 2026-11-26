@@ -3,10 +3,11 @@
 import {
   loadLog, clearLog, summarise, toCsv, csvFileName, localDateTime,
   ADD_TARGET_SECONDS, SMALL_SAMPLE,
-} from './audit.js?v=r8';
+} from './audit.js?v=r9';
 import {
   sharedConfigured, getPasscode, savePasscode, forgetPasscode, sendWaiting, waitingCount,
-} from './shared-db.js?v=r8';
+} from './shared-db.js?v=r9';
+import { t } from './i18n.js?v=r9';
 
 const $ = (id) => document.getElementById(id);
 
@@ -26,11 +27,11 @@ function markCard({ title, figure, detail, target, status }) {
   const head = el('div', 'mark-head');
   head.append(el('span', 'mark-title', title));
   const chip = {
-    pass: ['chip pass', 'Pass'],
-    below: ['chip below', 'Below target'],
-    none: ['chip none', 'No data yet'],
-    manual: ['chip none', 'Checked separately'],
-    info: ['chip none', 'For information'],
+    pass: ['chip pass', t('log.chip.pass')],
+    below: ['chip below', t('log.chip.below')],
+    none: ['chip none', t('log.chip.none')],
+    manual: ['chip none', t('log.chip.manual')],
+    info: ['chip none', t('log.chip.info')],
   }[status];
   head.append(el('span', chip[0], chip[1]));
   card.append(head);
@@ -47,8 +48,7 @@ export function renderAudit() {
   $('audit-empty').hidden = s.scans > 0;
   const small = $('audit-small');
   small.hidden = s.products >= SMALL_SAMPLE || s.scans === 0;
-  small.textContent = `Small sample: ${s.products} different product${s.products === 1 ? '' : 's'} so far. `
-    + `Treat these figures as rough until there are at least ${SMALL_SAMPLE} (the audit plan is about 100).`;
+  small.textContent = t('log.small', { n: s.products, min: SMALL_SAMPLE });
 
   const ratioStatus = ({ count, of, target }) => {
     if (!of) return 'none';
@@ -58,54 +58,54 @@ export function renderAudit() {
   const marks = $('audit-marks');
   marks.replaceChildren(
     markCard({
-      title: '1. Barcodes scan cleanly',
+      title: t('log.m1.title'),
       figure: pct(s.scanClean.count, s.scanClean.of),
-      detail: `${s.scanClean.count} of ${s.scanClean.of} scans read first time by camera or photo.`,
-      target: 'Target: 90% or more.',
+      detail: t('log.m1.detail', { count: s.scanClean.count, of: s.scanClean.of }),
+      target: t('log.m1.target'),
       status: ratioStatus(s.scanClean),
     }),
     markCard({
-      title: '2. Products covered with complete nutrition',
+      title: t('log.m2.title'),
       figure: pct(s.covered.count, s.covered.of),
-      detail: `${s.covered.count} of ${s.covered.of} different products have all 8 key values: `
-        + `${s.covered.count - s.coveredByHand} from Open Food Facts, ${s.coveredByHand} typed in from the label by testers. `
-        + `Open Food Facts alone: ${pct(s.freeDb.count, s.freeDb.of)}.`
-        + (s.freeDbDiffers ? ` ${s.freeDbDiffers} complete in Open Food Facts but marked as different from the label, so not counted unless corrected.` : ''),
-      target: 'Target: 90% or more, counting products added by hand.',
+      detail: t('log.m2.detail', {
+        count: s.covered.count, of: s.covered.of, off: s.covered.count - s.coveredByHand,
+        hand: s.coveredByHand, free: pct(s.freeDb.count, s.freeDb.of),
+      }) + (s.freeDbDiffers ? t('log.m2.differs', { n: s.freeDbDiffers }) : ''),
+      target: t('log.m2.target'),
       status: ratioStatus(s.covered),
     }),
     markCard({
-      title: 'Open Food Facts matches the label',
+      title: t('log.mL.title'),
       figure: s.label.checked ? pct(s.label.matches, s.label.checked) : '',
       detail: s.label.checked || s.label.cantTell
-        ? `${s.label.matches} of ${s.label.checked} checked products match the printed label. `
-          + `${s.label.cantTell} can't tell, ${s.label.notChecked} not checked.`
-        : 'No products checked yet. On a product screen, tap Matches, Differs or Can\'t tell.',
-      target: 'No pass mark yet. Shows how far Open Food Facts can be trusted.',
+        ? t('log.mL.detail', { matches: s.label.matches, checked: s.label.checked, cantTell: s.label.cantTell, notChecked: s.label.notChecked })
+        : t('log.mL.none'),
+      target: t('log.mL.target'),
       status: s.label.checked ? 'info' : 'none',
     }),
     markCard({
-      title: '3. Add a missing product by hand',
-      figure: s.adds.count ? `Typical ${mmss(s.adds.median)}` : '',
+      title: t('log.m3.title'),
+      figure: s.adds.count ? t('log.m3.figure', { t: mmss(s.adds.median) }) : '',
       detail: s.adds.count
-        ? `${s.adds.underTarget} of ${s.adds.count} adds took 3 minutes or less. Slowest: ${mmss(s.adds.slowest)}.`
-        : 'No products added yet. Use "Add this product (timed)" on a "Product not found" screen.',
-      target: 'Target: 3 minutes or less (passes when the typical time is within 3 minutes).',
+        ? t('log.m3.detail', { under: s.adds.underTarget, count: s.adds.count, slowest: mmss(s.adds.slowest) })
+        : t('log.m3.none'),
+      target: t('log.m3.target'),
       status: !s.adds.count ? 'none' : s.adds.median <= ADD_TARGET_SECONDS ? 'pass' : 'below',
     }),
     markCard({
-      title: '4. Data licensed for commercial use',
+      title: t('log.m4.title'),
       figure: '',
-      detail: 'Not measured by the app. Open Food Facts uses the ODbL licence, which allows commercial use with attribution and share-alike. Other sources are checked separately.',
-      target: 'Target: at least one data source.',
+      detail: t('log.m4.detail'),
+      target: t('log.m4.target'),
       status: 'manual',
     }),
   );
 
   $('audit-totals').textContent = s.scans
-    ? `${s.scans} scan${s.scans === 1 ? '' : 's'} (camera ${s.byMethod.camera}, photo ${s.byMethod.photo}, typed ${s.byMethod.typed}). `
-      + `${s.products} different products: ${s.found} found, ${s.withNutrition} with some nutrition facts. `
-      + `${s.errors} lookup error${s.errors === 1 ? '' : 's'} (not counted in coverage).`
+    ? t('log.totals', {
+      scans: s.scans, camera: s.byMethod.camera, photo: s.byMethod.photo, typed: s.byMethod.typed,
+      products: s.products, found: s.found, withNutrition: s.withNutrition, errors: s.errors,
+    })
     : '';
 
   renderRecent(log);
@@ -122,17 +122,19 @@ function renderRecent(log) {
   list.replaceChildren();
   for (const r of log.slice(-20).reverse()) {
     const li = el('li');
-    const how = r.method === 'typed' ? 'typed' : `${r.method}, ${r.readFirstTime ? 'first time' : `${r.tries} tries`}`;
+    const method = t(`log.how.${r.method}`);
+    const how = r.method === 'typed' ? method
+      : r.readFirstTime ? t('log.how.firstTime', { method }) : t('log.how.tries', { method, n: r.tries });
     let outcome;
     if (r.result === 'found') {
-      outcome = `Found, ${r.valuesPresent} of ${r.valuesTotal} values`;
+      outcome = t('log.out.found', { p: r.valuesPresent, t: r.valuesTotal });
     } else if (r.result === 'not-found') {
-      outcome = 'Not found';
+      outcome = t('log.out.notFound');
     } else {
-      outcome = 'Lookup error';
+      outcome = t('log.out.error');
     }
-    if (r.labelCheck) outcome += ` · label: ${{ matches: 'matches', differs: 'differs', 'cant-tell': "can't tell" }[r.labelCheck]}`;
-    if (r.added) outcome += ` · ${r.added.kind === 'correction' ? 'corrected' : 'added'} by hand in ${mmss(r.added.seconds)}`;
+    if (r.labelCheck) outcome += t('log.out.label', { v: t(`log.label.${r.labelCheck === 'cant-tell' ? 'cantTell' : r.labelCheck}`) });
+    if (r.added) outcome += t(r.added.kind === 'correction' ? 'log.out.corrected' : 'log.out.added', { t: mmss(r.added.seconds) });
     const top = el('div', 'recent-top');
     top.append(el('span', 'mono', r.barcode), el('span', 'meta', `#${r.entry} · ${localDateTime(r.time).slice(5, 16)}`));
     li.append(top);
@@ -173,23 +175,22 @@ $('export-button').addEventListener('click', () => {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
-  exportStatus(`Saved ${file.name}. On iPhone it goes to the Files app, in Downloads.`);
+  exportStatus(t('log.exported', { file: file.name }));
 });
 
 $('share-button').addEventListener('click', async () => {
   const file = csvFile();
   try {
-    await navigator.share({ files: [file], title: 'Bettr scan log' });
+    await navigator.share({ files: [file], title: t('log.shareTitle') });
   } catch (err) {
     if (err && err.name === 'AbortError') return; // the person closed the share sheet
-    exportStatus("Couldn't share the file. Use Download instead.");
+    exportStatus(t('log.shareFailed'));
   }
 });
 
 $('clear-button').addEventListener('click', () => {
   const count = loadLog().length;
-  const ok = window.confirm(
-    `Delete all ${count} scans from this phone? This can't be undone. Export the CSV first if you need it.`);
+  const ok = window.confirm(t('log.clearConfirm', { n: count }));
   if (!ok) return;
   clearLog();
   renderAudit();
@@ -200,18 +201,13 @@ function renderShared(message) {
   const configured = sharedConfigured();
   const hasCode = Boolean(getPasscode());
   const waiting = waitingCount();
-  const waitingText = waiting
-    ? ` ${waiting} product${waiting === 1 ? '' : 's'} added on this phone ${waiting === 1 ? 'is' : 'are'} waiting to be sent.`
-    : '';
-  $('shared-status').textContent = !configured
-    ? 'Not set up yet. Products you add are kept on this phone, and scanning them here shows them.' + waitingText
-    : hasCode
-      ? 'Connected. Products you add are shared: any phone that scans the barcode sees them.' + waitingText
-      : 'Products added by testers show on every phone. To add products for everyone, enter the contributor passcode (it is kept on this phone only).' + waitingText;
+  const waitingText = waiting ? t('log.waiting', { n: waiting }) : '';
+  $('shared-status').textContent = t(!configured ? 'log.shared.notSetUp'
+    : hasCode ? 'log.shared.connected' : 'log.shared.noCode') + waitingText;
   $('passcode-form').hidden = !configured || hasCode;
   $('passcode-forget').hidden = !configured || !hasCode;
   $('send-waiting').hidden = !configured || !hasCode || waiting === 0;
-  $('send-waiting').textContent = `Send ${waiting} waiting product${waiting === 1 ? '' : 's'}`;
+  $('send-waiting').textContent = t('log.sendWaiting', { n: waiting });
   const status = $('passcode-status');
   status.textContent = message || '';
   status.hidden = !message;
@@ -222,34 +218,32 @@ $('passcode-form').addEventListener('submit', async (event) => {
   const input = $('passcode-input');
   const code = input.value.trim();
   if (!code) return;
-  renderShared('Checking…');
+  renderShared(t('log.pc.checking'));
   const result = await savePasscode(code);
   if (result !== 'ok') {
     renderShared({
-      wrong: 'That passcode isn’t right. Please check it and try again.',
-      offline: 'Couldn’t reach the shared database. Check your internet and try again.',
-      storage: 'This phone couldn’t save the passcode (storage full or blocked, e.g. a private window).',
-      'not-set-up': 'The shared database isn’t set up yet.',
+      wrong: t('log.pc.wrong'),
+      offline: t('log.pc.offline'),
+      storage: t('log.pc.storage'),
+      'not-set-up': t('log.pc.notSetUp'),
     }[result]);
     return;
   }
   input.value = '';
   const sent = await sendWaiting();
-  renderShared(sent.sent ? `Passcode saved. Sent ${sent.sent} waiting product${sent.sent === 1 ? '' : 's'}.` : 'Passcode saved.');
+  renderShared(sent.sent ? t('log.pc.savedSent', { n: sent.sent }) : t('log.pc.saved'));
 });
 
 $('passcode-forget').addEventListener('click', () => {
   forgetPasscode();
-  renderShared('Passcode removed from this phone. Products you add now stay on this phone until it is entered again.');
+  renderShared(t('log.pc.removed'));
 });
 
 $('send-waiting').addEventListener('click', async () => {
-  renderShared('Sending…');
+  renderShared(t('log.pc.sending'));
   const r = await sendWaiting();
-  const left = r.waiting ? ` ${r.waiting} still waiting.` : '';
+  const left = r.waiting ? t('log.pc.left', { n: r.waiting }) : '';
   renderShared(r.reason === 'wrong-passcode'
-    ? 'The passcode was refused, so nothing more was sent. Enter it again.'
-    : r.reason === 'offline'
-      ? `Sent ${r.sent}. Couldn’t reach the shared database for the rest; try again with internet.${left}`
-      : `Sent ${r.sent}.${left}`);
+    ? t('log.pc.refused')
+    : t(r.reason === 'offline' ? 'log.pc.partial' : 'log.pc.sent', { sent: r.sent, left }));
 });

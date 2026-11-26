@@ -1,7 +1,14 @@
 // add-form.js — the v0.2 timed form for typing in a product that Open Food Facts doesn't have.
 // app.js shows the screen after calling openAddForm. The timer measures the "manual add in 3 minutes or less" pass mark. Values are stored exactly
 // as typed: a blank box stays blank (not on the label), never 0.
-import { ADD_FIELDS, attachAddedProduct } from './audit.js?v=r8';
+import { ADD_FIELDS, attachAddedProduct } from './audit.js?v=r9';
+import { t } from './i18n.js?v=r9';
+
+// Add-form field key → label text key in strings.js.
+const LABEL_KEY = {
+  energy_kcal: 'energy', fat_g: 'fat', saturated_fat_g: 'saturated-fat', carbohydrates_g: 'carbohydrates',
+  sugars_g: 'sugars', fibre_g: 'fibre', protein_g: 'protein', salt_g: 'salt', sodium_mg: 'sodium',
+};
 
 const $ = (id) => document.getElementById(id);
 
@@ -16,7 +23,7 @@ for (const f of ADD_FIELDS) {
   const wrap = document.createElement('div');
   const label = document.createElement('label');
   label.htmlFor = `add-${f.key}`;
-  label.textContent = `${f.label} (${f.unit})`;
+  label.textContent = `${LABEL_KEY[f.key] ? t(`label.${LABEL_KEY[f.key]}`) : f.label} (${f.unit})`;
   const input = document.createElement('input');
   input.id = `add-${f.key}`;
   input.type = 'text';
@@ -31,7 +38,7 @@ for (const f of ADD_FIELDS) {
 export function openAddForm({ entry, barcode, mode = 'new', name = '', onDone, onCancel }) {
   current = { entry, barcode, mode, onDone, onCancel };
   $('add-form').reset();
-  $('add-title').textContent = mode === 'correction' ? 'Nutrition facts from the label' : 'Add a product';
+  $('add-title').textContent = t(mode === 'correction' ? 'form.correctTitle' : 'form.addTitle');
   $('add-name').value = name;
   for (const el of $('add-form').querySelectorAll('.invalid')) el.classList.remove('invalid');
   for (const id of ['add-name-error', 'add-number-error', 'add-save-error']) $(id).hidden = true;

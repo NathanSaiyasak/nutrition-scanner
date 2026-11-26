@@ -15,7 +15,8 @@
 // 7. Labels: 90+ Great, 75+ Good, 50+ OK, 25+ Poor, else Bad.
 // Shown only when calories, sugar, fat, saturated fat and sodium can all be judged.
 
-import { SWEETENER_POINTS } from './additives.js?v=r8';
+import { SWEETENER_POINTS } from './additives.js?v=r9';
+import { t } from './i18n.js?v=r9';
 
 const POINTS = {
   sugars: { medium: 15, high: 35 },
@@ -30,8 +31,8 @@ const REQUIRED = ['energy', 'sugars', 'fat', 'satfat', 'sodium'];
 
 export const SCORE_TEXT = {
   checked: '', // nothing shown when the ingredients were checked (Nathan, 24 Nov 2026)
-  unchecked: 'Ingredients not available, so additives weren\'t checked.',
-  missing: 'Not enough information to score yet.',
+  unchecked: t('score.unchecked'),
+  missing: t('score.missing'),
 };
 
 /**
@@ -84,6 +85,7 @@ export function computeScore(view) {
   // ceiling, a zero-calorie diet drink would score the same as water).
   const sweetener = view.extras.sweetener ? SWEETENER_POINTS : 0;
   const score = Math.max(0, Math.min(ceiling, 100 - minus + bonus) - sweetener);
+  // verdict stays the English name (it picks the colour); the screen shows it in the chosen language.
   const [verdict, tone] = score >= 90 ? ['Great', 'great']
     : score >= 75 ? ['Good', 'good']
       : score >= 50 ? ['OK', 'warn']

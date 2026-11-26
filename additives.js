@@ -4,51 +4,26 @@
 // flagged in Watch out but take no points off, and sweeteners take 10 points off (Nathan, 25 Nov 2026). All wording is
 // whole sentences with no colons (Nathan, 24 Nov 2026), ready for a Thai translation later.
 
+import { t, additiveName } from './i18n.js?v=r9';
+
 // Additive groups. points: taken off the score for each additive found (all additives together at most 30).
 // tone/level: how the row looks; a 'high' additive counts as a red warning for the score's ceilings.
 const GROUPS = {
-  nitrite: {
-    level: 'high', points: 15,
-    note: 'Contains {name}, a preservative used in processed meat',
-    why: 'Nitrites and nitrates can form cancer-causing compounds, and the WHO\'s cancer agency classes processed meat as a cause of cancer.',
-  },
-  banned: {
-    level: 'high', points: 15,
-    note: 'Contains {name}, a colour banned in Europe',
-    why: 'It has been banned in food in the European Union since 2022.',
-  },
-  bha: {
-    level: 'high', points: 15,
-    note: 'Contains {name}, a preservative rated possibly cancer-causing',
-    why: 'The WHO\'s cancer agency rates it as possibly cancer-causing.',
-  },
-  colour: {
-    level: 'medium', points: 8,
-    note: 'Contains {name}, a colour linked to hyperactivity in children',
-    why: 'In Europe, food with this colour must carry a warning that it may affect activity and attention in children.',
-  },
+  nitrite: { level: 'high', points: 15 },
+  banned: { level: 'high', points: 15 },
+  bha: { level: 'high', points: 15 },
+  colour: { level: 'medium', points: 8 },
   // Flag only, no points off (Nathan, 25 Nov 2026).
-  benzoate: {
-    level: 'medium', points: 0,
-    note: 'Contains {name}, a preservative',
-    why: 'With vitamin C it can form small amounts of benzene, and one study linked it to hyperactivity in children. It is allowed at normal levels, so it is only flagged and takes no points off.',
-  },
-  sulphite: {
-    level: 'medium', points: 8,
-    note: 'Contains {name}, a preservative that can trigger asthma',
-    why: 'Sulphites can cause asthma attacks in sensitive people.',
-  },
-  fatPreservative: {
-    level: 'medium', points: 8,
-    note: 'Contains {name}, a preservative for fats and oils',
-    why: 'There is a strict limit on how much of it is safe to eat each day.',
-  },
+  benzoate: { level: 'medium', points: 0 },
+  sulphite: { level: 'medium', points: 8 },
+  fatPreservative: { level: 'medium', points: 8 },
   // Flavour enhancers: a plain info line under the lists, no points off (MSG not penalised, 24 Nov 2026).
   enhancer: { level: 'info', points: 0 },
   sweetener: { level: 'sweetener', points: 0 },
 };
+// The row line and dropdown for each group are in strings.js: add.<group>.note and add.<group>.why.
 
-// INS / E numbers (the same numbers; Thai labels use INS) → [name, group].
+// INS / E numbers (the same numbers; Thai labels use INS) → [English name, group]. Thai names: strings.js.
 const ADDITIVES = {
   249: ['potassium nitrite', 'nitrite'], 250: ['sodium nitrite', 'nitrite'],
   251: ['sodium nitrate', 'nitrite'], 252: ['potassium nitrate', 'nitrite'],
@@ -74,25 +49,9 @@ const ADDITIVES = {
 export const ADDITIVE_POINTS_MAX = 30;
 export const SWEETENER_POINTS = 10; // replaces the old "at most 50" ceiling (Nathan, 25 Nov 2026)
 
-const TEXT = {
-  pointsOff: 'Takes {n} points off the score.',
-  insCode: 'Shown on the pack as INS {code}.',
-  sweetenerName: 'Sweeteners',
-  sweetenerNote: 'Contains sweeteners',
-  sweetenerWhy: 'Sweeteners replace sugar, and the WHO advises against using them to control weight. Takes {n} points off the score.',
-  sweetenerFound: 'Found {list}.',
-  sweetenerByName: 'The product name says it has no sugar, which usually means sweeteners.',
-  fruitName: 'Fruit, vegetables or nuts',
-  fruitNote: 'Mostly fruit or vegetables',
-  nutsNote: 'Mostly nuts',
-  fruitWhy: 'At least 80% of it is fruit, vegetables, pulses or nuts. Adds 10 points to the score.',
-  enhancerOne: 'Also contains {list}, a flavour enhancer. It is considered safe at normal amounts, so it doesn\'t change the score.',
-  enhancerMany: 'Also contains {list}, flavour enhancers. They are considered safe at normal amounts, so they don\'t change the score.',
-  and: '{a} and {b}',
-};
-
+// Wording is in strings.js under add.* (English and Thai side by side).
 function say(key, vars = {}) {
-  return TEXT[key].replace(/\{(\w+)\}/g, (_, k) => vars[k]);
+  return t(`add.${key}`, vars);
 }
 
 /** INS numbers in a product, from Open Food Facts tags ("en:e250") or codes typed in ("250"). */
@@ -118,18 +77,19 @@ export function extraRows(p, { drink, sugar100, nutType }) {
 
   if (p.ingredientsKnown) {
     for (const code of additiveCodes(p)) {
-      const [name, groupKey] = ADDITIVES[code];
+      const [english, groupKey] = ADDITIVES[code];
+      const name = additiveName(code, english);
       const g = GROUPS[groupKey];
       if (g.level === 'sweetener') { sweeteners.push(name); continue; }
       if (g.level === 'info') { enhancers.push(name); continue; }
-      const details = [g.why];
+      const details = [say(`${groupKey}.why`)];
       if (g.points) details.push(say('pointsOff', { n: g.points }));
       details.push(say('insCode', { code }));
       items.push({
         key: `additive-${code}`,
         name: name.charAt(0).toUpperCase() + name.slice(1),
         amount: '',
-        note: g.note.replace('{name}', name),
+        note: say(`${groupKey}.note`, { name }),
         details: [details.join(' ')],
         pct: null,
         tone: g.level === 'high' ? 'bad' : 'warn',
@@ -153,7 +113,7 @@ export function extraRows(p, { drink, sugar100, nutType }) {
       name: say('sweetenerName'),
       amount: '',
       note: say('sweetenerNote'),
-      details: [`${say('sweetenerWhy', { n: SWEETENER_POINTS })} ${sweeteners.length ? say('sweetenerFound', { list: sweeteners.join(', ') }) : say('sweetenerByName')}`],
+      details: [`${say('sweetenerWhy', { n: SWEETENER_POINTS })} ${sweeteners.length ? say('sweetenerFound', { list: sweeteners.join(t('common.listGap')) }) : say('sweetenerByName')}`],
       pct: null,
       tone: 'warn',
       level: 'medium',
@@ -183,7 +143,7 @@ export function extraRows(p, { drink, sugar100, nutType }) {
   }
 
   const list = enhancers.length > 1
-    ? say('and', { a: enhancers.slice(0, -1).join(', '), b: enhancers[enhancers.length - 1] }) : enhancers[0];
+    ? t('common.and', { a: enhancers.slice(0, -1).join(t('common.listGap')), b: enhancers[enhancers.length - 1] }) : enhancers[0];
   const infoLine = enhancers.length ? say(enhancers.length > 1 ? 'enhancerMany' : 'enhancerOne', { list }) : null;
   return {
     items,
