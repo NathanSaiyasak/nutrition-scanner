@@ -15,8 +15,8 @@
 // 7. Labels: 90+ Great, 75+ Good, 50+ OK, 25+ Poor, else Bad.
 // Shown only when calories, sugar, fat, saturated fat and sodium can all be judged.
 
-import { SWEETENER_POINTS } from './additives.js?v=r10';
-import { t } from './i18n.js?v=r10';
+import { SWEETENER_POINTS } from './additives.js?v=r11';
+import { t } from './i18n.js?v=r11';
 
 const POINTS = {
   sugars: { medium: 15, high: 35 },

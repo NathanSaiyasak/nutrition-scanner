@@ -254,6 +254,7 @@ export const STRINGS = {
   // ---------- Store audit box on the result ----------
   'audit.box': ['Check it against the pack (store audit)', 'เทียบกับฉลาก (ตรวจในร้าน)'],
   'audit.fromHistory': ['Opened from History. To check it against the pack, scan it again.', 'เปิดจากประวัติ ถ้าจะเทียบกับฉลาก ให้สแกนใหม่อีกครั้ง'],
+  'audit.fromFavorites': ['Opened from Favorites. To check it against the pack, scan it again.', 'เปิดจากรายการโปรด ถ้าจะเทียบกับฉลาก ให้สแกนใหม่อีกครั้ง'],
   'audit.colNutrient': ['Nutrient', 'สารอาหาร'],
   'audit.colPer100': ['Per 100', 'ต่อ 100'],
   'audit.completeness': ['{missing} of {total} key values missing from {from}.', 'ขาดค่าหลัก {missing} จาก {total} ค่า ใน{from}'],
@@ -333,8 +334,17 @@ export const STRINGS = {
   'history.badge': ['Score {score}, {verdict}', 'คะแนน {score} ระดับ{verdict}'],
 
   // ---------- Favorite (V1) ----------
-  'fav.title': ['Favorites are coming soon', 'รายการโปรดกำลังจะมา'],
-  'fav.text': ['Soon you can save products you like and find them again fast.', 'อีกไม่นานจะเก็บสินค้าที่ชอบไว้ แล้วกลับมาดูได้เร็วๆ'],
+  'fav.title': ['Favorites', 'รายการโปรด'],
+  'fav.sub': ['Products you saved on this phone', 'สินค้าที่คุณเก็บไว้ในเครื่องนี้'],
+  'fav.emptyTitle': ['No favorites yet', 'ยังไม่มีรายการโปรด'],
+  'fav.emptyText': ['Tap the heart on a product to save it here. It stays on this phone.', 'กดหัวใจที่สินค้าเพื่อเก็บไว้ที่นี่ รายการจะอยู่ในเครื่องนี้เท่านั้น'],
+  'fav.save': ['Save to favorites', 'เก็บไว้ในรายการโปรด'],
+  'fav.unsave': ['Remove from favorites', 'เอาออกจากรายการโปรด'],
+  'fav.removeItem': ['Remove {name} from favorites', 'เอา {name} ออกจากรายการโปรด'],
+  'fav.saved': ['Saved to favorites', 'เก็บไว้ในรายการโปรดแล้ว'],
+  'fav.removed': ['Removed from favorites', 'เอาออกจากรายการโปรดแล้ว'],
+  'fav.saveError': ['This phone wouldn’t save it. Try again.', 'เครื่องนี้บันทึกไม่ได้ ลองอีกครั้ง'],
+  'fav.undo': ['Undo', 'เลิกทำ'],
 
   // ---------- Add a product (F1) ----------
   'form.back': ['Back, nothing is saved', 'กลับ ไม่มีการบันทึก'],
