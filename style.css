@@ -477,6 +477,10 @@ body:is([data-screen="screen-start"], [data-screen="screen-product"], [data-scre
 .more-body { margin: 0 0 12px 48px; font-size: 14px; line-height: 20px; color: var(--text); }
 .more-caption { margin: 14px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 11px; line-height: 14px; font-weight: 700; color: var(--faint); text-transform: uppercase; letter-spacing: 0.04em; }
 .more-link { border-bottom: 0; }
+/* About and Privacy open the website pages (26 Nov 2026): a divider between them, none before "For testers". */
+a.more-link { color: inherit; text-decoration: none; border-bottom: 1px solid var(--line); }
+a.more-link + a.more-link { border-bottom: 0; }
+details.more-item + a.more-link { border-top: 1px solid var(--line); }
 .more-foot { margin: 8px 0 0; font-size: 13px; color: var(--faint); }
 /* Language switch (26 Nov 2026): EN | ไทย, the same look as the add form's segmented choice. */
 .more-lang { display: flex; align-items: center; gap: 12px; padding: 12px 0; }

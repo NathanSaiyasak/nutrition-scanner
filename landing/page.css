@@ -1,0 +1,60 @@
+/* Bettr website text pages: About (W4) and Privacy (W5), 26 Nov 2026. Loaded after landing.css,
+   so the colours, font, buttons, nav and footer are the same as the home page. The Figma sitemap lists
+   these pages but has no wireframe for them, so the layout follows the home page's cards and type. */
+
+/* Both languages live in the page; show the one that matches <html lang> (set by page-lang.js). */
+html[lang="th"] [data-l="en"], html:not([lang="th"]) [data-l="th"] { display: none !important; }
+
+/* EN / ไทย switch, same look as the one in the app's More menu */
+.lang-switch { display: inline-flex; background: var(--sunken); border-radius: 18px; padding: 3px; gap: 2px; }
+.lang-switch button {
+  border: 0; background: none; font: inherit; font-size: 13px; line-height: 18px; font-weight: 700;
+  color: var(--muted); padding: 6px 12px; border-radius: 15px; cursor: pointer; min-width: 44px;
+}
+.lang-switch button[aria-pressed="true"] { background: var(--card); color: var(--coffee); box-shadow: 0 1px 3px rgba(45, 45, 45, 0.12); }
+.lang-switch button:focus-visible { outline: 2px solid var(--caramel); outline-offset: 2px; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-links a[aria-current="page"] { color: var(--caramel); }
+
+/* Page column */
+.doc { padding: 16px 0 56px; }
+.doc .wrap { max-width: 800px; }
+.doc-head { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+.doc-head h1 { font-size: 32px; line-height: 38px; font-weight: 800; letter-spacing: -0.02em; }
+.doc-head .lead { color: var(--muted); font-size: 17px; line-height: 26px; }
+.updated { color: var(--faint); font-size: 13px; line-height: 18px; }
+
+/* "The short version" card */
+.short { background: var(--blue-soft); border-radius: 24px; padding: 24px; margin-bottom: 16px; }
+.short h2 { font-size: 18px; line-height: 24px; font-weight: 800; margin-bottom: 14px; }
+.short ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.short li { display: flex; gap: 12px; align-items: flex-start; }
+.short-icon { flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--card); color: var(--coffee); display: flex; align-items: center; justify-content: center; }
+.short li span:last-child { padding-top: 7px; }
+
+/* Content cards */
+.block { background: var(--card); border-radius: 24px; padding: 24px; margin-top: 16px; }
+.block h2 { font-size: 20px; line-height: 26px; font-weight: 800; margin-bottom: 10px; }
+.block h3 { font-size: 15px; line-height: 22px; font-weight: 700; margin: 16px 0 4px; }
+.block p, .block li { color: var(--muted); }
+.block p + p { margin-top: 10px; }
+.block ul { margin: 10px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.block li::marker { color: var(--caramel); }
+.block b { color: var(--text); }
+.block-warn { background: var(--cream); }
+
+/* Score bands at a glance (About) */
+.mini-bands { list-style: none; padding: 0 !important; margin: 14px 0 0 !important; display: flex; flex-direction: row !important; flex-wrap: wrap; gap: 8px !important; }
+.mini-bands li { display: inline-flex; align-items: center; gap: 8px; background: var(--bg); border-radius: 14px; padding: 6px 12px 6px 6px; color: var(--text) !important; font-size: 13px; line-height: 18px; font-weight: 700; }
+
+/* Placeholder Nathan fills in before launch: dashed so nobody mistakes it for real details */
+.placeholder { border: 2px dashed var(--caramel); border-radius: 16px; padding: 14px 16px; margin-top: 12px; background: var(--bg); }
+.placeholder b { color: var(--caramel); }
+
+.doc-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+
+@media (min-width: 960px) {
+  .doc { padding: 24px 0 80px; }
+  .doc-head h1 { font-size: 44px; line-height: 52px; }
+  .short, .block { padding: 32px; }
+}
