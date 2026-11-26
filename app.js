@@ -1,16 +1,16 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r9';
-import { startScanner, scanPhoto } from './scanner.js?v=r9';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r9';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r9';
-import { renderAudit } from './audit-screen.js?v=r9';
-import { buildView, servingText } from './nutrition-view.js?v=r9';
-import { computeScore, SCORE_TEXT } from './score.js?v=r9';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r9';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r9';
-import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r9';
+import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r10';
+import { startScanner, scanPhoto } from './scanner.js?v=r10';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r10';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r10';
+import { renderAudit } from './audit-screen.js?v=r10';
+import { buildView, servingText } from './nutrition-view.js?v=r10';
+import { computeScore, SCORE_TEXT } from './score.js?v=r10';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r10';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r10';
+import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r10';
 
 // Fill the page's fixed text in the chosen language (English or Thai) before anything is shown.
 applyStatic();

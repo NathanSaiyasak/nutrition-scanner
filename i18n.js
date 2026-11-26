@@ -1,8 +1,9 @@
 // i18n.js — English and Thai (26 Nov 2026). All the words live in strings.js, side by side.
 // The language is picked once when the page opens: the person's own choice from the More menu if they
-// made one (kept on this phone), otherwise Thai when the phone's main language is Thai, else English.
+// made one (kept on this phone), otherwise English. English stays the main language (Nathan, 26 Nov 2026):
+// Thai only when someone picks it.
 // Switching reloads the page, so every screen is drawn again in the new language.
-import { STRINGS, ADDITIVE_TH } from './strings.js?v=r9';
+import { STRINGS, ADDITIVE_TH } from './strings.js?v=r10';
 
 const KEY = 'bettr-lang';
 const LANGS = ['en', 'th'];
@@ -14,9 +15,8 @@ function pick() {
   try {
     const saved = localStorage.getItem(KEY);
     if (LANGS.includes(saved)) return saved;
-  } catch { /* storage blocked: fall back to the phone's language */ }
-  const first = (navigator.languages && navigator.languages[0]) || navigator.language || '';
-  return /^th\b/i.test(first) ? 'th' : 'en';
+  } catch { /* storage blocked: English */ }
+  return 'en';
 }
 
 export const lang = pick();
