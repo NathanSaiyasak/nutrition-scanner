@@ -11,16 +11,21 @@ MSG is not penalised). Replaces the sample score from v0.3. Everything else in v
    | Nutrient | Orange (medium) | Red (high) |
    |---|---|---|
    | Sugar | −15 | −35 |
-   | Sugar in a drink over 6 g per 100 ml (Thai sugar tax line) | −30 | −70 |
+   | Sugar in a drink over 6 g per 100 ml (Thai sugar tax line) | −15, plus 8 per gram over 6 (at most 35 more) | −35, plus 8 per gram over 6 (at most 35 more) |
    | Sodium | −15 | −35 |
    | Saturated fat | −12 | −30 |
    | Total fat | −8 | −20 |
    | Calories | 0 | — |
 
+   **Very high** (more than twice the UK red line: sugar over 45 g per 100 g or 22.5 g per 100 ml,
+   saturated fat over 10 g or 5 g, salt over 3 g or 1.5 g; not total fat): 10 more points off, and it
+   counts as a second red for the ceilings. Row line "Far too much sugar" (changed 26 Nov 2026).
+
 3. Take points off for additives of concern (below): −15 or −8 each, at most −30 in total. Benzoates
    are flagged but take no points off (changed 25 Nov 2026).
 4. Add points for Good points: protein and fibre +5 (source) or +10 (high); mostly fruit, vegetables,
-   pulses or nuts (80% or more) +10. At most +20 in total.
+   pulses or nuts (80% or more) +10. At most +20 in total. Since 26 Nov 2026 protein needs at least 3 g
+   per 100 g (1.5 g per 100 ml in a drink) and fibre at least 1.5 g to count as a good point.
 5. Ceilings: any orange item, no Good point, or no ingredients list → at most 89. One red → 70, two reds
    → 45, three or more → 20 (a red additive counts as a red).
 6. Sweeteners take 10 points off, after the ceilings, so they always count (changed 25 Nov 2026; this
@@ -67,6 +72,28 @@ Screen wording uses plain sentences with no colons (Nathan, 24 Nov 2026).
 - "Not enough information to score yet." stays as it is for now (to be improved in a later version).
 - Sample scores: Singha lemon soda zero sugar (sucralose and sodium benzoate) 50 OK → 79 Good; Singha
   soda water (no sweetener) 89 Good, unchanged.
+
+## Changed 26 Nov 2026 (Nathan approved the 7 fixes from the fairness review)
+
+Review doc: https://claude.ai/artifact/JksBczqjUimnoWdp73XYq7 (296 Thai products from Open Food Facts plus
+our 2 typed-in products). Point sizes, bonuses, ceilings, sweetener −10, additives and labels unchanged.
+
+1. **Drink or food.** Cooking oil (category, or "oil" / น้ำมัน in the name with 80 g fat or more) and ice
+   cream are never drinks, even when sold in ml. A product with no size at all counts as a drink when
+   Open Food Facts files it under beverages. Plain plant oils now get the healthy-fat rule (olive oil
+   45 → 89; palm oil stays red for saturated fat).
+2. **Very high** (above): 10 more points off and a second red.
+3. **Sugary drinks.** Instead of doubling the sugar points above 6 g per 100 ml, each gram over 6 costs 8
+   more points, at most 35. Removes the jump where 6.4 g scored 35 points lower than 6.0 g.
+4. **Good points need a real amount** (protein ≥ 3 g per 100 g or 1.5 g per 100 ml, fibre ≥ 1.5 g). The
+   dropdown says "There is too little protein in it to count as a good point."
+5. **Sweeteners** also flagged for a drink with ≤ 0.5 g sugar that Open Food Facts files as artificially
+   sweetened or diet, or whose name says Max (แม็กซ์).
+6. **Total fat 0 means saturated fat 0**, for judging only (the screen still lists saturated fat as not
+   available). Lets these products get a score.
+7. **Portion rule without a serving size** uses the pack when it is a drink in a single can or bottle of
+   600 ml or less, so a can of cola is judged the same with or without a serving size. Food packs are
+   left alone (a 450 ml ice cream tub or a 230 g can of nuts is not one serving).
 
 ## Not in this step
 
