@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#FFF7ED">
   <link rel="preload" href="../fonts/LINESeedSansTH-Bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="landing.css?v=l2">
-  <link rel="stylesheet" href="page.css?v=l2">
+  <link rel="stylesheet" href="page.css?v=l3">
   <script src="page-lang.js?v=l2"></script>
 </head>
 <!-- about.html and privacy.html share this header and footer: change both alike. -->
@@ -184,11 +184,13 @@
         <p data-l="th" lang="th">Bettr ยังเป็นต้นแบบช่วงแรก ถ้าวิธีจัดการข้อมูลเปลี่ยน เช่น ถ้ามีระบบล็อกอินในอนาคต เราจะแก้หน้านี้ก่อนและเปลี่ยนวันที่ด้านบน</p>
       </section>
 
-      <section class="block" aria-labelledby="contact-title">
+      <!-- CONTACT BLOCK: hidden for now by the ".contact" rule in page.css (no real address yet).
+           To bring it back: put the real email below in place of the placeholder box
+           (e.g. <a href="mailto:REAL-ADDRESS">REAL-ADDRESS</a>), then delete that rule in page.css. -->
+      <section class="block contact" aria-labelledby="contact-title">
         <h2 id="contact-title"><span data-l="en">Questions</span><span data-l="th" lang="th">มีคำถาม</span></h2>
         <p data-l="en">If you have a question about your privacy, contact us.</p>
         <p data-l="th" lang="th">ถ้ามีคำถามเรื่องความเป็นส่วนตัว ติดต่อเราได้</p>
-        <!-- PLACEHOLDER: Nathan to add a contact email before public launch. -->
         <p class="placeholder"><b data-l="en">Placeholder.</b><b data-l="th" lang="th">ที่ว่างไว้</b> <span data-l="en">A contact email will be added here before Bettr launches publicly.</span><span data-l="th" lang="th">อีเมลติดต่อจะใส่ตรงนี้ก่อนเปิดให้ใช้จริง</span></p>
       </section>
 
