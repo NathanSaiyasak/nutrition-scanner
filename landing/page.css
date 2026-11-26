@@ -48,6 +48,10 @@ html[lang="th"] [data-l="en"], html:not([lang="th"]) [data-l="th"] { display: no
 .mini-bands li { display: inline-flex; align-items: center; gap: 8px; background: var(--bg); border-radius: 14px; padding: 6px 12px 6px 6px; color: var(--text) !important; font-size: 13px; line-height: 18px; font-weight: 700; }
 
 /* Placeholder Nathan fills in before launch: dashed so nobody mistakes it for real details */
+/* CONTACT SWITCH: hides the contact block on about.html and privacy.html until Bettr has a
+   real email address (needs a domain first). To show it again, put the address in both pages
+   (look for "CONTACT BLOCK") and delete this one rule. */
+.contact { display: none !important; }
 .placeholder { border: 2px dashed var(--caramel); border-radius: 16px; padding: 14px 16px; margin-top: 12px; background: var(--bg); }
 .placeholder b { color: var(--caramel); }
 
