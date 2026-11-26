@@ -32,6 +32,7 @@ and `docs/prototype-v0.3-spec.md`.
 | `shared-db.js` | v0.4. Products we type in from the pack: keeps them on the phone, sends them to the shared Supabase table (with the contributor passcode), and looks barcodes up in Open Food Facts and our table at the same time. |
 | `config.js` | v0.4. The shared database's address and public key. Empty = products stay on the phone. |
 | `supabase/setup.sql` | v0.4. Run once in Supabase: creates the table, public reading, and passcode-checked adding. |
+| `landing/` | The Bettr landing page (`index.html`, `landing.css`), from the Figma W1 Home frames. Served at `/landing/` on GitHub Pages; its buttons open the app at the site root. Uses the app's fonts from `fonts/`. |
 
 There are no frameworks, no build step, and nothing to install. The files are served exactly as they are.
 

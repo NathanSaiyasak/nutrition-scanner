@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bettr. Know what you eat, in one scan</title>
+  <meta name="description" content="Scan the barcode on any snack or drink at 7-Eleven Thailand. Bettr shows a simple score from 0 to 100, what to watch out for and what is good.">
+  <meta name="theme-color" content="#FFF7ED">
+  <link rel="preload" href="../fonts/LINESeedSansTH-Bold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="landing.css?v=l1">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="logo" viewBox="0 0 66 20">
+      <path fill="currentColor" d="M11.9555 8.99937C13.5585 8.24358 14.5581 6.67715 14.5581 4.83491C14.5581 1.98852 12.5696 0 9.72316 0H0V18.9374H10.1788C13.2263 18.9374 15.355 16.7858 15.355 13.7048C15.355 11.4572 14.043 9.67592 11.9555 8.99937ZM4.66425 10.9772H8.75709C9.8283 10.9772 10.5749 11.7482 10.5749 12.853C10.5749 13.9577 9.80392 14.7287 8.69919 14.7287H4.66273V10.9787L4.66425 10.9772ZM8.18872 7.56246H4.66425V4.15227H8.2451C9.23098 4.15227 9.8923 4.83796 9.8923 5.85736C9.8923 6.87676 9.19136 7.56246 8.1872 7.56246H8.18872Z"/>
+      <path fill="currentColor" d="M49.5072 14.968C48.6234 15.2834 47.8249 15.2606 47.3175 14.9025C46.9351 14.6328 46.7415 14.1924 46.7415 13.5905V8.24666H50.1533V4.26353H46.7415V0.284973H42.5314V3.01556C42.5314 3.7744 42.0849 4.26505 41.3946 4.26505H37.7559V0.284973H33.5457V3.01556C33.5457 3.7744 33.0992 4.26505 32.409 4.26505H31.385V8.24818H33.3187V14.3874C33.3187 16.0849 33.951 17.438 35.1457 18.2989C36.6801 19.4052 38.9993 19.5957 41.3535 18.8109L41.5455 18.7469L40.7714 14.8781L40.523 14.9665C39.6393 15.2819 38.8408 15.259 38.3334 14.9009C37.9509 14.6312 37.7574 14.1909 37.7574 13.589V8.24513H42.3043V14.3844C42.3043 16.0819 42.9367 17.435 44.1313 18.2959C45.041 18.9511 46.2265 19.2848 47.5324 19.2848C48.4283 19.2848 49.3807 19.1279 50.3391 18.8079L50.5311 18.7439L49.7571 14.875L49.5087 14.9634L49.5072 14.968Z"/>
+      <path fill="currentColor" d="M60.4067 9.27213L60.9735 4.35341L60.8212 4.28484C59.788 3.82009 58.5919 3.79876 57.5405 4.22541C56.7664 4.53931 56.1462 5.05892 55.7516 5.71566L55.2 4.26503H51.7426V18.9374H56.1798V11.2027C56.1798 10.2123 56.5226 9.47174 57.1717 9.06033C57.9199 8.58796 59.0201 8.61539 60.1172 9.13499L60.4052 9.27213H60.4067Z"/>
+      <path fill="currentColor" d="M62.7183 13.7032C61.1686 13.7032 60.0441 14.8522 60.0441 16.4338C60.0441 18.0155 61.1686 19.1644 62.7183 19.1644C64.268 19.1644 65.3925 18.0155 65.3925 16.4338C65.3925 14.8522 64.268 13.7032 62.7183 13.7032Z"/>
+      <path fill="currentColor" d="M22.3019 4.02887C24.3559 3.66164 26.2624 4.11474 27.8136 5.34137C29.5292 6.69755 30.6356 8.93271 30.7697 11.3218L30.7804 11.524L21.2921 13.2232C21.8986 14.5276 23.105 15.207 24.4337 14.9693C25.4957 14.7788 26.2804 14.0646 26.4298 13.149L26.4679 12.9175L30.9825 13.7769L30.9474 13.9957C30.5436 16.5114 28.2234 18.5683 25.1759 19.1138C23.1005 19.4856 21.0888 19.0654 19.5148 17.9302C17.9454 16.7981 16.8709 15.0014 16.4884 12.8697C16.1968 11.2423 16.352 9.70644 16.8741 8.38043C17.0593 8.4707 17.2667 8.52301 17.4865 8.52301C18.2594 8.52266 18.8868 7.89564 18.8868 7.12262C18.8868 7.02564 18.8754 6.93084 18.8566 6.83942C19.0065 6.88423 19.1657 6.90973 19.3302 6.90973C20.2407 6.90927 20.9786 6.17086 20.9786 5.26031C20.9786 4.97166 20.9038 4.70043 20.7736 4.46442C21.2516 4.27275 21.762 4.12538 22.3009 4.02887H22.3019ZM25.7941 9.64215C25.2881 8.53162 24.1651 7.91421 22.9767 8.1275C21.8585 8.32718 21.0682 9.23564 20.8624 10.5259L25.7941 9.64215Z"/>
+    </symbol>
+    <symbol id="i-scan" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4.67V3.33C2 2.6 2.6 2 3.33 2h1.34M11.33 2h1.34C13.4 2 14 2.6 14 3.33v1.34M14 11.33v1.34c0 .73-.6 1.33-1.33 1.33h-1.34M4.67 14H3.33C2.6 14 2 13.4 2 12.67v-1.34M5.33 4.67v6.66M8 4.67v6.66M11.33 4.67v6.66"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.08 11.76 13.44 8.4M2.8 15.96a8.4 8.4 0 1 1 14.55 0"/></symbol>
+    <symbol id="i-check" viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.08" cy="10.08" r="8.4"/><path d="m7.56 10.08 1.68 1.68 3.36-3.36"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.8 10.92c0 4.2-2.94 6.3-6.43 7.52a.84.84 0 0 1-.57-.01C6.3 17.22 3.36 15.12 3.36 10.92V5.04c0-.46.38-.84.84-.84 1.68 0 3.78-1.01 5.24-2.28a.98.98 0 0 1 1.28 0c1.47 1.28 3.56 2.28 5.24 2.28.46 0 .84.38.84.84v5.88z"/></symbol>
+    <symbol id="i-db" viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10.08" cy="4.2" rx="7.56" ry="2.52"/><path d="M2.52 4.2v11.76c0 1.39 3.38 2.52 7.56 2.52s7.56-1.13 7.56-2.52V4.2M2.52 10.08c0 1.39 3.38 2.52 7.56 2.52s7.56-1.13 7.56-2.52"/></symbol>
+    <symbol id="i-clip" viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6.72" y="1.68" width="6.72" height="3.36" rx=".84"/><path d="M13.44 3.36h1.68c.93 0 1.68.75 1.68 1.68V16.8c0 .93-.75 1.68-1.68 1.68H5.04c-.93 0-1.68-.75-1.68-1.68V5.04c0-.93.75-1.68 1.68-1.68h1.68M7.56 11.76l1.68 1.68 3.36-3.36"/></symbol>
+    <symbol id="i-image" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.24" y="3.24" width="19.44" height="19.44" rx="2.16"/><circle cx="9.72" cy="9.72" r="2.16"/><path d="m22.68 16.2-3.34-3.34a2.16 2.16 0 0 0-3.04 0l-9.82 9.82"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.67 9.67A1.67 1.67 0 0 0 7.33 8c0-.92-.33-1.33-.66-2-.72-1.43-.15-2.7 1.33-4 .33 1.67 1.33 3.27 2.67 4.33C12 7.4 12.67 8.67 12.67 10a4.67 4.67 0 1 1-9.34 0c0-.77.29-1.53.67-2 0 .92.75 1.67 1.67 1.67z"/></symbol>
+    <symbol id="i-egg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14.67c4.15-.04 5.25-3.72 5-6.67-.24-2.89-2.63-6.64-5-6.67C5.63 1.36 3.24 5.11 3 8c-.25 2.95.85 6.63 5 6.67z"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 16.5a5.25 5.25 0 0 0 5.25-5.25c0-1.5-.75-2.93-2.25-4.13S9.38 4.13 9 2.25c-.37 1.88-1.5 3.68-3 4.88s-2.25 2.62-2.25 4.12A5.25 5.25 0 0 0 9 16.5z"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 6.75 4.5 4.5 4.5-4.5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.33 5h13.34M3.33 10h13.34M3.33 15h13.34"/></symbol>
+  </svg>
+
+  <header class="wrap nav">
+    <a class="logo" href="./" aria-label="Bettr home"><svg viewBox="0 0 66 20" aria-hidden="true"><use href="#logo"/></svg></a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#score">The score</a>
+      <a href="#data">Our data</a>
+      <a class="btn btn-primary" href="../">Open the app</a>
+    </nav>
+    <details class="menu">
+      <summary aria-label="Menu"><svg width="26" height="26" aria-hidden="true"><use href="#i-menu"/></svg></summary>
+      <nav class="menu-panel" aria-label="Main">
+        <a href="#how">How it works</a>
+        <a href="#score">The score</a>
+        <a href="#data">Our data</a>
+        <a class="btn btn-primary" href="../">Open the app</a>
+      </nav>
+    </details>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-text">
+          <p class="pill"><svg width="16" height="16" aria-hidden="true" style="color:var(--coffee)"><use href="#i-scan"/></svg><span>Made for <span class="nw">7-Eleven</span> shoppers in Thailand</span></p>
+          <h1>Know what you eat, in one scan</h1>
+          <p class="lead">Scan the barcode on any snack or drink. Bettr shows a simple score from 0 to 100, what to watch out for and what is good.</p>
+          <div class="hero-buttons">
+            <a class="btn btn-primary" href="../">Open the app</a>
+            <a class="btn btn-secondary" href="#score">How the score works</a>
+          </div>
+          <p class="small-print">Free. No sign-up. Works in your phone browser.</p>
+        </div>
+
+        <div class="mock" role="img" aria-label="The Bettr result screen for Singha Lemon Soda Zero Sugar, with a score of 79 out of 100, rated Good">
+          <div class="device" aria-hidden="true">
+            <div class="status"><span>9:41</span><span class="status-icons"><i></i><i></i><i></i></span></div>
+            <div class="screen">
+              <div class="p-card">
+                <div class="p-head">
+                  <span class="p-photo"><svg width="22" height="22"><use href="#i-image"/></svg></span>
+                  <span class="p-names">
+                    <b>Lemon Soda Zero Sugar</b>
+                    <span lang="th">สิงห์ เลมอนโซดา สูตรไม่มีน้ำตาล</span>
+                    <span class="chip">Singha</span>
+                  </span>
+                </div>
+                <div class="p-line"></div>
+                <div class="p-summary">
+                  <span class="ring">
+                    <svg viewBox="0 0 100 100"><circle class="track" cx="50" cy="50" r="45" pathLength="100"/><circle class="arc" cx="50" cy="50" r="45" pathLength="100"/></svg>
+                    <span class="ring-num"><b>79</b><small>/100</small></span>
+                  </span>
+                  <span class="p-side">
+                    <span class="tag small" data-rating="good">Good</span>
+                    <span class="stats">
+                      <span class="stat"><b><svg width="14" height="14"><use href="#i-flame"/></svg>0 kcal</b><span>Calories</span></span>
+                      <span class="stat"><b><svg width="14" height="14"><use href="#i-egg"/></svg>0 g</b><span>Protein</span></span>
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <p class="serving">Per serving of 325 ml (1 can)</p>
+              <h3>Watch Out</h3>
+              <div class="list">
+                <div class="row">
+                  <div class="row-top">
+                    <span class="row-icon warn"><svg width="16" height="16"><use href="#i-drop"/></svg></span>
+                    <span class="row-text"><b>Sweeteners</b><span>Contains sucralose, which takes 10 points off</span></span>
+                    <span class="row-amount">INS 955</span>
+                    <svg width="16" height="16"><use href="#i-chev"/></svg>
+                  </div>
+                  <div class="bar"><i style="width:44%;background:var(--warn)"></i></div>
+                </div>
+                <div class="row">
+                  <div class="row-top">
+                    <span class="row-icon warn"><svg width="16" height="16"><use href="#i-drop"/></svg></span>
+                    <span class="row-text"><b>Sodium benzoate</b><span>A preservative we flag, no points off</span></span>
+                    <span class="row-amount">INS 211</span>
+                    <svg width="16" height="16"><use href="#i-chev"/></svg>
+                  </div>
+                  <div class="bar"><i style="width:44%;background:var(--warn)"></i></div>
+                </div>
+              </div>
+              <h3>Good Points</h3>
+              <div class="list">
+                <div class="row">
+                  <div class="row-top">
+                    <span class="row-icon good"><svg width="16" height="16"><use href="#i-drop"/></svg></span>
+                    <span class="row-text"><b>Sugar</b><span>Low in sugar</span></span>
+                    <span class="row-amount">0 g</span>
+                    <svg width="16" height="16"><use href="#i-chev"/></svg>
+                  </div>
+                  <div class="bar"><i style="width:57%;background:var(--good)"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-white" id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">How it works</p>
+          <h2 id="how-title">Three steps, about five seconds</h2>
+        </div>
+        <ol class="steps">
+          <li class="step">
+            <div class="step-top"><span class="step-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-scan"/></svg></span><span class="step-num">Step 1</span></div>
+            <h3>Scan the barcode</h3>
+            <p>Point your phone at the bars on the pack. No barcode scan? Type the numbers.</p>
+          </li>
+          <li class="step">
+            <div class="step-top"><span class="step-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-gauge"/></svg></span><span class="step-num">Step 2</span></div>
+            <h3>See the score</h3>
+            <p>A score from 0 to 100 with Great, Good, OK, Poor or Bad, and the reasons.</p>
+          </li>
+          <li class="step">
+            <div class="step-top"><span class="step-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-check"/></svg></span><span class="step-num">Step 3</span></div>
+            <h3>Pick Bettr</h3>
+            <p>Compare two products on the shelf and choose the one that suits you.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" id="score" aria-labelledby="score-title">
+      <div class="wrap score-grid">
+        <div class="score-text">
+          <p class="eyebrow">The score</p>
+          <h2 id="score-title">A score you can read in a second</h2>
+          <p class="body">Points come off for too much sugar, salt and fat, and for some additives. Protein, fibre and fruit add points. When a value is missing we say so, we never guess.</p>
+          <details class="how">
+            <summary>Read how the score works <svg width="18" height="18" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="how-body">
+              <p>Every product starts at 100. Points come off for too much sugar, fat or salt and for additives of concern, and a few come back for protein and fibre.</p>
+              <p>Great is 90 or more, Good is 75 or more, OK is 50 or more, Poor is 25 or more, and Bad is below 25.</p>
+            </div>
+          </details>
+        </div>
+        <ul class="bands">
+          <li class="band"><span class="tag" data-rating="great">Great</span><span class="band-text"><b>90 to 100</b><span>Nothing to watch out for, and something good</span></span></li>
+          <li class="band"><span class="tag" data-rating="good">Good</span><span class="band-text"><b>75 to 89</b><span>A solid everyday pick</span></span></li>
+          <li class="band"><span class="tag" data-rating="ok">OK</span><span class="band-text"><b>50 to 74</b><span>Fine now and then</span></span></li>
+          <li class="band"><span class="tag" data-rating="poor">Poor</span><span class="band-text"><b>25 to 49</b><span>Better as a treat</span></span></li>
+          <li class="band"><span class="tag" data-rating="bad">Bad</span><span class="band-text"><b>Under 25</b><span>Lots to watch out for</span></span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section section-blue" id="data" aria-labelledby="data-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="data-title">Honest about our data</h2>
+        </div>
+        <ul class="facts">
+          <li class="fact">
+            <span class="fact-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-shield"/></svg></span>
+            <h3>Never a guess</h3>
+            <p>If a value is not on the label or in the database, we show Not Available, not a zero.</p>
+          </li>
+          <li class="fact">
+            <span class="fact-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-db"/></svg></span>
+            <h3>Open data</h3>
+            <p>Product facts come from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>, a free database anyone can improve.</p>
+          </li>
+          <li class="fact">
+            <span class="fact-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-clip"/></svg></span>
+            <h3>Checked against the pack</h3>
+            <p>We compare what the app says with real labels in <span class="nw">7-Eleven</span> and fix what differs.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="cta" aria-labelledby="cta-title">
+      <div class="wrap">
+        <div class="cta-box">
+          <div class="cta-main">
+            <h2 id="cta-title">Try Bettr on your next <span class="nw">7-Eleven</span> run</h2>
+            <a class="btn btn-cream" href="../">Open the app</a>
+          </div>
+          <div class="qr">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" role="img" aria-label="QR code that opens the Bettr app"><path stroke="#2d2d2d" d="M0 0.5h7m2 0h11m2 0h2m2 0h7m-33 1h1m5 0h1m1 0h2m2 0h1m1 0h2m2 0h3m2 0h2m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h7m1 0h1m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m5 0h8m2 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h3m1 0h3m1 0h4m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m2 0h1m1 0h1m2 0h3m2 0h1m2 0h3m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h2m1 0h2m1 0h1m1 0h3m1 0h1m-22 1h1m1 0h1m1 0h1m1 0h1m4 0h1m1 0h1m2 0h3m1 0h2m2 0h1m3 0h1m2 0h1m-32 1h1m1 0h3m2 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h3m1 0h4m3 0h2m-33 1h5m1 0h3m2 0h1m2 0h1m3 0h1m3 0h1m1 0h4m2 0h3m-33 1h1m1 0h4m1 0h2m1 0h1m1 0h7m2 0h3m1 0h1m2 0h1m3 0h1m-33 1h1m4 0h2m1 0h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m1 0h1m-31 1h1m1 0h3m2 0h1m1 0h1m3 0h3m1 0h2m1 0h1m2 0h3m3 0h1m1 0h1m-27 1h1m1 0h1m1 0h1m4 0h3m3 0h2m2 0h1m1 0h2m2 0h2m-33 1h2m2 0h1m3 0h3m2 0h1m2 0h2m2 0h5m1 0h3m2 0h1m-29 1h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h4m2 0h1m-29 1h5m1 0h1m1 0h2m1 0h3m1 0h1m3 0h1m3 0h4m3 0h2m-33 1h1m2 0h1m2 0h3m2 0h1m1 0h1m2 0h2m3 0h1m2 0h1m5 0h1m1 0h1m-30 1h3m1 0h1m2 0h2m1 0h1m1 0h1m3 0h1m1 0h1m1 0h2m2 0h2m3 0h1m-29 1h7m2 0h3m4 0h2m2 0h3m2 0h1m1 0h1m-31 1h4m4 0h3m2 0h2m1 0h1m3 0h1m3 0h2m4 0h2m-33 1h1m1 0h2m1 0h2m1 0h2m7 0h1m2 0h1m1 0h1m1 0h2m3 0h4m-32 1h1m1 0h2m3 0h1m1 0h1m4 0h1m1 0h2m2 0h2m1 0h4m4 0h1m-33 1h1m4 0h2m1 0h2m2 0h2m2 0h2m2 0h2m1 0h7m2 0h1m-25 1h1m1 0h5m1 0h2m2 0h1m3 0h1m3 0h2m1 0h2m-33 1h7m7 0h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h3m-33 1h1m5 0h1m3 0h1m1 0h1m2 0h5m1 0h1m2 0h1m3 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m3 0h3m1 0h1m1 0h2m1 0h1m2 0h6m-30 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m7 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m1 0h5m1 0h3m1 0h1m3 0h1m1 0h1m3 0h1m1 0h1m1 0h1m-33 1h1m5 0h1m2 0h4m1 0h1m1 0h9m1 0h1m1 0h1m2 0h1m-32 1h7m1 0h1m4 0h3m1 0h1m3 0h1m1 0h3m2 0h2m1 0h2"/></svg>
+            <span>Scan to open on your phone</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-brand">
+        <svg viewBox="0 0 66 20" role="img" aria-label="Bettr"><use href="#logo"/></svg>
+        <p>Product data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>, licence <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL</a>.</p>
+        <p>© 2026 Bettr</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="#score">How the score works</a>
+        <a href="#data">Our data</a>
+        <a href="../">Open the app</a>
+      </nav>
+    </div>
+  </footer>
+  <script>
+    // Close the phone menu after a link in it is tapped, so the page shows the section.
+    document.querySelectorAll('.menu-panel a').forEach(function (a) {
+      a.addEventListener('click', function () { a.closest('details').open = false; });
+    });
+  </script>
+</body>
+</html>
