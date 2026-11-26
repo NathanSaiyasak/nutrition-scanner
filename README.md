@@ -1,4 +1,6 @@
-# Nutrition Scanner — prototype v0.4 (shared storage for products we add)
+# Bettr (was Nutrition Scanner) — prototype v0.5
+
+The app is called **Bettr** since 25 Nov 2026; its look follows the Bettr Figma file (page "Bettr wireframes").
 
 A mobile web page: scan or type a product barcode and see its nutrition facts from
 [Open Food Facts](https://world.openfoodfacts.org). Version 0.2 adds the store audit tool: every scan is

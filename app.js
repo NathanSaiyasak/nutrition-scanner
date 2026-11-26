@@ -1,15 +1,15 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r7';
-import { startScanner, scanPhoto } from './scanner.js?v=r7';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r7';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r7';
-import { renderAudit } from './audit-screen.js?v=r7';
-import { buildView, servingText } from './nutrition-view.js?v=r7';
-import { computeScore, SCORE_TEXT } from './score.js?v=r7';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r7';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r7';
+import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r8';
+import { startScanner, scanPhoto } from './scanner.js?v=r8';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r8';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r8';
+import { renderAudit } from './audit-screen.js?v=r8';
+import { buildView, servingText } from './nutrition-view.js?v=r8';
+import { computeScore, SCORE_TEXT } from './score.js?v=r8';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r8';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r8';
 
 const $ = (id) => document.getElementById(id);
 const SCREENS = ['screen-start', 'screen-loading', 'screen-product', 'screen-message',
@@ -114,6 +114,7 @@ function stopCamera() {
 }
 
 function resetCameraUi() {
+  setTorch(null);
   clearTimeout(stallTimer);
   clearInterval(liveCheck);
   $('camera').hidden = true;
@@ -145,11 +146,34 @@ function setTapButton(state) {
     if (!stopScanner) { clearInterval(liveCheck); return; }
     const live = !video.paused && video.readyState >= 2 && video.videoWidth > 0;
     const current = $('scan-button').dataset.state;
-    if (live && current !== 'live') setTapButton('live');
+    if (live && current !== 'live') { setTapButton('live'); setTorch(cameraTrack()); }
     else if (!live && current === 'live') setTapButton('tap');
     else if (!live && current === 'starting' && (Date.now() - startedAt > 3000 || (video.srcObject && video.paused && video.readyState >= 1))) setTapButton('tap');
   }, 300);
 }
+
+// ---------- Torch (Bettr Figma S1) ----------
+// Only shown when the phone's browser can switch the torch on (most Android phones; not iPhone Safari).
+let torchTrack = null;
+function cameraTrack() {
+  const stream = video.srcObject;
+  return stream && stream.getVideoTracks ? stream.getVideoTracks()[0] || null : null;
+}
+function setTorch(track) {
+  let can = false;
+  try { can = Boolean(track && track.getCapabilities && track.getCapabilities().torch); } catch { can = false; }
+  torchTrack = can ? track : null;
+  $('torch-button').hidden = !can;
+  $('torch-button').setAttribute('aria-pressed', 'false');
+}
+$('torch-button').addEventListener('click', async () => {
+  if (!torchTrack) return;
+  const on = $('torch-button').getAttribute('aria-pressed') !== 'true';
+  try {
+    await torchTrack.applyConstraints({ advanced: [{ torch: on }] });
+    $('torch-button').setAttribute('aria-pressed', String(on));
+  } catch { setTorch(null); }
+});
 
 $('scan-button').addEventListener('click', () => {
   cameraFailed = false;
@@ -201,12 +225,23 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) { if (stopScanner) dropAutoTry(); stopCamera(); } else autoStartCamera();
 });
 
+// Camera blocked: "Try the camera again" does what a tap on the camera box does.
+$('camera-retry').addEventListener('click', () => $('scan-button').click());
+
 // ---------- Start screen: manual entry ----------
+// "Type it" turns the panel into the typing panel (Bettr Figma S2); the cross turns it back.
+function setTyping(on) {
+  $('manual-form').hidden = !on;
+  $('fallbacks').hidden = on;
+  $('type-close').hidden = !on;
+  $('sheet-title').textContent = on ? 'Type the barcode' : 'Can’t scan it?';
+  if (!on) $('manual-error').hidden = true;
+}
 $('type-toggle').addEventListener('click', () => {
-  $('type-toggle').hidden = true;
-  $('manual-form').hidden = false;
+  setTyping(true);
   $('barcode-input').focus();
 });
+$('type-close').addEventListener('click', () => setTyping(false));
 $('manual-form').addEventListener('submit', (event) => {
   event.preventDefault();
   const input = $('barcode-input');
@@ -284,17 +319,17 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
       break;
     case 'timeout':
       showMessage('This is taking too long',
-        'The connection is slow right now. Please try again in a moment.', barcode);
+        'The connection is slow right now. Please try again in a moment.', barcode, false, 'error');
       $('message-retry').hidden = false;
       break;
     case 'busy':
       showMessage('Too many lookups right now',
-        'The product database is busy. Wait a minute, then try again.', barcode);
+        'The product database is busy. Wait a minute, then try again.', barcode, false, 'error');
       $('message-retry').hidden = false;
       break;
     default:
       showMessage('No internet connection',
-        'Check your mobile data or wifi, then try again.', barcode);
+        'Check your mobile data or wifi, then try again.', barcode, false, 'error');
       $('message-retry').hidden = false;
   }
 }
@@ -309,10 +344,12 @@ function showSavedNote(entry) {
   }
 }
 
-export function showMessage(title, text, barcode, done = false) {
+// kind picks the icon: 'notfound' (a box), 'error' (no connection) or 'done' (a tick).
+export function showMessage(title, text, barcode, done = false, kind = done ? 'done' : 'notfound') {
   $('message-share').hidden = true;
   if (done) $('message-retry').hidden = true;
-  $('screen-message').dataset.done = String(done); // a success message hides the "search" icon
+  $('screen-message').dataset.done = String(done);
+  $('screen-message').dataset.kind = kind;
   $('message-title').textContent = title;
   $('message-text').textContent = text;
   $('message-barcode').textContent = barcode ? `Barcode ${barcode}` : '';
@@ -379,7 +416,7 @@ function renderSource(p) {
     ? ` on ${dateFormat.format(new Date(p.addedAt))} ${new Date(p.addedAt).getFullYear()}` : '';
   const box = $('source-ours');
   box.replaceChildren(p.source === 'shared'
-    ? `Nutrition facts typed in from the pack by Nutrition Scanner testers${when}.`
+    ? `Nutrition facts typed in from the pack by Bettr testers${when}.`
     : `Nutrition facts typed in from the pack on this phone${when} (not in the shared database yet).`);
   if (p.photoFromOff && p.offUrl) {
     const a = document.createElement('a');
@@ -411,11 +448,13 @@ function renderScore(result, view) {
   if (!scored) return;
   const ring = $('score-ring');
   ring.dataset.tone = result.tone;
+  ring.dataset.rating = ratingOf(result); // one of the five Bettr score colours
   ring.setAttribute('role', 'img');
   ring.setAttribute('aria-label', `Score ${result.score} out of 100, ${result.verdict}`);
   const verdict = $('verdict');
   verdict.textContent = result.verdict;
   verdict.dataset.tone = result.tone;
+  verdict.dataset.rating = ratingOf(result);
   $('score-number').textContent = String(result.score);
   // The ring fills from zero to the score (skipped with reduce motion, see style.css).
   ring.style.setProperty('--score', '0');
@@ -426,6 +465,9 @@ function renderScore(result, view) {
     ring.classList.add('is-on');
   });
 }
+
+// The rating's name decides its colour (Great, Good, OK, Poor, Bad). Display only; score.js decides.
+function ratingOf(result) { return result.verdict.toLowerCase(); }
 
 // Calories, protein and fibre at a glance, with the same icons and amounts as the Nutrition Facts list.
 // Only the ones with a value are shown, and no stats at all when none has one (Nathan, 24 Nov 2026);
@@ -451,11 +493,22 @@ function renderGroups(view) {
   const box = $('groups');
   box.replaceChildren();
   if (!view) return;
-  view.groups.forEach((group, index) => {
+  // "Per serving of 30 g (half a bag)" sits above the lists (Bettr Figma R1).
+  box.append(el('p', 'basis-line', view.basisLabel));
+  view.groups.forEach((group) => {
     const section = el('section', 'group');
     const head = el('div', 'group-head');
     head.append(el('h3', '', group.title));
-    if (index === 0) head.append(el('span', 'group-basis', view.basisLabel));
+    // Not Available (Bettr Figma R1): one card naming what's missing and why, nothing to open.
+    if (group.id === 'missing') {
+      const card = el('div', 'missing-card');
+      card.append(el('p', 'missing-names', group.items.map((i) => i.name).join(', ')));
+      const notes = [...new Set(group.items.map((i) => i.note).filter(Boolean))];
+      card.append(el('p', 'missing-note', `${notes.join('. ')}. We never guess.`));
+      section.append(head, card);
+      box.append(section);
+      return;
+    }
     const isFacts = group.id === 'facts';
     const card = el('ul', isFacts ? 'group-card facts-card' : 'group-card');
     for (const item of group.items) {
@@ -466,21 +519,17 @@ function renderGroups(view) {
       const wrap = hasDetails ? el('details', 'fact-drop') : li;
       const rowHead = hasDetails ? el('summary', 'fact-head') : el('div', 'fact-head');
       const line = el('div', 'fact-line');
-      // Nutrition facts rows get an icon in the nutrient's own colour (Nathan, 24 Nov 2026), with a
-      // small green tick when they are a good point. Watch out and Good points keep their status dot.
-      let dot;
-      if (isFacts) {
-        dot = el('span', 'nicon');
-        if (item.mark === 'tick') {
-          dot.classList.add('nicon-tick');
-          dot.setAttribute('role', 'img');
-          dot.setAttribute('aria-label', 'Good point');
-        } else {
-          dot.setAttribute('aria-hidden', 'true');
-        }
+      // Every row gets the nutrient's icon in a round badge (Bettr Figma nutrient row). Watch Out and
+      // Good Points tint it by level (red, orange, green); Nutrition Facts are caramel, with a small
+      // green tick when they are a good point.
+      const dot = el('span', 'nicon');
+      if (!isFacts) dot.dataset.tone = item.tone;
+      if (isFacts && item.mark === 'tick') {
+        dot.classList.add('nicon-tick');
+        dot.setAttribute('role', 'img');
+        dot.setAttribute('aria-label', 'Good point');
       } else {
-        dot = el('span', 'dot');
-        dot.dataset.tone = item.tone;
+        dot.setAttribute('aria-hidden', 'true');
       }
       const text = el('div', 'fact-text');
       text.append(el('span', 'fact-name', item.name), el('span', 'fact-note', item.note));
@@ -684,11 +733,28 @@ $('product-add').addEventListener('click', () => { lastScreen = 'screen-product'
 $('no-nutrition-add').addEventListener('click', () => { lastScreen = 'screen-product'; startAdd('correction'); });
 $('message-retry').addEventListener('click', () => { if (lastBarcode) handleBarcode(lastBarcode, lastHow); });
 
+// ---------- More menu (Bettr Figma M1) ----------
+function openMore() {
+  $('more').hidden = false;
+  $('more').querySelector('h2').setAttribute('tabindex', '-1');
+  $('more').querySelector('h2').focus();
+}
+function closeMore() {
+  $('more').hidden = true;
+  for (const d of $('more').querySelectorAll('details')) d.open = false;
+}
+$('more-button').addEventListener('click', openMore);
+$('more').querySelector('[data-close]').addEventListener('click', closeMore);
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !$('more').hidden) closeMore(); });
+
 $('audit-link').addEventListener('click', () => {
+  closeMore();
   currentLookup++; // a lookup still running is logged, but no longer shown
   renderAudit();
   show('screen-audit');
 });
+$('audit-back-top').addEventListener('click', () => $('audit-back').click());
+$('add-back').addEventListener('click', () => $('add-cancel').click());
 $('audit-back').addEventListener('click', () => {
   attempt = newAttempt();
   show('screen-start');
@@ -702,8 +768,7 @@ sendWaiting(); // products added while offline (or before the passcode was enter
 function goToScan() {
   currentLookup++;
   $('barcode-input').value = '';
-  $('manual-form').hidden = true;
-  $('type-toggle').hidden = false;
+  setTyping(false);
   show('screen-start');
   attempt = newAttempt();
   cameraFailed = false;
@@ -733,14 +798,15 @@ for (const button of document.querySelectorAll('.tab')) {
 // ---------- History ----------
 const dateFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
 const timeFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
-function whenText(iso) {
+// The day heading over each group of the list (Bettr Figma H1): Today, Yesterday, or the date.
+function dayText(iso) {
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
+  if (Number.isNaN(d.getTime())) return 'Earlier';
   const today = new Date();
   const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-  const sameDay = (a, b) => a.toDateString() === b.toDateString();
-  const day = sameDay(d, today) ? 'Today' : sameDay(d, yesterday) ? 'Yesterday' : dateFormat.format(d);
-  return `${day}, ${timeFormat.format(d)}`;
+  if (d.toDateString() === today.toDateString()) return 'Today';
+  if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  return dateFormat.format(d);
 }
 
 function renderHistory() {
@@ -749,8 +815,17 @@ function renderHistory() {
   $('history-full').hidden = items.length === 0;
   const list = $('history-list');
   list.replaceChildren();
+  let day = null;
+  let group = null;
   for (const item of items) {
     const p = item.product;
+    const thisDay = dayText(item.savedAt);
+    if (thisDay !== day) {
+      day = thisDay;
+      list.append(el('p', 'history-day', day));
+      group = el('ul', '');
+      list.append(group);
+    }
     const li = el('li', '');
     const button = el('button', 'history-item');
     button.type = 'button';
@@ -763,25 +838,29 @@ function renderHistory() {
       img.loading = 'lazy';
       img.onerror = () => img.remove();
       photo.append(img);
+    } else {
+      photo.innerHTML = '<svg width="22" height="22" aria-hidden="true"><use href="#i-image"/></svg>';
     }
     const text = el('span', 'history-text');
     text.append(el('span', 'history-name', p.name));
     const brand = p.brands ? p.brands.split(',')[0].trim() : '';
-    text.append(el('span', 'history-meta', [brand, whenText(item.savedAt)].filter(Boolean).join(' · ')));
+    const d = new Date(item.savedAt);
+    const time = Number.isNaN(d.getTime()) ? '' : timeFormat.format(d);
+    text.append(el('span', 'history-meta', [brand, time].filter(Boolean).join(' · ')));
 
     button.append(photo, text);
     const view = p.hasNutrition ? buildView(p) : null;
     const score = computeScore(view);
     if (score && !score.missing) {
       const badge = el('span', 'history-score');
-      const dot = el('span', 'dot');
-      dot.dataset.tone = score.tone;
-      badge.append(dot, el('b', '', String(score.score)));
+      badge.dataset.rating = ratingOf(score);
+      badge.setAttribute('aria-label', `Score ${score.score}, ${score.verdict}`);
+      badge.append(el('b', '', String(score.score)), el('small', '', score.verdict));
       button.append(badge);
     }
     button.addEventListener('click', () => openFromHistory(p));
     li.append(button);
-    list.append(li);
+    group.append(li);
   }
 }
 
@@ -808,6 +887,13 @@ $('history-clear').addEventListener('click', () => {
 });
 
 updateTabbar('screen-start');
+
+// Splash (Bettr Figma A0): the wordmark shows for about a second while the app loads, then fades.
+setTimeout(() => {
+  const splash = $('splash');
+  splash.classList.add('is-gone');
+  setTimeout(() => splash.remove(), 400);
+}, 900);
 
 // Open the camera as soon as the page loads (the browser asks for permission the first time).
 autoStartCamera();
