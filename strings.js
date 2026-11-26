@@ -542,10 +542,8 @@ export const STRINGS = {
   ],
   'more.aboutTitle': ['About Bettr', 'เกี่ยวกับ Bettr'],
   'more.aboutSub': ['What this app is', 'แอปนี้คืออะไร'],
-  'more.aboutBody': [
-    'Bettr helps you see what is in packaged food at 7-Eleven Thailand. It is an early prototype, with no accounts and no tracking. Your history stays on this phone.',
-    'Bettr ช่วยให้รู้ว่าในอาหารแบบแพ็กที่ 7-Eleven มีอะไรบ้าง ตอนนี้ยังเป็นต้นแบบช่วงแรก ไม่ต้องสมัครบัญชีและไม่มีการติดตาม ประวัติของคุณอยู่ในเครื่องนี้เท่านั้น',
-  ],
+  'more.privacyTitle': ['Privacy', 'ความเป็นส่วนตัว'],
+  'more.privacySub': ['What stays on your phone', 'อะไรอยู่ในเครื่องคุณบ้าง'],
   'more.testers': ['For testers', 'สำหรับทีมทดสอบ'],
   'more.auditTitle': ['Audit log', 'บันทึกการตรวจ'],
   'more.auditSub': ['Scans, pass marks, CSV', 'การสแกน เกณฑ์ผ่าน และ CSV'],

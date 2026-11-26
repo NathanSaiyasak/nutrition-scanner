@@ -2,8 +2,8 @@
 // app.js shows the screen after calling openAddForm. A hidden timer measures the "manual add in 3 minutes or less" pass mark
 // (shown in the Audit log, not on the form: UX review item 10, 26 Nov 2026). Values are stored exactly
 // as typed: a blank box stays blank (not on the label), never 0.
-import { ADD_FIELDS, attachAddedProduct } from './audit.js?v=r12';
-import { t } from './i18n.js?v=r12';
+import { ADD_FIELDS, attachAddedProduct } from './audit.js?v=r13';
+import { t } from './i18n.js?v=r13';
 
 // Add-form field key → label text key in strings.js.
 const LABEL_KEY = {
