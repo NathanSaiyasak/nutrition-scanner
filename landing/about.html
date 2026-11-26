@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#FFF7ED">
   <link rel="preload" href="../fonts/LINESeedSansTH-Bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="landing.css?v=l2">
-  <link rel="stylesheet" href="page.css?v=l2">
+  <link rel="stylesheet" href="page.css?v=l3">
   <script src="page-lang.js?v=l2"></script>
 </head>
 <!-- about.html and privacy.html share this header and footer: change both alike. -->
@@ -141,10 +141,16 @@
 
       <section class="block" aria-labelledby="who-title">
         <h2 id="who-title"><span data-l="en">Who is behind Bettr</span><span data-l="th" lang="th">ใครทำ Bettr</span></h2>
-        <p data-l="en">Bettr is a small independent project based in Bangkok. To send feedback, report a wrong value or ask us to add a product, contact us.</p>
-        <p data-l="th" lang="th">Bettr เป็นโปรเจกต์อิสระเล็กๆ จากกรุงเทพฯ อยากส่งความเห็น แจ้งค่าที่ผิด หรือขอให้เพิ่มสินค้า ติดต่อเราได้</p>
-        <!-- PLACEHOLDER: Nathan to add a contact email (and, if wanted, who runs Bettr) before public launch. -->
-        <p class="placeholder"><b data-l="en">Placeholder.</b><b data-l="th" lang="th">ที่ว่างไว้</b> <span data-l="en">A contact email will be added here before Bettr launches publicly.</span><span data-l="th" lang="th">อีเมลติดต่อจะใส่ตรงนี้ก่อนเปิดให้ใช้จริง</span></p>
+        <p data-l="en">Bettr is a small independent project based in Bangkok.</p>
+        <p data-l="th" lang="th">Bettr เป็นโปรเจกต์อิสระเล็กๆ จากกรุงเทพฯ</p>
+        <!-- CONTACT BLOCK: hidden for now by the ".contact" rule in page.css (no real address yet).
+             To bring it back: put the real email below in place of the placeholder box
+             (e.g. <a href="mailto:REAL-ADDRESS">REAL-ADDRESS</a>), then delete that rule in page.css. -->
+        <div class="contact">
+          <p data-l="en">To send feedback, report a wrong value or ask us to add a product, contact us.</p>
+          <p data-l="th" lang="th">อยากส่งความเห็น แจ้งค่าที่ผิด หรือขอให้เพิ่มสินค้า ติดต่อเราได้</p>
+          <p class="placeholder"><b data-l="en">Placeholder.</b><b data-l="th" lang="th">ที่ว่างไว้</b> <span data-l="en">A contact email will be added here before Bettr launches publicly.</span><span data-l="th" lang="th">อีเมลติดต่อจะใส่ตรงนี้ก่อนเปิดให้ใช้จริง</span></p>
+        </div>
         <p data-l="en" style="margin-top:12px">Testers can also add a missing product straight from the app.</p>
         <p data-l="th" lang="th" style="margin-top:12px">ทีมทดสอบเพิ่มสินค้าที่ยังไม่มีได้จากในแอปเลย</p>
       </section>
