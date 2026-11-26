@@ -1,16 +1,17 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r10';
-import { startScanner, scanPhoto } from './scanner.js?v=r10';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r10';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r10';
-import { renderAudit } from './audit-screen.js?v=r10';
-import { buildView, servingText } from './nutrition-view.js?v=r10';
-import { computeScore, SCORE_TEXT } from './score.js?v=r10';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r10';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r10';
-import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r10';
+import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r11';
+import { startScanner, scanPhoto } from './scanner.js?v=r11';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r11';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r11';
+import { renderAudit } from './audit-screen.js?v=r11';
+import { buildView, servingText } from './nutrition-view.js?v=r11';
+import { computeScore, SCORE_TEXT } from './score.js?v=r11';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r11';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r11';
+import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r11';
+import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r11';
 
 // Fill the page's fixed text in the chosen language (English or Thai) before anything is shown.
 applyStatic();
@@ -22,6 +23,7 @@ const SCREENS = ['screen-start', 'screen-loading', 'screen-product', 'screen-mes
 export function show(screenId) {
   if (screenId !== 'screen-start') stopCamera(); // the camera only runs on the Scan screen
   if (screenId !== 'screen-add') stopAddTimer();
+  $('toast').hidden = true; // a message from the last screen doesn't follow to the next
   for (const id of SCREENS) $(id).hidden = id !== screenId;
   document.body.dataset.screen = screenId; // the scan screen is dark (v0.3)
   updateTabbar(screenId);
@@ -29,12 +31,12 @@ export function show(screenId) {
 }
 
 // ---------- Bottom navigation: History, Scan, Favorite ----------
-// Which tab is highlighted. A result opened from History keeps History highlighted.
-let openedFromHistory = false;
+// Which tab is highlighted. A result opened from History or Favorites keeps that tab highlighted.
+let openedFrom = null; // 'history', 'favorite', or null for a new scan
 function activeTab(screenId) {
   if (screenId === 'screen-history') return 'history';
   if (screenId === 'screen-favorite') return 'favorite';
-  if (screenId === 'screen-product' && openedFromHistory) return 'history';
+  if (screenId === 'screen-product' && openedFrom) return openedFrom;
   if (screenId === 'screen-audit') return null;
   return 'scan';
 }
@@ -266,7 +268,7 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
   const lookupId = ++currentLookup;
   lastBarcode = barcode;
   lastHow = how;
-  openedFromHistory = false;
+  openedFrom = null;
   const tries = Math.max(1, attempt.tries + (how.method === 'typed' ? 1 : 0));
   attempt = newAttempt(); // the next scan starts counting from zero
   $('loading-barcode').textContent = barcode;
@@ -276,7 +278,10 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
 
   // Record the scan even if the person has already moved on to another screen.
   const product = result.kind === 'found' ? result.product : null;
-  if (product) addToHistory(product);
+  if (product) {
+    addToHistory(product);
+    refreshFavorite(product); // a saved favorite gets the latest details
+  }
   const entry = logScan({
     barcode,
     method: how.method,
@@ -356,6 +361,8 @@ function renderProduct(p) {
   $('product-brand').hidden = !brand;
   $('product-barcode').textContent = t('common.barcode', { code: p.barcode });
   renderSource(p);
+  favProduct = p;
+  updateFavButton();
 
   // The photo fills the whole frame; the grey placeholder only shows when there is no photo or it
   // fails to load. Handlers are set before the new src, and a late error from the previous product's
@@ -781,11 +788,13 @@ for (const button of document.querySelectorAll('.tab')) {
       goToScan();
     } else if (tab === 'history') {
       currentLookup++; // a lookup still running is logged and saved, but no longer shown
-      openedFromHistory = false;
+      openedFrom = null;
       renderHistory();
       show('screen-history');
     } else {
       currentLookup++;
+      openedFrom = null;
+      renderFavorites();
       show('screen-favorite');
     }
   });
@@ -824,49 +833,70 @@ function renderHistory() {
       group = el('ul', '');
       list.append(group);
     }
-    const li = el('li', '');
-    const button = el('button', 'history-item');
-    button.type = 'button';
-
-    const photo = el('span', 'history-photo');
-    if (p.image) {
-      const img = document.createElement('img');
-      img.src = p.image;
-      img.alt = '';
-      img.loading = 'lazy';
-      img.onerror = () => img.remove();
-      photo.append(img);
-    } else {
-      photo.innerHTML = '<svg width="22" height="22" aria-hidden="true"><use href="#i-image"/></svg>';
-    }
-    const text = el('span', 'history-text');
-    text.append(el('span', 'history-name', p.name));
-    const brand = p.brands ? p.brands.split(',')[0].trim() : '';
-    const d = new Date(item.savedAt);
-    const time = Number.isNaN(d.getTime()) ? '' : timeFormat.format(d);
-    text.append(el('span', 'history-meta', [brand, time].filter(Boolean).join(' · ')));
-
-    button.append(photo, text);
-    const view = p.hasNutrition ? buildView(p) : null;
-    const score = computeScore(view);
-    if (score && !score.missing) {
-      const badge = el('span', 'history-score');
-      badge.dataset.rating = ratingOf(score);
-      badge.setAttribute('aria-label', t('history.badge', { score: score.score, verdict: t(`rating.${score.verdict}`) }));
-      badge.append(el('b', '', String(score.score)), el('small', '', t(`rating.${score.verdict}`)));
-      button.append(badge);
-    }
-    button.addEventListener('click', () => openFromHistory(p));
-    li.append(button);
-    group.append(li);
+    group.append(productRow(item, () => openSaved(p, 'history')));
   }
 }
 
-// Reopen a saved result. It isn't a new scan, so nothing is added to the audit log, and the
-// Store audit buttons (which need a log entry) stay hidden.
-function openFromHistory(p) {
+// One product row (Figma H1), shared by History and Favorites: photo, name, brand and time, score circle.
+// options.remove adds a filled heart button at the end of the row that takes it off Favorites.
+function productRow(item, onOpen, options = {}) {
+  const p = item.product;
+  const li = el('li', options.remove ? 'row-with-action' : '');
+  const button = el('button', 'history-item');
+  button.type = 'button';
+
+  const photo = el('span', 'history-photo');
+  if (p.image) {
+    const img = document.createElement('img');
+    img.src = p.image;
+    img.alt = '';
+    img.loading = 'lazy';
+    img.onerror = () => img.remove();
+    photo.append(img);
+  } else {
+    photo.innerHTML = '<svg width="22" height="22" aria-hidden="true"><use href="#i-image"/></svg>';
+  }
+  const text = el('span', 'history-text');
+  text.append(el('span', 'history-name', p.name));
+  const brand = p.brands ? p.brands.split(',')[0].trim() : '';
+  const time = options.showTime === false ? '' : timeText(item.savedAt);
+  const meta = [brand, time].filter(Boolean).join(' · ');
+  if (meta) text.append(el('span', 'history-meta', meta));
+
+  button.append(photo, text);
+  const view = p.hasNutrition ? buildView(p) : null;
+  const score = computeScore(view);
+  if (score && !score.missing) {
+    const badge = el('span', 'history-score');
+    badge.dataset.rating = ratingOf(score);
+    badge.setAttribute('aria-label', t('history.badge', { score: score.score, verdict: t(`rating.${score.verdict}`) }));
+    badge.append(el('b', '', String(score.score)), el('small', '', t(`rating.${score.verdict}`)));
+    button.append(badge);
+  }
+  button.addEventListener('click', onOpen);
+  li.append(button);
+
+  if (options.remove) {
+    const remove = el('button', 'row-unfav');
+    remove.type = 'button';
+    remove.setAttribute('aria-label', t('fav.removeItem', { name: p.name }));
+    remove.innerHTML = '<svg width="22" height="22" aria-hidden="true"><use href="#i-heart-fill"/></svg>';
+    remove.addEventListener('click', options.remove);
+    li.append(remove);
+  }
+  return li;
+}
+
+function timeText(iso) {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? '' : timeFormat.format(d);
+}
+
+// Reopen a saved result (from History or Favorites). It isn't a new scan, so nothing is added to the
+// audit log, and the Store audit buttons (which need a log entry) stay hidden.
+function openSaved(p, from) {
   currentLookup++;
-  openedFromHistory = true;
+  openedFrom = from;
   lastBarcode = p.barcode;
   currentEntry = null;
   currentProduct = p;
@@ -874,6 +904,7 @@ function openFromHistory(p) {
   renderProduct(p);
   resetLabelCheck(false);
   updateProductAdd();
+  $('history-note').textContent = t(from === 'favorite' ? 'audit.fromFavorites' : 'audit.fromHistory');
   $('history-note').hidden = false;
 }
 
@@ -882,6 +913,76 @@ $('history-clear').addEventListener('click', () => {
   if (!window.confirm(t('history.clearConfirm'))) return;
   clearHistory();
   renderHistory();
+});
+
+// ---------- Favorites (V1) ----------
+// Saved on this phone only, keyed by barcode. The heart sits on the product card of the result screen.
+let favProduct = null; // the product on the result screen
+
+function updateFavButton() {
+  const on = favProduct ? isFavorite(favProduct.barcode) : false;
+  const button = $('fav-button');
+  button.setAttribute('aria-pressed', String(on));
+  button.setAttribute('aria-label', t(on ? 'fav.unsave' : 'fav.save'));
+}
+
+$('fav-button').addEventListener('click', () => {
+  if (!favProduct) return;
+  if (isFavorite(favProduct.barcode)) {
+    const removed = removeFavorite(favProduct.barcode);
+    showToast(t('fav.removed'), removed ? () => { restoreFavorite(removed); updateFavButton(); } : null);
+  } else if (addFavorite(favProduct)) {
+    const button = $('fav-button');
+    button.classList.remove('pop');
+    void button.offsetWidth; // restart the little "pop" animation
+    button.classList.add('pop');
+    showToast(t('fav.saved'));
+  } else {
+    showToast(t('fav.saveError'));
+  }
+  updateFavButton();
+});
+
+function renderFavorites() {
+  const items = loadFavorites();
+  $('fav-empty').hidden = items.length > 0;
+  $('fav-full').hidden = items.length === 0;
+  const list = $('fav-list');
+  list.replaceChildren();
+  for (const item of items) {
+    const p = item.product;
+    list.append(productRow(item, () => openSaved(p, 'favorite'), {
+      showTime: false,
+      remove: () => {
+        const removed = removeFavorite(p.barcode);
+        renderFavorites();
+        if (removed) showToast(t('fav.removed'), () => { restoreFavorite(removed); renderFavorites(); });
+      },
+    }));
+  }
+}
+$('fav-scan').addEventListener('click', goToScan);
+
+// A short message above the tab bar, with Undo when there is something to undo. Goes after 4 seconds.
+let toastTimer = null;
+let toastUndo = null;
+function showToast(text, undo = null) {
+  clearTimeout(toastTimer);
+  toastUndo = undo;
+  $('toast-text').textContent = text;
+  $('toast-undo').hidden = !undo;
+  $('toast').hidden = false;
+  toastTimer = setTimeout(hideToast, 4000);
+}
+function hideToast() {
+  clearTimeout(toastTimer);
+  toastUndo = null;
+  $('toast').hidden = true;
+}
+$('toast-undo').addEventListener('click', () => {
+  const undo = toastUndo;
+  hideToast();
+  if (undo) undo();
 });
 
 updateTabbar('screen-start');

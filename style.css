@@ -604,6 +604,50 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 40px - var(--tabbar-
 .history-score small { white-space: nowrap; font-size: 11px; line-height: 14px; font-weight: 700; color: var(--rate); color: color-mix(in srgb, var(--rate) 82%, #000); }
 #history-clear { margin-top: 14px; }
 
+/* ---------- Favorites (V1) ---------- */
+/* The heart on the product card: outline when not saved, filled caramel when saved. */
+.fav-btn {
+  width: 44px; height: 44px; margin: -8px -8px 0 0; flex-shrink: 0; border-radius: 22px;
+  display: flex; align-items: center; justify-content: center; color: var(--muted);
+}
+.fav-btn svg { display: block; }
+.fav-btn .fav-on { display: none; }
+.fav-btn[aria-pressed="true"] { color: var(--caramel); }
+.fav-btn[aria-pressed="true"] .fav-on { display: block; }
+.fav-btn[aria-pressed="true"] .fav-off { display: none; }
+.fav-btn:active { background: var(--sunken); }
+.fav-btn:focus-visible { outline: 2px solid var(--caramel); outline-offset: -2px; }
+.fav-btn.pop svg { animation: fav-pop 0.3s ease-out; }
+@keyframes fav-pop { 0% { transform: scale(0.7); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .fav-btn.pop svg { animation: none; } }
+
+/* The list reuses the History rows; each row has a filled heart at the end that removes it. */
+.fav-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.row-with-action { position: relative; }
+.row-with-action .history-item { padding-right: 48px; gap: 12px; }
+.row-unfav {
+  position: absolute; top: 50%; right: 2px; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: var(--caramel);
+}
+.row-unfav svg { display: block; }
+.row-unfav:active { background: var(--sunken); }
+.row-unfav:focus-visible { outline: 2px solid var(--caramel); outline-offset: -2px; }
+
+/* Short message above the tab bar, e.g. "Removed from favorites" with Undo. */
+.toast {
+  position: fixed; left: 16px; right: 16px; z-index: 30; max-width: 420px; margin: 0 auto;
+  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 12px);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 10px 10px 16px; min-height: 48px; border-radius: 14px;
+  background: var(--coffee); color: #fff; font-size: 14px; line-height: 20px; font-weight: 700;
+  box-shadow: 0 6px 18px rgba(77, 51, 26, 0.25); animation: toast-in 0.2s ease-out;
+}
+.toast[hidden] { display: none; }
+.toast-undo { color: #fff; font-weight: 800; padding: 6px 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.16); }
+.toast-undo[hidden] { display: none; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
 /* Shared product database (v0.4) */
 .share-note { font-size: 14px; color: var(--muted); margin: 10px 0 0; }
 .share-note[data-tone="ok"] { color: var(--good-text); }
