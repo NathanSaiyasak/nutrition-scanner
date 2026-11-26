@@ -697,5 +697,3 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 40px - var(--tabbar-
   .quick-stats { gap: 10px; }
   .quick-value { font-size: 13px; }
 }
-a.more-link { color: var(--text); text-decoration: none; }
-.more-item + a.more-link { border-top: 1px solid var(--line); }

@@ -295,30 +295,3 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .nw { white-space: nowrap; }
-
-/* ---------- Text pages: Privacy (W5) ---------- */
-.nav-cta { height: 44px; font-size: 14px; }
-.doc { max-width: 720px; padding-top: 16px; padding-bottom: 64px; }
-.doc h1 { font-size: 32px; line-height: 40px; font-weight: 800; }
-.doc h2 { font-size: 20px; line-height: 28px; font-weight: 800; margin: 32px 0 8px; }
-.doc p { margin: 0 0 12px; color: var(--text); }
-.doc .doc-date { color: var(--muted); font-size: 13px; margin: 6px 0 16px; }
-.doc .lead { font-size: 17px; line-height: 26px; color: var(--muted); }
-.doc ul { margin: 0 0 12px; padding-left: 22px; }
-.doc li { margin-bottom: 6px; }
-.doc-card { background: var(--card); border-radius: 20px; padding: 20px; margin: 24px 0 8px; }
-.doc-card h2 { margin-top: 0; }
-.doc .ticks { list-style: none; padding: 0; margin: 0; }
-.doc .ticks li { position: relative; padding-left: 30px; margin-bottom: 10px; }
-.doc .ticks li::before {
-  content: ""; position: absolute; left: 0; top: 2px; width: 18px; height: 18px; border-radius: 50%;
-  background: var(--good) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 9.3 2.6 2.6L13 6.5'/%3E%3C/svg%3E") center / 18px no-repeat;
-}
-.lang-switch { display: inline-flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--sunken); margin-bottom: 20px; }
-.lang-switch button {
-  font: inherit; font-weight: 700; font-size: 14px; border: 0; background: none; color: var(--muted);
-  min-width: 64px; height: 40px; border-radius: 10px; cursor: pointer;
-}
-.lang-switch button[aria-pressed="true"] { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(77, 51, 26, 0.12); }
-.lang-switch button:focus-visible { outline: 2px solid var(--caramel); }
-@media (min-width: 960px) { .doc h1 { font-size: 44px; line-height: 54px; } .doc { padding-top: 24px; } }
