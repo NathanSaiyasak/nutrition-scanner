@@ -169,6 +169,7 @@ export const STRINGS = {
 
   // Row subtitles (one plain line under each row name)
   'row.tooMuch': ['Too much {n}', '{n}สูงเกินไป'],
+  'row.wayTooMuch': ['Far too much {n}', '{n}สูงมากเกินไป'],
   'row.tooMuchServing': ['Too much {n} per serving', '{n}ต่อหน่วยบริโภคสูงเกินไป'],
   // Big portion shown per 100: say how much one serving has, so 10 g isn't read as the serving (UX item 12).
   'row.tooMuchPortion': ['Too much {n}, {amount} in one serving', '{n}สูงเกินไป {amount} ต่อหน่วยบริโภค'],
@@ -196,6 +197,7 @@ export const STRINGS = {
   'why.shareCalories': ['The Thai daily guide is {daily} a day.', 'ค่าแนะนำของไทยคือ วันละ {daily}'],
   'why.sugarTax': ['Drinks this sweet are taxed as sugary drinks in Thailand.', 'เครื่องดื่มที่หวานขนาดนี้ต้องเสียภาษีความหวานในไทย'],
   'why.portionBig': ['One serving is large, so it counts as too much.', 'หนึ่งหน่วยบริโภคปริมาณเยอะ เลยนับว่าสูงเกินไป'],
+  'why.veryHigh': ['That is more than twice the amount counted as high, so it takes extra points off.', 'มากกว่าระดับที่นับว่าสูงถึงสองเท่า เลยหักคะแนนเพิ่ม'],
   'why.caloriesLight': ['About as much as a light snack.', 'กิน 1 หน่วยบริโภคได้พลังงานพอๆ กับของว่างเบาๆ'],
   'why.caloriesModerate': ['About as much as a big snack.', 'กิน 1 หน่วยบริโภคได้พลังงานพอๆ กับของว่างหนักๆ'],
   'why.caloriesRich': ['About as much as a meal.', 'กิน 1 หน่วยบริโภคได้พลังงานพอๆ กับอาหารหนึ่งมื้อ'],
@@ -203,10 +205,12 @@ export const STRINGS = {
   'why.proteinHigh': ['At least 20% of its calories come from protein.', 'แคลอรี่อย่างน้อย 20% มาจากโปรตีน'],
   'why.proteinSource': ['At least 12% of its calories come from protein.', 'แคลอรี่อย่างน้อย 12% มาจากโปรตีน'],
   'why.proteinLow': ['Less than 12% of its calories come from protein.', 'แคลอรี่ที่มาจากโปรตีนยังไม่ถึง 12%'],
+  'why.proteinTooLittle': ['There is too little protein in it to count as a good point.', 'มีโปรตีนน้อยเกินไปที่จะนับเป็นข้อดี'],
   'why.proteinNoCalories': ['It can\'t be rated without the calories.', 'ถ้าไม่รู้แคลอรี่ก็ยังให้คะแนนไม่ได้'],
   'why.fibreHigh': ['Enough to count as high in fibre.', 'มากพอที่จะนับว่าใยอาหารสูง'],
   'why.fibreSource': ['Enough to count as a source of fibre.', 'มากพอที่จะนับเป็นแหล่งใยอาหาร'],
   'why.fibreLow': ['Not enough to count as a source of fibre.', 'ยังไม่มากพอที่จะนับเป็นแหล่งใยอาหาร'],
+  'why.fibreTooLittle': ['There is too little fibre in it to count as a good point.', 'มีใยอาหารน้อยเกินไปที่จะนับเป็นข้อดี'],
   'why.carbsAbout': ['Carbs are the body\'s main source of energy.', 'คาร์บเป็นแหล่งพลังงานหลักของร่างกาย'],
   'why.noServingSize': ['The label didn\'t give the serving size, so we can\'t rate it yet.', 'ฉลากไม่ได้บอกขนาดหน่วยบริโภค เลยยังให้คะแนนไม่ได้'],
   'why.healthyFat': [
@@ -248,6 +252,8 @@ export const STRINGS = {
   ],
   'add.sweetenerFound': ['Found {list}.', 'ในสินค้านี้มี{list}'],
   'add.sweetenerByName': ['The product name says it has no sugar, which usually means sweeteners.', 'ชื่อสินค้าบอกว่าไม่มีน้ำตาล ซึ่งมักแปลว่าใช้สารให้ความหวาน'],
+  'add.sweetenerByCategory': ['It is listed as a sweetened drink with no sugar, which means sweeteners.', 'สินค้านี้อยู่ในหมวดเครื่องดื่มไม่มีน้ำตาลที่ใส่สารให้ความหวาน'],
+  'add.sweetenerByMax': ['Max drinks with no sugar are sweetened with sweeteners.', 'เครื่องดื่มสูตรแม็กซ์ที่ไม่มีน้ำตาลใช้สารให้ความหวาน'],
   'add.fruitName': ['Fruit, vegetables or nuts', 'ผลไม้ ผัก หรือถั่ว'],
   'add.fruitNote': ['Mostly fruit or vegetables', 'ส่วนใหญ่เป็นผลไม้หรือผัก'],
   'add.nutsNote': ['Mostly nuts', 'ส่วนใหญ่เป็นถั่ว'],
