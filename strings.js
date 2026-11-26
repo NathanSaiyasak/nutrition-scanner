@@ -30,6 +30,8 @@ export const STRINGS = {
   'scan.stop': ['Stop camera', 'ปิดกล้อง'],
   'scan.hint': ['Hold steady, 10–20 cm away, in good light', 'ถือนิ่งๆ ห่างประมาณ 10–20 ซม. ในที่สว่างพอ'],
   'scan.retry': ['Try the camera again', 'ลองเปิดกล้องอีกครั้ง'],
+  // Shown while the camera starts, which is when the phone asks for permission (UX review item 6).
+  'scan.cameraWhy': ['The camera only reads the barcode. Nothing is recorded.', 'กล้องใช้อ่านบาร์โค้ดเท่านั้น ไม่มีการบันทึกภาพ'],
   'scan.cantScan': ['Can’t scan it?', 'สแกนไม่ติด?'],
   'scan.typeTitle': ['Type the barcode', 'พิมพ์เลขบาร์โค้ด'],
   'scan.barcodeNumber': ['Barcode number', 'เลขบาร์โค้ด'],
@@ -49,9 +51,18 @@ export const STRINGS = {
     'เลขบาร์โค้ดมี 8, 12 หรือ 13 หลัก ลองเช็กอีกทีนะ',
   ],
   'camera.denied.title': ['Camera access is blocked', 'กล้องถูกบล็อกอยู่'],
+  // How to allow the camera again, in the words of the phone's own browser (UX review item 6).
   'camera.denied.text': [
-    'Allow the camera in your browser settings, then tap the camera box. Or type the barcode or use a photo.',
-    'อนุญาตให้ใช้กล้องในการตั้งค่าเบราว์เซอร์ แล้วแตะที่กรอบกล้อง หรือจะพิมพ์เลขบาร์โค้ดหรือใช้รูปถ่ายแทนก็ได้',
+    'Tap the lock or settings icon next to the web address, then Permissions, and allow Camera. Then tap Try the camera again. Or type the barcode or use a photo below.',
+    'แตะไอคอนแม่กุญแจหรือไอคอนตั้งค่าข้างที่อยู่เว็บ เลือก สิทธิ์ แล้วอนุญาตกล้อง จากนั้นกด ลองเปิดกล้องอีกครั้ง หรือจะพิมพ์เลขบาร์โค้ดหรือใช้รูปถ่ายด้านล่างแทนก็ได้',
+  ],
+  'camera.denied.textSafari': [
+    'Tap aA at the left of the address bar, then Website Settings, and set Camera to Allow. Then tap Try the camera again. Or type the barcode or use a photo below.',
+    'แตะ aA ทางซ้ายของช่องที่อยู่เว็บ เลือก การตั้งค่าเว็บไซต์ แล้วตั้งกล้องเป็น อนุญาต จากนั้นกด ลองเปิดกล้องอีกครั้ง หรือจะพิมพ์เลขบาร์โค้ดหรือใช้รูปถ่ายด้านล่างแทนก็ได้',
+  ],
+  'camera.denied.textIosApp': [
+    'Open the iPhone Settings app, find this browser, and turn on Camera. Then come back and tap Try the camera again. Or type the barcode or use a photo below.',
+    'เปิดแอปการตั้งค่าของ iPhone หาเบราว์เซอร์ที่ใช้อยู่ แล้วเปิดกล้อง จากนั้นกลับมากด ลองเปิดกล้องอีกครั้ง หรือจะพิมพ์เลขบาร์โค้ดหรือใช้รูปถ่ายด้านล่างแทนก็ได้',
   ],
   'camera.none.title': ['No camera found', 'ไม่เจอกล้อง'],
   'camera.none.text': [
@@ -101,10 +112,10 @@ export const STRINGS = {
   'noNutrition.add': ['Add the nutrition facts', 'กรอกข้อมูลโภชนาการ'],
   'attr.offBefore': ['Nutrition data from', 'ข้อมูลโภชนาการจาก'],
   'attr.offAfter': ['(open database, ODbL).', '(ฐานข้อมูลเปิด ODbL)'],
-  'attr.daily': [
-    '% of a day uses the Thai daily guide (2,000 kcal). If the pack says something different, trust the pack.',
-    'ค่าต่อวันอิงตามค่าแนะนำของไทย (2,000 kcal) ถ้าบนฉลากเขียนไม่ตรงกัน ให้เชื่อฉลาก',
-  ],
+  // Source note, one idea per line (UX review item 17). The bars no longer show %, so the old
+  // "% of a day" wording is gone.
+  'attr.daily': ['Bars compare with the Thai daily guide (2,000 kcal).', 'แถบเทียบกับค่าแนะนำต่อวันของไทย (2,000 kcal)'],
+  'attr.trust': ['If the pack says something different, trust the pack.', 'ถ้าบนฉลากเขียนไม่ตรงกัน ให้เชื่อฉลาก'],
   'attr.shared': ['Nutrition facts typed in from the pack by Bettr testers{when}.', 'ข้อมูลโภชนาการกรอกจากฉลากโดยทีมทดสอบ Bettr{when}'],
   'attr.phone': [
     'Nutrition facts typed in from the pack on this phone{when} (not in the shared database yet).',
@@ -159,6 +170,8 @@ export const STRINGS = {
   // Row subtitles (one plain line under each row name)
   'row.tooMuch': ['Too much {n}', '{n}สูงเกินไป'],
   'row.tooMuchServing': ['Too much {n} per serving', '{n}ต่อหน่วยบริโภคสูงเกินไป'],
+  // Big portion shown per 100: say how much one serving has, so 10 g isn't read as the serving (UX item 12).
+  'row.tooMuchPortion': ['Too much {n}, {amount} in one serving', '{n}สูงเกินไป {amount} ต่อหน่วยบริโภค'],
   'row.bitTooMuch': ['A bit too much {n}', '{n}ค่อนข้างสูง'],
   'row.lowIn': ['Low in {n}', '{n}ต่ำ'],
   'row.highIn': ['High in {n}', '{n}สูง'],
@@ -280,7 +293,8 @@ export const STRINGS = {
   ],
 
   // ---------- Messages (R3, R5, F2) ----------
-  'msg.notFound.title': ['We don’t have this product yet', 'ยังไม่มีสินค้านี้ในระบบ'],
+  'msg.notFound.title': ['We don’t have this one yet', 'ยังไม่มีสินค้านี้ในระบบ'],
+  'msg.addHint': ['Takes about 2 minutes. You need the nutrition label on the pack.', 'ใช้เวลาประมาณ 2 นาที ต้องมีฉลากโภชนาการบนสินค้า'],
   'msg.notFound.text': [
     'This barcode isn\'t in our database yet. You can add it from the nutrition label on the pack.',
     'บาร์โค้ดนี้ยังไม่มีในฐานข้อมูล ช่วยเพิ่มจากฉลากโภชนาการบนสินค้าได้เลย',
@@ -295,7 +309,7 @@ export const STRINGS = {
   'msg.add': ['Add this product', 'เพิ่มสินค้านี้'],
   'msg.valuesSaved': ['Values saved', 'บันทึกค่าแล้ว'],
   'msg.productAdded': ['Product added', 'เพิ่มสินค้าแล้ว'],
-  'msg.took': ['Saved to the audit log (#{n}). It took {time}.', 'เก็บลงบันทึกการตรวจแล้ว (#{n}) ใช้เวลา {time}'],
+  'msg.thanks': ['Thanks for adding it.', 'ขอบคุณที่ช่วยเพิ่มข้อมูล'],
   'msg.saving': ['Saving the product…', 'กำลังบันทึกสินค้า…'],
   'share.shared': ['Added to the shared database. Anyone who scans this barcode now sees these values.', 'เพิ่มเข้าฐานข้อมูลกลางแล้ว ใครสแกนบาร์โค้ดนี้ก็จะเห็นค่านี้ทันที'],
   'share.notSetUp': [
@@ -332,6 +346,9 @@ export const STRINGS = {
   'history.yesterday': ['Yesterday', 'เมื่อวาน'],
   'history.earlier': ['Earlier', 'ก่อนหน้านี้'],
   'history.badge': ['Score {score}, {verdict}', 'คะแนน {score} ระดับ{verdict}'],
+  // Rows without a score say why instead of showing nothing (UX review item 14).
+  'history.noFacts': ['No nutrition facts yet', 'ยังไม่มีข้อมูลโภชนาการ'],
+  'history.noScore': ['Not enough information to score', 'ข้อมูลยังไม่พอให้คะแนน'],
 
   // ---------- Favorite (V1) ----------
   'fav.title': ['Favorites', 'รายการโปรด'],
@@ -351,7 +368,6 @@ export const STRINGS = {
   'form.addTitle': ['Add a product', 'เพิ่มสินค้า'],
   'form.correctTitle': ['Nutrition facts from the label', 'ข้อมูลโภชนาการจากฉลาก'],
   'form.barcode': ['Barcode', 'บาร์โค้ด'],
-  'form.timerHint': ['. The timer measures how long adding takes (the target is 3 minutes).', ' ตัวจับเวลาวัดว่ากรอกนานแค่ไหน (เป้าหมายไม่เกิน 3 นาที)'],
   'form.photoTitle': ['Add a photo of the nutrition label', 'ถ่ายรูปฉลากโภชนาการ'],
   'form.photoSub': ['Only shown here to read from. It isn’t uploaded or saved.', 'ใช้ดูบนหน้านี้เท่านั้น ไม่มีการอัปโหลดหรือบันทึก'],
   'form.photoAlt': ['Label photo', 'รูปฉลาก'],

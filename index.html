@@ -8,7 +8,7 @@
   <title>Bettr</title>
   <link rel="preload" href="fonts/LINESeedSansTH-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/LINESeedSansTH-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=r12">
+  <link rel="stylesheet" href="style.css?v=r13">
 </head>
 <body data-screen="screen-start" class="has-tabbar">
   <!-- Icons and the Bettr wordmark, drawn once and reused with <use>. Shapes come from the Bettr
@@ -75,6 +75,7 @@
         <div class="scan-stage">
           <button id="scan-button" class="scan-start" type="button">
             <span id="scan-button-text" class="scan-start-text" data-i18n="scan.tap">Tap to start the camera</span>
+            <small class="scan-why" data-i18n="scan.cameraWhy">The camera only reads the barcode. Nothing is recorded.</small>
           </button>
           <div class="frame-overlay" aria-hidden="true"><span class="corners"></span><span class="scan-line"></span></div>
         </div>
@@ -182,7 +183,8 @@
         <span id="source-off"><span data-i18n="attr.offBefore">Nutrition data from</span> <a id="off-link" href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>
         <span data-i18n="attr.offAfter">(open database, ODbL).</span></span>
         <span id="source-ours" hidden></span>
-        <span data-i18n="attr.daily">% of a day uses the Thai daily guide (2,000 kcal). If the pack says something different, trust the pack.</span>
+        <span data-i18n="attr.daily">Bars compare with the Thai daily guide (2,000 kcal).</span>
+        <span data-i18n="attr.trust">If the pack says something different, trust the pack.</span>
       </p>
       <button class="btn btn-text again" type="button" data-i18n="result.again">Scan another</button>
 
@@ -231,12 +233,12 @@
         <h2 id="message-title"></h2>
         <p id="message-text"></p>
         <p id="message-barcode" class="mono"></p>
-        <p class="saved-note" hidden></p>
         <p id="message-share" class="share-note" hidden></p>
       </div>
       <div class="message-actions">
         <button id="message-retry" class="btn btn-primary" type="button" hidden data-i18n="msg.retry">Try again</button>
         <button id="message-add" class="btn btn-primary" type="button" hidden data-i18n="msg.add">Add this product</button>
+        <p id="message-add-hint" class="hint center add-hint" data-i18n="msg.addHint">Takes about 2 minutes. You need the nutrition label on the pack.</p>
         <button class="btn btn-secondary again" type="button" data-i18n="result.again">Scan another</button>
       </div>
     </section>
@@ -285,9 +287,8 @@
             <svg width="24" height="24"><use href="#i-back"/></svg>
           </button>
           <h2 id="add-title" data-i18n="form.addTitle">Add a product</h2>
-          <p class="timer" aria-live="off"><svg width="14" height="14" aria-hidden="true"><use href="#i-timer"/></svg><span id="add-timer" class="mono">0:00</span></p>
         </div>
-        <p class="hint"><span data-i18n="form.barcode">Barcode</span> <span id="add-barcode" class="mono"></span><span data-i18n="form.timerHint">. The timer measures how long adding takes (the target is 3 minutes).</span></p>
+        <p class="hint"><span data-i18n="form.barcode">Barcode</span> <span id="add-barcode" class="mono"></span></p>
 
         <label class="photo-drop" for="label-photo-input">
           <svg width="22" height="22" aria-hidden="true"><use href="#i-photo"/></svg>
@@ -472,6 +473,6 @@
 
   <!-- Barcode reader for phones without a built-in one (e.g. iPhone). MIT licence, see vendor/LICENSES.txt -->
   <script src="vendor/barcode-detector-ponyfill.js"></script>
-  <script type="module" src="app.js?v=r12"></script>
+  <script type="module" src="app.js?v=r13"></script>
 </body>
 </html>
