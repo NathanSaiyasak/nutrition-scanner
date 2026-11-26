@@ -2,32 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="no-referrer">
-  <title>Nutrition Scanner</title>
+  <meta name="theme-color" content="#FFF7ED">
+  <title>Bettr</title>
   <link rel="preload" href="fonts/LINESeedSansTH-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/LINESeedSansTH-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=r7">
+  <link rel="stylesheet" href="style.css?v=r8">
 </head>
 <body data-screen="screen-start" class="has-tabbar">
-  <header class="top">
-    <div>
-      <h1>Nutrition Scanner</h1>
-      <p class="tag">Prototype v0.5</p>
-    </div>
-    <button id="audit-link" class="link-button" type="button">Audit log</button>
-  </header>
+  <!-- Icons and the Bettr wordmark, drawn once and reused with <use>. Shapes come from the Bettr
+       Figma file (wireframes page, 26 Nov 2026). They take the colour of the text around them. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="logo" viewBox="0 0 66 20">
+      <path fill="currentColor" d="M11.9555 8.99937C13.5585 8.24358 14.5581 6.67715 14.5581 4.83491C14.5581 1.98852 12.5696 0 9.72316 0H0V18.9374H10.1788C13.2263 18.9374 15.355 16.7858 15.355 13.7048C15.355 11.4572 14.043 9.67592 11.9555 8.99937ZM4.66425 10.9772H8.75709C9.8283 10.9772 10.5749 11.7482 10.5749 12.853C10.5749 13.9577 9.80392 14.7287 8.69919 14.7287H4.66273V10.9787L4.66425 10.9772ZM8.18872 7.56246H4.66425V4.15227H8.2451C9.23098 4.15227 9.8923 4.83796 9.8923 5.85736C9.8923 6.87676 9.19136 7.56246 8.1872 7.56246H8.18872Z"/>
+      <path fill="currentColor" d="M49.5072 14.968C48.6234 15.2834 47.8249 15.2606 47.3175 14.9025C46.9351 14.6328 46.7415 14.1924 46.7415 13.5905V8.24666H50.1533V4.26353H46.7415V0.284973H42.5314V3.01556C42.5314 3.7744 42.0849 4.26505 41.3946 4.26505H37.7559V0.284973H33.5457V3.01556C33.5457 3.7744 33.0992 4.26505 32.409 4.26505H31.385V8.24818H33.3187V14.3874C33.3187 16.0849 33.951 17.438 35.1457 18.2989C36.6801 19.4052 38.9993 19.5957 41.3535 18.8109L41.5455 18.7469L40.7714 14.8781L40.523 14.9665C39.6393 15.2819 38.8408 15.259 38.3334 14.9009C37.9509 14.6312 37.7574 14.1909 37.7574 13.589V8.24513H42.3043V14.3844C42.3043 16.0819 42.9367 17.435 44.1313 18.2959C45.041 18.9511 46.2265 19.2848 47.5324 19.2848C48.4283 19.2848 49.3807 19.1279 50.3391 18.8079L50.5311 18.7439L49.7571 14.875L49.5087 14.9634L49.5072 14.968Z"/>
+      <path fill="currentColor" d="M60.4067 9.27213L60.9735 4.35341L60.8212 4.28484C59.788 3.82009 58.5919 3.79876 57.5405 4.22541C56.7664 4.53931 56.1462 5.05892 55.7516 5.71566L55.2 4.26503H51.7426V18.9374H56.1798V11.2027C56.1798 10.2123 56.5226 9.47174 57.1717 9.06033C57.9199 8.58796 59.0201 8.61539 60.1172 9.13499L60.4052 9.27213H60.4067Z"/>
+      <path fill="currentColor" d="M62.7183 13.7032C61.1686 13.7032 60.0441 14.8522 60.0441 16.4338C60.0441 18.0155 61.1686 19.1644 62.7183 19.1644C64.268 19.1644 65.3925 18.0155 65.3925 16.4338C65.3925 14.8522 64.268 13.7032 62.7183 13.7032Z"/>
+      <path fill="currentColor" d="M22.3019 4.02887C24.3559 3.66164 26.2624 4.11474 27.8136 5.34137C29.5292 6.69755 30.6356 8.93271 30.7697 11.3218L30.7804 11.524L21.2921 13.2232C21.8986 14.5276 23.105 15.207 24.4337 14.9693C25.4957 14.7788 26.2804 14.0646 26.4298 13.149L26.4679 12.9175L30.9825 13.7769L30.9474 13.9957C30.5436 16.5114 28.2234 18.5683 25.1759 19.1138C23.1005 19.4856 21.0888 19.0654 19.5148 17.9302C17.9454 16.7981 16.8709 15.0014 16.4884 12.8697C16.1968 11.2423 16.352 9.70644 16.8741 8.38043C17.0593 8.4707 17.2667 8.52301 17.4865 8.52301C18.2594 8.52266 18.8868 7.89564 18.8868 7.12262C18.8868 7.02564 18.8754 6.93084 18.8566 6.83942C19.0065 6.88423 19.1657 6.90973 19.3302 6.90973C20.2407 6.90927 20.9786 6.17086 20.9786 5.26031C20.9786 4.97166 20.9038 4.70043 20.7736 4.46442C21.2516 4.27275 21.762 4.12538 22.3009 4.02887H22.3019ZM25.7941 9.64215C25.2881 8.53162 24.1651 7.91421 22.9767 8.1275C21.8585 8.32718 21.0682 9.23564 20.8624 10.5259L25.7941 9.64215Z"/>
+    </symbol>
+    <symbol id="i-zap" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.83 1.67 2.5 11.67H10l-.83 6.66 8.33-10H10l.83-6.66z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.33 5h13.34M3.33 10h13.34M3.33 15h13.34"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.27 16.06a9 9 0 0 0 3.91 3.98 9 9 0 0 0 5.47.83 9 9 0 0 0 7.28-7.72 9 9 0 0 0-5.11-9.35 9 9 0 0 0-5.5-.6c-1.85.4-3.37 1.31-4.62 2.75-.15.16-.74.81-1.22 1.78M7.5 8l-3.61.72L3 5M12 9v4l3 2"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.25 7.58V5.42c0-1.2.97-2.17 2.17-2.17h2.16M18.42 3.25h2.16c1.2 0 2.17.97 2.17 2.17v2.16M22.75 18.42v2.16c0 1.2-.97 2.17-2.17 2.17h-2.16M7.58 22.75H5.42c-1.2 0-2.17-.97-2.17-2.17v-2.16"/><path stroke-width="1.38" d="M11.54 18.25c-2.13.11-3.11-2.45-3.11-4.51s.79-4.51 3.12-4.51c.71 0 .98.43 1.7.43.7 0 .98-.43 1.7-.43 2.39 0 3.11 2.44 3.11 4.5s-.98 4.63-3.12 4.52c-.7-.04-1.1-.6-1.69-.6-.6 0-1.01.55-1.71.6zM10.79 13.61c-.04-.4.01-.73.15-1.1.18-.43.33-.62.71-.88M13.2 9.52c-.09-.48-.09-.91.02-1.47.12-.62.68-1.26 1.94-.99"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7 7-7z"/></symbol>
+    <symbol id="i-image" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.25" y="2.25" width="13.5" height="13.5" rx="1.5"/><circle cx="6.75" cy="6.75" r="1.5"/><path d="m15.75 11.25-2.32-2.32a1.5 1.5 0 0 0-2.11 0L4.5 15.75"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 19 15" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="0.75" y="0.75" width="17.28" height="12.58" rx="3.5" stroke-width="1.5"/><path stroke-width="1.6" d="M4.1 3.8h.02M7.6 3.8h.02M11.1 3.8h.02M14.6 3.8h.02M4.1 7.4h.02M7.6 7.4h.02M11.1 7.4h.02M14.6 7.4h.02"/><path d="M4.35 10.44h10.08"/></symbol>
+    <symbol id="i-camera-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l20 20M9.5 4h5L16.5 7H20a2 2 0 0 1 2 2v8.5M15.5 15.5A4 4 0 0 1 9 11M4 7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 7.5v9l8 4.5 8-4.5v-9L12 3zM4 7.5l8 4.5 8-4.5M12 12v9M8 5.25l8 4.5"/></symbol>
+    <symbol id="i-wifi-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l20 20M8.5 16.4a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 5.2-2.7M19 12.9a10 10 0 0 0-2-1.5M2 9.2a15 15 0 0 1 4.2-2.6M22 9.2A15 15 0 0 0 11 5.1M12 20h.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.3 2.7 2.7L16 9.6"/></symbol>
+    <symbol id="i-chev-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 18a9 9 0 1 1 15 0M12 13l3.5-3.5"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.5"/><path d="M4.5 5.5v13c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-13M4.5 12c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM9 11h6M9 15h6"/></symbol>
+    <symbol id="i-photo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 4h5L16.5 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3.5z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5M10 2.5h4M12 2.5V6"/></symbol>
+  </svg>
+
+  <!-- Splash (Figma A0): the Bettr wordmark on cream for about a second while the app loads. -->
+  <div id="splash" class="splash" aria-hidden="true">
+    <svg class="splash-logo" viewBox="0 0 66 20"><use href="#logo"/></svg>
+  </div>
 
   <main>
-    <!-- Screen 1: scan. Dark camera screen, with typing and photo as fallbacks (v0.3 design). -->
+    <!-- Scan (Figma S1). The live camera fills the whole screen behind everything. -->
     <section id="screen-start" class="screen scan-screen">
-      <!-- The live camera fills the whole screen behind the scan screen (Nathan, 24 Nov 2026). -->
       <div id="camera" class="camera" hidden>
         <video id="camera-video" playsinline muted autoplay></video>
       </div>
+      <div class="scan-top">
+        <svg class="scan-logo" viewBox="0 0 66 20" role="img" aria-label="Bettr"><use href="#logo"/></svg>
+        <div class="scan-actions">
+          <!-- The torch only shows on phones whose browser can switch it on (most Android phones). -->
+          <button id="torch-button" class="round-btn" type="button" aria-label="Torch" aria-pressed="false" hidden>
+            <svg width="20" height="20"><use href="#i-zap"/></svg>
+          </button>
+          <button id="more-button" class="round-btn" type="button" aria-label="More" aria-haspopup="dialog">
+            <svg width="20" height="20"><use href="#i-menu"/></svg>
+          </button>
+        </div>
+      </div>
       <div class="scan-hero">
         <h2>Scan a barcode</h2>
-        <p class="scan-sub">Point the camera at the barcode on the pack</p>
+        <p class="scan-sub">Hold the barcode inside the frame</p>
         <div class="scan-stage">
           <button id="scan-button" class="scan-start" type="button">
             <span id="scan-button-text" class="scan-start-text">Tap to start the camera</span>
@@ -37,49 +78,64 @@
         <button id="stop-button" class="ghost-dark" type="button" hidden>Stop camera</button>
         <p class="scan-hint">Hold steady, 10–20 cm away, in good light</p>
         <p id="photo-status" class="scan-status" hidden></p>
-        <div id="camera-error" class="notice" hidden>
+        <!-- Camera blocked (Figma S3): the screen turns light and offers the other ways in. -->
+        <div id="camera-error" class="camera-error" hidden>
+          <div class="state-icon tone-caramel" aria-hidden="true"><svg width="30" height="30"><use href="#i-camera-off"/></svg></div>
           <strong id="camera-error-title"></strong>
           <p id="camera-error-text"></p>
+          <button id="camera-retry" class="btn btn-primary" type="button">Try the camera again</button>
         </div>
       </div>
 
       <div class="sheet">
-        <p class="sheet-title">Can’t scan it?</p>
+        <div class="sheet-head">
+          <p id="sheet-title" class="sheet-title">Can’t scan it?</p>
+          <button id="type-close" class="icon-btn" type="button" aria-label="Close" hidden>
+            <svg width="20" height="20"><use href="#i-close"/></svg>
+          </button>
+        </div>
         <form id="manual-form" autocomplete="off" hidden>
           <label for="barcode-input" class="visually-hidden">Barcode number</label>
-          <div class="row">
-            <input id="barcode-input" name="barcode" inputmode="numeric" pattern="[0-9]*"
-                   placeholder="e.g. 8851351932913" maxlength="14">
-            <button type="submit" class="btn-solid">Look up</button>
-          </div>
+          <input id="barcode-input" name="barcode" inputmode="numeric" pattern="[0-9]*"
+                 placeholder="e.g. 8851351932913" maxlength="14">
           <p id="manual-error" class="field-error" hidden></p>
+          <button type="submit" class="btn btn-primary">Look it up</button>
+          <p class="or">or</p>
+          <label class="btn btn-secondary" for="photo-input">Use a photo instead</label>
         </form>
         <!-- Side by side, so both fit above the tabs on an iPhone even when a camera message shows. -->
-        <div class="fallbacks">
-          <button id="type-toggle" class="btn-outline" type="button">Type the barcode</button>
-          <label id="photo-label" class="btn-outline" for="photo-input">Use a photo</label>
+        <div id="fallbacks" class="fallbacks">
+          <button id="type-toggle" class="btn-soft" type="button">
+            <svg width="19" height="15" aria-hidden="true"><use href="#i-keyboard"/></svg>Type it
+          </button>
+          <label id="photo-label" class="btn-soft" for="photo-input">
+            <svg width="18" height="18" aria-hidden="true"><use href="#i-image"/></svg>Use a photo
+          </label>
         </div>
         <input id="photo-input" type="file" accept="image/*" hidden>
       </div>
     </section>
 
-    <!-- Screen 2: waiting for Open Food Facts -->
+    <!-- Looking it up (Figma S4): grey shapes in the layout of the result, so the screen doesn't jump. -->
     <section id="screen-loading" class="screen" hidden>
-      <div class="card center">
-        <div class="spinner" aria-hidden="true"></div>
-        <p>Looking up <span id="loading-barcode" class="mono"></span>…</p>
+      <div class="skeleton" aria-hidden="true">
+        <div class="sk-card">
+          <div class="sk-row"><span class="sk sk-photo"></span><span class="sk-lines"><span class="sk sk-line w70"></span><span class="sk sk-line w50"></span><span class="sk sk-chip"></span></span></div>
+          <div class="sk-row"><span class="sk sk-ring"></span><span class="sk-lines"><span class="sk sk-line w40"></span><span class="sk sk-line w60"></span></span></div>
+        </div>
+        <div class="sk-card"><span class="sk sk-line w40"></span><span class="sk sk-line w90"></span><span class="sk sk-line w80"></span></div>
+        <div class="sk-card"><span class="sk sk-line w40"></span><span class="sk sk-line w90"></span></div>
       </div>
+      <p class="loading-text"><span class="spinner" aria-hidden="true"></span>Looking up <span id="loading-barcode"></span></p>
     </section>
 
-    <!-- Screen 3: result. Product, score, Watch out / Good points / Nutrition facts / Not available. -->
+    <!-- Result (Figma R1). Product card, then Watch Out, Good Points, Nutrition Facts, Not Available. -->
     <section id="screen-product" class="screen" hidden>
-      <!-- Product card (Nathan's mockup, 24 Nov 2026): photo and names on top, then the score ring and
-           three quick stats (calories, protein, fibre) for the same amount as the lists below. -->
       <div class="product-card">
         <div class="product-top">
           <div class="photo">
             <img id="product-image" alt="" hidden>
-            <svg id="product-image-placeholder" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12h17a8.5 8.5 0 0 1-17 0z"/><path d="M8.5 3.5c-.7.8-.7 1.7 0 2.5s.7 1.7 0 2.5M12 3.5c-.7.8-.7 1.7 0 2.5s.7 1.7 0 2.5M15.5 3.5c-.7.8-.7 1.7 0 2.5s.7 1.7 0 2.5"/></svg>
+            <svg id="product-image-placeholder" width="26" height="26" aria-hidden="true"><use href="#i-image"/></svg>
           </div>
           <div class="product-text">
             <h2 id="product-name"></h2>
@@ -90,15 +146,14 @@
         <div id="product-summary" class="product-summary" hidden>
           <div id="score-ring" class="score-ring" hidden>
             <svg viewBox="0 0 100 100" aria-hidden="true">
-              <circle class="ring-track" cx="50" cy="50" r="44"/>
-              <circle id="ring-arc" class="ring-arc" cx="50" cy="50" r="44" pathLength="100"/>
+              <circle class="ring-track" cx="50" cy="50" r="45"/>
+              <circle id="ring-arc" class="ring-arc" cx="50" cy="50" r="45" pathLength="100"/>
             </svg>
             <div class="ring-inner">
               <span class="score"><b id="score-number"></b><small>/100</small></span>
             </div>
           </div>
           <p id="score-label" class="score-label" hidden></p>
-          <!-- The rating tag sits above the quick stats, outside the ring (Nathan, 24 Nov 2026). -->
           <div class="summary-side">
             <span id="verdict" class="verdict" hidden></span>
             <ul id="quick-stats" class="quick-stats"></ul>
@@ -106,10 +161,12 @@
         </div>
       </div>
 
-      <div id="no-nutrition" class="notice" hidden>
-        <p>Product found, but no nutrition facts yet.</p>
-        <p>You can add them from the label on the pack.</p>
-        <button id="no-nutrition-add" class="primary" type="button" hidden>Add the nutrition facts</button>
+      <!-- Found, no nutrition facts (Figma R4) -->
+      <div id="no-nutrition" class="info-card" hidden>
+        <div class="state-icon small tone-blue" aria-hidden="true"><svg width="22" height="22"><use href="#i-info"/></svg></div>
+        <p class="info-title">Product found, but no nutrition facts yet</p>
+        <p>Add them from the label and the next shopper gets a score.</p>
+        <button id="no-nutrition-add" class="btn btn-primary" type="button" hidden>Add the nutrition facts</button>
       </div>
       <div id="groups"></div>
 
@@ -120,6 +177,7 @@
         % of a day uses the Thai daily guide (2,000 kcal). If the pack says something
         different, trust the pack.
       </p>
+      <button class="btn btn-text again" type="button">Scan another</button>
 
       <!-- Store audit (v0.2 tools). Closed by default so shoppers don't see it. -->
       <details id="audit-box" class="audit-box">
@@ -148,19 +206,20 @@
           </div>
           <p id="label-check-status" class="saved-note" hidden></p>
         </div>
-        <button id="product-add" class="secondary add-button" type="button" hidden>Add the nutrition facts from the label (timed)</button>
+        <button id="product-add" class="btn btn-secondary add-button" type="button" hidden>Add the nutrition facts from the label (timed)</button>
         <p class="saved-note" hidden></p>
       </details>
       <!-- Developer note (Nathan, 24 Nov 2026): at the very bottom of the result, small and muted. -->
       <p id="dev-note" class="dev-note" hidden></p>
-
     </section>
 
-    <!-- Screen 4: not found, or an error -->
+    <!-- Not found (R3), something went wrong (R5), saved (F2) -->
     <section id="screen-message" class="screen" hidden>
       <div class="message">
-        <div class="message-icon" aria-hidden="true">
-          <svg width="52" height="52" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M11 8v3.5M11 14h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <div class="state-icon" aria-hidden="true">
+          <svg class="mi mi-notfound" width="30" height="30"><use href="#i-box"/></svg>
+          <svg class="mi mi-error" width="30" height="30"><use href="#i-wifi-off"/></svg>
+          <svg class="mi mi-done" width="30" height="30"><use href="#i-check"/></svg>
         </div>
         <h2 id="message-title"></h2>
         <p id="message-text"></p>
@@ -169,60 +228,59 @@
         <p id="message-share" class="share-note" hidden></p>
       </div>
       <div class="message-actions">
-        <button id="message-retry" class="primary" type="button" hidden>Try again</button>
-        <button id="message-add" class="primary" type="button" hidden>Add this product</button>
-        <button class="secondary again" type="button">Scan another product</button>
+        <button id="message-retry" class="btn btn-primary" type="button" hidden>Try again</button>
+        <button id="message-add" class="btn btn-primary" type="button" hidden>Add this product</button>
+        <button class="btn btn-secondary again" type="button">Scan another</button>
       </div>
     </section>
 
-    <!-- History tab: products looked up on this phone (saved in this browser only) -->
+    <!-- History (H1, H2): products looked up on this phone (saved in this browser only) -->
     <section id="screen-history" class="screen" hidden>
       <div class="page-head">
         <h2>History</h2>
-        <p class="meta">Products you’ve scanned, saved on this phone only.</p>
+        <p class="page-sub">Products you found on this phone</p>
       </div>
       <div id="history-empty" class="empty" hidden>
-        <div class="empty-icon" aria-hidden="true">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6l-2.5 2.5"/><path d="M3.5 3.5v5h5"/><path d="M12 7.5V12l3 2"/></svg>
-        </div>
-        <h3>No scans yet</h3>
-        <p>When you scan a product, it’s saved here so you can look at it again later.</p>
-        <button id="history-scan" class="primary" type="button">Scan a product</button>
+        <div class="state-icon tone-caramel" aria-hidden="true"><svg width="30" height="30"><use href="#i-clock"/></svg></div>
+        <h3>No products yet</h3>
+        <p>Products you scan show up here. They stay on this phone.</p>
+        <button id="history-scan" class="btn btn-primary" type="button">Scan a product</button>
       </div>
       <div id="history-full" hidden>
-        <ul id="history-list" class="history-list"></ul>
-        <button id="history-clear" class="secondary danger" type="button">Clear history</button>
+        <div id="history-list" class="history-list"></div>
+        <button id="history-clear" class="btn btn-text danger" type="button">Clear history</button>
         <p class="hint center">Clearing history doesn’t touch the audit log.</p>
       </div>
     </section>
 
-    <!-- Favorite tab: not built yet (favorites need shared storage and sign-in, still undecided) -->
+    <!-- Favorite (V1): not built yet (favorites need shared storage and sign-in, still undecided) -->
     <section id="screen-favorite" class="screen" hidden>
-      <div class="page-head">
-        <h2>Favorite</h2>
-      </div>
-      <div class="empty">
-        <div class="empty-icon" aria-hidden="true">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v2.5"/><path d="m17.5 12.8 1.15 2.33 2.57.37-1.86 1.81.44 2.56-2.3-1.21-2.3 1.21.44-2.56-1.86-1.81 2.57-.37z"/></svg>
-        </div>
-        <h3>Coming soon</h3>
-        <p>You’ll be able to save the products you like and find them again quickly. This part isn’t built yet.</p>
+      <div class="empty empty-tall">
+        <div class="state-icon tone-caramel" aria-hidden="true"><svg width="30" height="30"><use href="#i-heart"/></svg></div>
+        <h3>Favorites are coming soon</h3>
+        <p>Soon you can save products you like and find them again fast.</p>
       </div>
     </section>
 
-    <!-- Screen 5 (v0.2): timed form to type in a missing product from its label -->
+    <!-- Add a product (F1, v0.2): timed form to type in a missing product from its label -->
     <section id="screen-add" class="screen" hidden>
-      <form id="add-form" class="card" autocomplete="off" novalidate>
+      <form id="add-form" autocomplete="off" novalidate>
         <div class="add-head">
+          <button id="add-back" class="icon-btn" type="button" aria-label="Back, nothing is saved">
+            <svg width="24" height="24"><use href="#i-back"/></svg>
+          </button>
           <h2 id="add-title">Add a product</h2>
-          <p class="timer" aria-live="off"><span id="add-timer" class="mono">0:00</span></p>
+          <p class="timer" aria-live="off"><svg width="14" height="14" aria-hidden="true"><use href="#i-timer"/></svg><span id="add-timer" class="mono">0:00</span></p>
         </div>
-        <p class="meta">Barcode <span id="add-barcode" class="mono"></span> · The timer measures how long adding takes (the target is 3 minutes).</p>
+        <p class="hint">Barcode <span id="add-barcode" class="mono"></span>. The timer measures how long adding takes (the target is 3 minutes).</p>
 
-        <label class="secondary-button" for="label-photo-input">Take or pick a photo of the label</label>
+        <label class="photo-drop" for="label-photo-input">
+          <svg width="22" height="22" aria-hidden="true"><use href="#i-photo"/></svg>
+          <span class="photo-drop-title">Add a photo of the nutrition label</span>
+          <span class="photo-drop-sub">Only shown here to read from. It isn’t uploaded or saved.</span>
+        </label>
         <input id="label-photo-input" type="file" accept="image/*" hidden>
         <img id="label-photo" class="label-photo" alt="Label photo" hidden>
-        <p class="hint">The photo is only shown here to read from. It isn't uploaded or saved.</p>
 
         <label for="add-name">Product name <span class="req">(required)</span></label>
         <input id="add-name" type="text" maxlength="200">
@@ -241,9 +299,11 @@
 
         <fieldset class="basis">
           <legend>The values on the label are</legend>
-          <label class="choice"><input type="radio" name="basis" value="per serving" checked> Per serving</label>
-          <label class="choice"><input type="radio" name="basis" value="per 100 g"> Per 100 g</label>
-          <label class="choice"><input type="radio" name="basis" value="per 100 ml"> Per 100 ml</label>
+          <div class="segmented">
+            <label class="choice"><input type="radio" name="basis" value="per serving" checked><span>Per serving</span></label>
+            <label class="choice"><input type="radio" name="basis" value="per 100 g"><span>Per 100 g</span></label>
+            <label class="choice"><input type="radio" name="basis" value="per 100 ml"><span>Per 100 ml</span></label>
+          </div>
         </fieldset>
         <div id="serving-row">
           <label for="add-serving">Serving size</label>
@@ -255,7 +315,7 @@
         <div id="add-nutrients" class="nutrient-grid"></div>
         <p id="add-number-error" class="field-error" hidden>Some boxes have something that isn't a number. Please check the boxes marked in red.</p>
 
-        <h3>Ingredients</h3>
+        <h3>Ingredients (optional)</h3>
         <p class="hint">These let the app check for additives. Copy them from the pack if you have time. If not, the INS numbers alone are enough.</p>
         <label for="add-ingredients">Ingredients list</label>
         <textarea id="add-ingredients" rows="4" maxlength="5000" placeholder="e.g. Wheat flour, palm oil, salt, sugar"></textarea>
@@ -263,16 +323,22 @@
         <input id="add-ins" type="text" maxlength="500" placeholder="e.g. 211, 621, E102">
         <p class="hint">Type every number you see, with commas between them. Leave it empty if there are none.</p>
 
-        <button class="primary" type="submit">Save</button>
-        <button id="add-cancel" class="secondary" type="button">Cancel (nothing is saved)</button>
+        <button class="btn btn-primary" type="submit">Save product</button>
+        <button id="add-cancel" class="btn btn-text" type="button">Cancel (nothing is saved)</button>
         <p id="add-save-error" class="field-error" hidden>This phone couldn't save the entry. Its storage may be full or blocked (for example in a private window).</p>
       </form>
     </section>
 
-    <!-- Screen 6 (v0.2): audit summary against the pass marks, export, and the recent scans -->
+    <!-- Audit log (M2, testers, v0.2): summary against the pass marks, export, and the recent scans -->
     <section id="screen-audit" class="screen" hidden>
+      <div class="add-head">
+        <button id="audit-back-top" class="icon-btn" type="button" aria-label="Back to scanning">
+          <svg width="24" height="24"><use href="#i-back"/></svg>
+        </button>
+        <h2>Audit log</h2>
+      </div>
       <div class="card">
-        <h2>Audit summary</h2>
+        <h3 class="first">Audit summary</h3>
         <p id="audit-empty" class="meta" hidden>No scans recorded yet. Every barcode you look up is saved here, on this phone only.</p>
         <p id="audit-small" class="notice small" hidden></p>
         <div id="audit-marks"></div>
@@ -282,8 +348,8 @@
       <div class="card">
         <h3 class="first">Save the log</h3>
         <p class="hint">The log is kept in this browser on this phone only. Export it after every store visit. iPhone Safari can delete a website's saved data if the site isn't opened for 7 days.</p>
-        <button id="export-button" class="primary" type="button">Download CSV spreadsheet</button>
-        <button id="share-button" class="secondary" type="button" hidden>Share CSV (Files, Mail, LINE…)</button>
+        <button id="export-button" class="btn btn-primary" type="button">Download CSV spreadsheet</button>
+        <button id="share-button" class="btn btn-secondary" type="button" hidden>Share CSV (Files, Mail, LINE…)</button>
         <p id="export-status" class="small-status" hidden></p>
       </div>
 
@@ -293,20 +359,20 @@
         <form id="passcode-form" hidden>
           <label for="passcode-input">Contributor passcode</label>
           <input id="passcode-input" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="100">
-          <button class="secondary" type="submit">Save passcode</button>
+          <button class="btn btn-secondary" type="submit">Save passcode</button>
         </form>
         <p id="passcode-status" class="small-status" hidden></p>
-        <button id="passcode-forget" class="secondary" type="button" hidden>Remove the passcode from this phone</button>
-        <button id="send-waiting" class="primary" type="button" hidden>Send waiting products</button>
+        <button id="passcode-forget" class="btn btn-secondary" type="button" hidden>Remove the passcode from this phone</button>
+        <button id="send-waiting" class="btn btn-primary" type="button" hidden>Send waiting products</button>
       </div>
 
       <div class="card">
         <h3 class="first">Recent scans</h3>
         <ol id="recent-list" class="recent"></ol>
-        <button id="clear-button" class="secondary danger" type="button">Clear the log</button>
+        <button id="clear-button" class="btn btn-text danger" type="button">Clear the log</button>
       </div>
 
-      <button id="audit-back" class="primary" type="button">Back to scanning</button>
+      <button id="audit-back" class="btn btn-primary" type="button">Back to scanning</button>
     </section>
   </main>
 
@@ -314,24 +380,65 @@
     <p>Product data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> and products our testers typed in from the pack. No accounts, no tracking. Your history and the audit log stay on this phone.</p>
   </footer>
 
-  <!-- Bottom navigation (Nathan's design): History, Scan, Favorite -->
+  <!-- More menu (Figma M1): opens from the menu button on Scan. The Audit log lives here for testers. -->
+  <div id="more" class="more" hidden>
+    <div class="more-backdrop" data-close></div>
+    <div class="more-sheet" role="dialog" aria-modal="true" aria-labelledby="more-title">
+      <span class="grabber" aria-hidden="true"></span>
+      <h2 id="more-title">More</h2>
+      <details class="more-item">
+        <summary>
+          <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-gauge"/></svg></span>
+          <span class="more-text"><b>How the score works</b><small>Great, Good, OK, Poor and Bad</small></span>
+          <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
+        </summary>
+        <p class="more-body">Every product starts at 100. Points come off for too much sugar, fat or salt and for additives of concern, and a few come back for protein and fibre.</p>
+        <p class="more-body">Great is 90 or more, Good is 75 or more, OK is 50 or more, Poor is 25 or more, and Bad is below 25.</p>
+      </details>
+      <details class="more-item">
+        <summary>
+          <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-database"/></svg></span>
+          <span class="more-text"><b>Where our data comes from</b><small>Open Food Facts and labels we check</small></span>
+          <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
+        </summary>
+        <p class="more-body">Products come from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>, a free open database (ODbL), and from labels our testers type in from the pack. A missing value says Not available. We never guess.</p>
+      </details>
+      <details class="more-item">
+        <summary>
+          <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-info"/></svg></span>
+          <span class="more-text"><b>About Bettr</b><small>What this app is</small></span>
+          <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
+        </summary>
+        <p class="more-body">Bettr helps you see what is in packaged food at 7-Eleven Thailand. It is an early prototype, with no accounts and no tracking. Your history stays on this phone.</p>
+      </details>
+      <p class="more-caption">For testers</p>
+      <button id="audit-link" class="more-item more-link" type="button">
+        <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-clipboard"/></svg></span>
+        <span class="more-text"><b>Audit log</b><small>Scans, pass marks, CSV</small></span>
+        <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
+      </button>
+      <p class="more-foot">Bettr prototype v0.5</p>
+    </div>
+  </div>
+
+  <!-- Bottom navigation (Figma tab bar): History, Scan, Favorite -->
   <nav id="tabbar" class="tabbar" aria-label="Main">
     <button class="tab" type="button" data-tab="history">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6l-2.5 2.5"/><path d="M3.5 3.5v5h5"/><path d="M12 7.5V12l3 2"/></svg>
+      <svg width="24" height="24" aria-hidden="true"><use href="#i-clock"/></svg>
       <span>History</span>
     </button>
-    <button class="tab" type="button" data-tab="scan">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8V6A2.5 2.5 0 0 1 6 3.5h2M16 3.5h2A2.5 2.5 0 0 1 20.5 6v2M20.5 16v2a2.5 2.5 0 0 1-2.5 2.5h-2M8 20.5H6A2.5 2.5 0 0 1 3.5 18v-2"/><path d="M12 9.6c-1-.8-3.4-.9-3.9 1.4-.4 2 .8 4.7 2.3 4.7.7 0 1-.35 1.6-.35s.9.35 1.6.35c1.5 0 2.7-2.7 2.3-4.7-.5-2.3-2.9-2.2-3.9-1.4z"/><path d="M12 9.6c0-1 .5-1.9 1.5-2.3"/></svg>
+    <button class="tab tab-scan" type="button" data-tab="scan">
+      <span class="scan-disc"><svg width="26" height="26" aria-hidden="true"><use href="#i-scan"/></svg></span>
       <span>Scan</span>
     </button>
     <button class="tab" type="button" data-tab="favorite">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v2.5"/><path d="m17.5 12.8 1.15 2.33 2.57.37-1.86 1.81.44 2.56-2.3-1.21-2.3 1.21.44-2.56-1.86-1.81 2.57-.37z"/></svg>
+      <svg width="24" height="24" aria-hidden="true"><use href="#i-heart"/></svg>
       <span>Favorite</span>
     </button>
   </nav>
 
   <!-- Barcode reader for phones without a built-in one (e.g. iPhone). MIT licence, see vendor/LICENSES.txt -->
   <script src="vendor/barcode-detector-ponyfill.js"></script>
-  <script type="module" src="app.js?v=r7"></script>
+  <script type="module" src="app.js?v=r8"></script>
 </body>
 </html>

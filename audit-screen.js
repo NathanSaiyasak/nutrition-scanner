@@ -3,10 +3,10 @@
 import {
   loadLog, clearLog, summarise, toCsv, csvFileName, localDateTime,
   ADD_TARGET_SECONDS, SMALL_SAMPLE,
-} from './audit.js?v=r7';
+} from './audit.js?v=r8';
 import {
   sharedConfigured, getPasscode, savePasscode, forgetPasscode, sendWaiting, waitingCount,
-} from './shared-db.js?v=r7';
+} from './shared-db.js?v=r8';
 
 const $ = (id) => document.getElementById(id);
 
@@ -179,7 +179,7 @@ $('export-button').addEventListener('click', () => {
 $('share-button').addEventListener('click', async () => {
   const file = csvFile();
   try {
-    await navigator.share({ files: [file], title: 'Nutrition Scanner scan log' });
+    await navigator.share({ files: [file], title: 'Bettr scan log' });
   } catch (err) {
     if (err && err.name === 'AbortError') return; // the person closed the share sheet
     exportStatus("Couldn't share the file. Use Download instead.");
