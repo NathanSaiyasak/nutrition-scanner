@@ -8,7 +8,7 @@
   <title>Bettr</title>
   <link rel="preload" href="fonts/LINESeedSansTH-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/LINESeedSansTH-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=r11">
+  <link rel="stylesheet" href="style.css?v=r12">
 </head>
 <body data-screen="screen-start" class="has-tabbar">
   <!-- Icons and the Bettr wordmark, drawn once and reused with <use>. Shapes come from the Bettr
@@ -38,6 +38,7 @@
     <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
     <symbol id="i-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 18a9 9 0 1 1 15 0M12 13l3.5-3.5"/></symbol>
     <symbol id="i-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.5"/><path d="M4.5 5.5v13c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-13M4.5 12c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
     <symbol id="i-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM9 11h6M9 15h6"/></symbol>
     <symbol id="i-photo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 4h5L16.5 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3.5z"/><circle cx="12" cy="13" r="3.5"/></symbol>
@@ -427,14 +428,16 @@
         </summary>
         <p class="more-body" data-i18n-html="more.dataBody">Products come from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>, a free open database (ODbL), and from labels our testers type in from the pack. A missing value says Not available. We never guess.</p>
       </details>
-      <details class="more-item">
-        <summary>
-          <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-info"/></svg></span>
-          <span class="more-text"><b data-i18n="more.aboutTitle">About Bettr</b><small data-i18n="more.aboutSub">What this app is</small></span>
-          <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
-        </summary>
-        <p class="more-body" data-i18n="more.aboutBody">Bettr helps you see what is in packaged food at 7-Eleven Thailand. It is an early prototype, with no accounts and no tracking. Your history stays on this phone.</p>
-      </details>
+      <a class="more-item more-link" href="landing/about.html">
+        <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-info"/></svg></span>
+        <span class="more-text"><b data-i18n="more.aboutTitle">About Bettr</b><small data-i18n="more.aboutSub">What this app is</small></span>
+        <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
+      </a>
+      <a class="more-item more-link" href="landing/privacy.html">
+        <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-shield"/></svg></span>
+        <span class="more-text"><b data-i18n="more.privacyTitle">Privacy</b><small data-i18n="more.privacySub">What stays on your phone</small></span>
+        <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
+      </a>
       <p class="more-caption" data-i18n="more.testers">For testers</p>
       <button id="audit-link" class="more-item more-link" type="button">
         <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-clipboard"/></svg></span>
@@ -469,6 +472,6 @@
 
   <!-- Barcode reader for phones without a built-in one (e.g. iPhone). MIT licence, see vendor/LICENSES.txt -->
   <script src="vendor/barcode-detector-ponyfill.js"></script>
-  <script type="module" src="app.js?v=r11"></script>
+  <script type="module" src="app.js?v=r12"></script>
 </body>
 </html>
