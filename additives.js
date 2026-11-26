@@ -4,7 +4,7 @@
 // flagged in Watch out but take no points off, and sweeteners take 10 points off (Nathan, 25 Nov 2026). All wording is
 // whole sentences with no colons (Nathan, 24 Nov 2026), ready for a Thai translation later.
 
-import { t, additiveName } from './i18n.js?v=r13';
+import { t, additiveName } from './i18n.js?v=r14';
 
 // Additive groups. points: taken off the score for each additive found (all additives together at most 30).
 // tone/level: how the row looks; a 'high' additive counts as a red warning for the score's ceilings.
@@ -105,15 +105,22 @@ export function extraRows(p, { drink, sugar100, nutType }) {
   // Sweeteners: from the ingredients, or a drink whose name says it has no sugar and that has
   // (almost) no sugar. "No sugar added" juices don't count.
   const name = `${p.name || ''} ${p.altName || ''}`;
-  const byName = drink && sugar100 !== null && sugar100 <= 0.5
+  const noSugarDrink = drink && sugar100 !== null && sugar100 <= 0.5;
+  const byName = noSugarDrink
     && (/\b(zero|diet|sugar[ -]?free|no sugar(?! added))\b/i.test(name) || /ไม่มีน้ำตาล/.test(name));
-  if (sweeteners.length || byName) {
+  // Also: Open Food Facts files it as an artificially sweetened drink, or a "Max" drink with no sugar
+  // (Nathan, 26 Nov 2026: Pepsi Max scored above Coke Zero because neither name said "zero").
+  const cats = (p.categories || []).map((c) => String(c).toLowerCase());
+  const byCategory = noSugarDrink && cats.some((c) => /^en:(artificially-sweetened-beverages|diet-beverages)$/.test(c));
+  const byMax = noSugarDrink && (/\bmax\b/i.test(name) || /แม็กซ์|แมกซ์|แม๊กซ์|แม๊ก/.test(name));
+  if (sweeteners.length || byName || byCategory || byMax) {
     items.push({
       key: 'sweeteners',
       name: say('sweetenerName'),
       amount: '',
       note: say('sweetenerNote'),
-      details: [`${say('sweetenerWhy', { n: SWEETENER_POINTS })} ${sweeteners.length ? say('sweetenerFound', { list: sweeteners.join(t('common.listGap')) }) : say('sweetenerByName')}`],
+      details: [`${say('sweetenerWhy', { n: SWEETENER_POINTS })} ${sweeteners.length ? say('sweetenerFound', { list: sweeteners.join(t('common.listGap')) })
+        : byName ? say('sweetenerByName') : byCategory ? say('sweetenerByCategory') : say('sweetenerByMax')}`],
       pct: null,
       tone: 'warn',
       level: 'medium',
@@ -158,12 +165,15 @@ export function extraRows(p, { drink, sugar100, nutType }) {
  * "mostly healthy fats" rule. From Open Food Facts categories, or the name. Drinks never count
  * (soy milk is not a nut).
  */
-export function nutType(p, drink) {
+export function nutType(p, drink, fat100 = null) {
   if (drink) return null;
   const cats = (p.categories || []).map((c) => String(c).toLowerCase());
   if (cats.some((c) => /^en:(nuts|nuts-and-their-products|mixed-nuts|peanuts|almonds|cashew-nuts|pistachios|walnuts|hazelnuts|macadamia-nuts|seeds|sunflower-seeds|pumpkin-seeds|nut-butters|peanut-butters)$/.test(c))) return 'nuts';
   if (cats.some((c) => /^en:(vegetable-oils|olive-oils|rice-bran-oils|sunflower-oils|rapeseed-oils|soybean-oils)$/.test(c))) return 'oil';
   const name = `${p.name || ''} ${p.altName || ''}`;
+  // A plain plant oil by its name, when almost all of it is fat (26 Nov 2026). Palm and coconut oil
+  // still fail the healthy-fat test (a quarter or more of the fat is saturated).
+  if (fat100 !== null && fat100 >= 80 && (/\boils?\b/i.test(name) || /น้ำมัน/.test(name))) return 'oil';
   if (/\b(nuts?|almonds?|cashews?|peanuts?|pistachios?|walnuts?|hazelnuts?|macadamias?|seeds?)\b/i.test(name)
     || /(ถั่ว|อัลมอนด์|มะม่วงหิมพานต์|พิสตาชิโอ|วอลนัท|เมล็ด)/.test(name)) return 'nuts';
   return null;

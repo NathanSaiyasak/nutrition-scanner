@@ -2,8 +2,8 @@
 // Turns a product from lookup.js into the shopper view: Watch out / Good points / Nutrition facts / Not available.
 // Rules and thresholds: docs/prototype-v0.3-spec.md and docs/prototype-v0.5-spec.md.
 // Never invents a value: a missing number goes in "Not available".
-import { extraRows, nutType } from './additives.js?v=r13';
-import { t, lang } from './i18n.js?v=r13';
+import { extraRows, nutType } from './additives.js?v=r14';
+import { t, lang } from './i18n.js?v=r14';
 
 // Thai daily guide amounts, used for the "% of a day" bars.
 const DAILY = { energy: 2000, sugars: 65, fat: 65, satfat: 20, sodium: 2000, protein: 50, fibre: 25, carbs: 300 };
@@ -27,8 +27,12 @@ const PORTION_HIGH = {
   salt:   { food: 1.8, drink: 0.9 },
 };
 
-// Thai excise tax on sugary drinks applies above 6 g sugar per 100 ml. Shown as a note only.
+// Thai excise tax on sugary drinks applies above 6 g sugar per 100 ml (score.js adds points per gram over it).
 const THAI_SUGAR_TAX = 6;
+
+// Smallest amounts that can count as a good point (Nathan, 26 Nov 2026), per 100 g or 100 ml.
+const PROTEIN_MIN = { food: 3, drink: 1.5 };
+const FIBRE_MIN = 1.5;
 
 /**
  * Build the shopper view of a product.
@@ -37,7 +41,7 @@ const THAI_SUGAR_TAX = 6;
  */
 export function buildView(p) {
   const row = (key) => p.rows.find((r) => r.key === key);
-  const drink = isDrink(p);
+  const drink = isDrink(p, row('fat').per100);
   const per = drink ? 'ml' : 'g';
 
   // Sodium in mg: from sodium, or from salt (salt ÷ 2.5 = sodium; a unit conversion, not an estimate).
@@ -77,19 +81,29 @@ export function buildView(p) {
   // known (e.g. "200 ml"), work out per 100 from it: plain arithmetic on the label's own numbers,
   // like salt to sodium, not an estimate. Without a serving size the fact can't be judged.
   const servingAmount = parseServing(p.servingSize);
+  // The portion for the UK portion rule: the serving size, or, for a drink with none, the whole can or
+  // bottle when it is 600 ml or less (Nathan, 26 Nov 2026). Without this, the same can of cola was red
+  // with a serving size and orange without one. Food packs are left alone: a 450 ml ice cream tub or a
+  // 230 g can of nuts is not one serving.
+  const portionAmount = servingAmount ?? (drink ? singlePack(p.quantity) : null);
   for (const f of facts) {
     f.judge100 = f.per100 ?? (f.perServing !== null && servingAmount ? (f.perServing * 100) / servingAmount : null);
     // Amount in one portion, for the UK portion rule (only for big portions, see PORTION_MIN).
-    const bigPortion = servingAmount && servingAmount > PORTION_MIN[drink ? 'drink' : 'food'];
+    const bigPortion = portionAmount && portionAmount > PORTION_MIN[drink ? 'drink' : 'food'];
     f.portion = !bigPortion ? null
-      : f.perServing ?? (f.per100 !== null ? (f.per100 * servingAmount) / 100 : null);
+      : (servingAmount ? f.perServing : null) ?? (f.per100 !== null ? (f.per100 * portionAmount) / 100 : null);
   }
+  // No fat at all means no saturated fat: plain arithmetic, like salt to sodium, not an estimate
+  // (Nathan, 26 Nov 2026). Used only for judging; the screen still shows saturated fat as not available.
+  const fatFact = facts.find((f) => f.key === 'fat');
+  const satFact = facts.find((f) => f.key === 'satfat');
+  if (satFact.judge100 === null && fatFact.judge100 === 0) satFact.judge100 = 0;
 
   const energy100 = facts[0].judge100;
   // Mostly healthy fats (approved 24 Nov 2026): nuts, seeds and plain plant oils where less than a
   // quarter of the fat is saturated aren't warned about for fat or saturated fat.
-  const type = nutType(p, drink);
   const fat100 = facts.find((f) => f.key === 'fat').judge100;
+  const type = nutType(p, drink, fat100);
   const sat100 = facts.find((f) => f.key === 'satfat').judge100;
   const healthyFat = Boolean(type) && fat100 !== null && sat100 !== null && fat100 > 0 && sat100 / fat100 < 0.25;
   const items = facts.map((f) => {
@@ -182,7 +196,7 @@ function subtitle(f, level, why, energy100, pct, useServing) {
       }
       return sub('tooMuchServing', { n });
     }
-    if (level === 'high') return sub('tooMuch', { n });
+    if (level === 'high') return sub(why === 'veryHigh' ? 'wayTooMuch' : 'tooMuch', { n });
     return sub(level === 'medium' ? 'bitTooMuch' : 'lowIn', { n });
   }
   if (f.key === 'energy') {
@@ -212,6 +226,7 @@ function explain(f, { level, why, drink, pct, useServing, energy100 }) {
   else if (LIMIT_KEYS.includes(f.key)) {
     // The UK traffic-light sentence is gone (Nathan, 24 Nov 2026: too much text); the colour says it.
     if (f.key === 'sugars' && drink && v > THAI_SUGAR_TAX) reason = whyText('sugarTax');
+    else if (level === 'high' && why === 'veryHigh') reason = whyText('veryHigh');
     else if (level === 'high' && why === 'portion') reason = whyText('portionBig');
   } else if (f.key === 'energy') {
     // The snack or meal comparison only makes sense for one serving, not for 100 g.
@@ -219,9 +234,11 @@ function explain(f, { level, why, drink, pct, useServing, energy100 }) {
     else if (useServing) reason = whyText(['caloriesLight', 'caloriesModerate', 'caloriesRich'][size]);
   } else if (f.key === 'protein') {
     reason = !energy100 ? whyText('proteinNoCalories')
+      : why === 'tooLittle' ? whyText('proteinTooLittle')
       : level === 'good' ? whyText(why === 'high' ? 'proteinHigh' : 'proteinSource') : whyText('proteinLow');
   } else if (f.key === 'fibre') {
-    reason = level === 'good' ? whyText(why === 'high' ? 'fibreHigh' : 'fibreSource') : whyText('fibreLow');
+    reason = why === 'tooLittle' ? whyText('fibreTooLittle')
+      : level === 'good' ? whyText(why === 'high' ? 'fibreHigh' : 'fibreSource') : whyText('fibreLow');
   }
   return reason ? `${share} ${reason}` : share;
 }
@@ -293,6 +310,11 @@ function classify(f, drink, energy100) {
     const limitKey = f.key === 'sodium' ? 'salt' : f.key;
     const toSalt = f.key === 'sodium' ? 1 / 400 : 1; // sodium mg → salt g
     const byHundred = level(v * toSalt, LIMITS[limitKey][kind]);
+    // Very high: more than twice the UK high line (sugar, saturated fat, salt; not total fat). It costs
+    // extra points and counts as a second red (Nathan, 26 Nov 2026), so 64 g of sugar isn't judged like 23 g.
+    if (byHundred === 'high' && f.key !== 'fat' && v * toSalt > 2 * LIMITS[limitKey][kind][1]) {
+      return { level: 'high', why: 'veryHigh' };
+    }
     if (byHundred !== 'high' && f.portion !== null && f.portion * toSalt > PORTION_HIGH[limitKey][kind]) {
       return { level: 'high', why: 'portion' };
     }
@@ -301,16 +323,23 @@ function classify(f, drink, energy100) {
   // Calories: only "low" (EU low-energy claim) is judged; there is no high warning (Nathan, 23 Nov 2026).
   if (f.key === 'energy') return { level: v <= (drink ? 20 : 40) ? 'low' : 'neutral' };
   // Protein: EU "source of protein" ≥ 12% of calories, "high protein" ≥ 20%.
+  // A good point also needs a real amount (Nathan, 26 Nov 2026): at least 3 g protein per 100 g, or
+  // 1.5 g per 100 ml in a drink; at least 1.5 g fibre. Otherwise a near-zero-calorie drink with a trace
+  // of protein passes the calorie-share test.
   if (f.key === 'protein') {
     const share = energy100 ? (v * 4) / energy100 : 0;
+    const tooLittle = v < (drink ? PROTEIN_MIN.drink : PROTEIN_MIN.food);
+    if (share >= 0.12 && tooLittle) return { level: 'neutral', why: 'tooLittle' };
     if (share >= 0.2) return { level: 'good', why: 'high' };
     return { level: share >= 0.12 ? 'good' : 'neutral' };
   }
   // Fibre: EU "source of fibre" ≥ 3 g/100 g or ≥ 1.5 g/100 kcal; "high fibre" ≥ 6 g or ≥ 3 g/100 kcal.
   if (f.key === 'fibre') {
     const per100kcal = energy100 ? (v * 100) / energy100 : 0;
+    const passes = v >= 3 || per100kcal >= 1.5;
+    if (passes && v < FIBRE_MIN) return { level: 'neutral', why: 'tooLittle' };
     if (v >= 6 || per100kcal >= 3) return { level: 'good', why: 'high' };
-    return { level: v >= 3 || per100kcal >= 1.5 ? 'good' : 'neutral' };
+    return { level: passes ? 'good' : 'neutral' };
   }
   return { level: 'neutral' };
 }
@@ -322,9 +351,30 @@ function level(v, [low, high]) {
 }
 
 // A drink if the size or serving is in ml/litres (Open Food Facts stores drinks per 100 ml).
-function isDrink(p) {
+// Cooking oil and ice cream are never drinks, even when sold in ml (Nathan, 26 Nov 2026: olive oil
+// scored like palm oil because drinks don't get the healthy-fat rule). A product with no size at all
+// counts as a drink when Open Food Facts files it under beverages.
+function isDrink(p, fat100) {
+  const cats = (p.categories || []).map((c) => String(c).toLowerCase());
+  const name = `${p.name || ''} ${p.altName || ''}`;
+  const oil = cats.some((c) => /^en:(.+-oils|vegetable-oils|fats)$/.test(c))
+    || (fat100 !== null && fat100 >= 80 && /\boils?\b|น้ำมัน/i.test(name));
+  const iceCream = cats.some((c) => /^en:(ice-creams|frozen-desserts|ice-cream-tubs|ice-cream-bars)$/.test(c))
+    || /\bice[ -]?creams?\b|ไอศกรีม|ไอศครีม|ไอติม/i.test(name);
+  if (oil || iceCream) return false;
   const text = `${p.quantity || ''} ${p.servingSize || ''}`.toLowerCase();
-  return /\d\s*(ml|cl|l|มล|ลิตร)\b/.test(text) || /มล|ลิตร/.test(text);
+  if (/\d\s*(ml|cl|l|มล|ลิตร)\b/.test(text) || /มล|ลิตร/.test(text)) return true;
+  const hasUnit = /\d\s*(g|kg|กรัม|กก)\b/.test(text);
+  return !hasUnit && cats.includes('en:beverages');
+}
+
+// A single can or bottle ("325 ml") of 600 or less, for the UK portion rule. null otherwise.
+function singlePack(quantity) {
+  if (!quantity) return null;
+  const m = String(quantity).toLowerCase().replace(',', '.').match(/^\s*(\d+(?:\.\d+)?)\s*(ml|มล)\s*$/);
+  if (!m) return null;
+  const n = parseFloat(m[1]);
+  return n > 0 && n <= 600 ? n : null;
 }
 
 // Serving size in g or ml, e.g. "200 ml", "30g", "1 bottle (250 ml)", "0.5 l". null when unclear.
