@@ -2,7 +2,8 @@
 // Turns a product from lookup.js into the shopper view: Watch out / Good points / Nutrition facts / Not available.
 // Rules and thresholds: docs/prototype-v0.3-spec.md and docs/prototype-v0.5-spec.md.
 // Never invents a value: a missing number goes in "Not available".
-import { extraRows, nutType } from './additives.js?v=r8';
+import { extraRows, nutType } from './additives.js?v=r9';
+import { t, lang } from './i18n.js?v=r9';
 
 // Thai daily guide amounts, used for the "% of a day" bars.
 const DAILY = { energy: 2000, sugars: 65, fat: 65, satfat: 20, sodium: 2000, protein: 50, fibre: 25, carbs: 300 };
@@ -49,15 +50,15 @@ export function buildView(p) {
   // lessThan: the label printed "less than" (e.g. "<1 g"), only for products we typed in.
   const fact = (key, name, unit, r) => ({ key, name, unit, per100: r.per100, perServing: r.perServing, lessThan: Boolean(r.lessThan) });
   const facts = [
-    fact('energy', 'Calories', 'kcal', row('energy-kcal')),
-    fact('sugars', 'Sugar', 'g', row('sugars')),
-    fact('fat', 'Fat', 'g', row('fat')),
-    fact('satfat', 'Saturated fat', 'g', row('saturated-fat')),
-    fact('sodium', 'Sodium', 'mg', { per100: sodium100, perServing: sodiumServ, lessThan: sodiumLess }),
-    fact('protein', 'Protein', 'g', row('proteins')),
+    fact('energy', t('nut.energy'), 'kcal', row('energy-kcal')),
+    fact('sugars', t('nut.sugars'), 'g', row('sugars')),
+    fact('fat', t('nut.fat'), 'g', row('fat')),
+    fact('satfat', t('nut.satfat'), 'g', row('saturated-fat')),
+    fact('sodium', t('nut.sodium'), 'mg', { per100: sodium100, perServing: sodiumServ, lessThan: sodiumLess }),
+    fact('protein', t('nut.protein'), 'g', row('proteins')),
   ];
-  facts.push(fact('fibre', 'Fibre', 'g', row('fiber')));
-  facts.push(fact('carbs', 'Carbs', 'g', row('carbohydrates')));
+  facts.push(fact('fibre', t('nut.fibre'), 'g', row('fiber')));
+  facts.push(fact('carbs', t('nut.carbs'), 'g', row('carbohydrates')));
   // The facts that decide the basis, the colours and the sample score: the same set as before
   // 24 Nov 2026 (fibre only when it has a value). Carbs are shown with a plain description, never rated.
   const core = facts.filter((f) => f.key !== 'carbs' && !(f.key === 'fibre' && f.per100 === null && f.perServing === null));
@@ -69,8 +70,8 @@ export function buildView(p) {
   const useServing = allServing && (Boolean(p.servingSize) || present.every((f) => f.per100 === null));
   const basisLabel = useServing
     ? servingText(p.servingSize)
-    : `Per 100 ${per}`;
-  const missingNote = p.source === 'shared' || p.source === 'phone' ? 'Not typed in from the label' : 'Not in the database yet';
+    : t('basis.per100', { unit: t(`unit.${per}`) });
+  const missingNote = t(p.source === 'shared' || p.source === 'phone' ? 'result.missingTyped' : 'result.missingDb');
 
   // Judging uses per-100 values. When the label only gave per-serving values but the serving size is
   // known (e.g. "200 ml"), work out per 100 from it: plain arithmetic on the label's own numbers,
@@ -97,14 +98,14 @@ export function buildView(p) {
       // A fact with no value isn't listed under Nutrition Facts or in the card's quick stats (Nathan,
       // 24 Nov 2026). It goes in the "Not Available" list at the bottom, so a blank is never hidden.
       const group = 'missing';
-      return { key: f.key, name: f.name, amount: 'Not available', note: missingNote, details: [], pct: null, tone: 'na', group, missing: true };
+      return { key: f.key, name: f.name, amount: t('common.notAvailable'), note: missingNote, details: [], pct: null, tone: 'na', group, missing: true };
     }
     const pct = Math.round((amountValue / DAILY[f.key]) * 100);
     const amount = `${f.lessThan ? '<' : ''}${format(amountValue, f.unit)} ${f.unit}`;
     const { level, why } = healthyFat && (f.key === 'fat' || f.key === 'satfat')
       ? { level: 'neutral', why: 'healthyFat' } : classify(f, drink, energy100);
     // The row shows one plain line ("A bit too much sugar"); a one- or two-sentence dropdown under it
-    // gives the % of the daily guide and why (Nathan, 23 Nov 2026). All wording is in TEXT below.
+    // gives the % of the daily guide and why (Nathan, 23 Nov 2026). All wording is in strings.js.
     const note = subtitle(f, level, why, energy100, pct);
     const details = [explain(f, { level, why, drink, pct, amountValue, useServing, energy100 })];
     const gauge = gaugeFor(f, { level, why, drink, pct, amountValue, useServing, servingAmount });
@@ -136,14 +137,14 @@ export function buildView(p) {
   const unjudged = factItems.some((i) => !i.missing && !i.extra && i.key !== 'carbs'
     && facts.find((f) => f.key === i.key).judge100 === null);
   const factsHint = unjudged
-    ? 'The label was typed in per serving without the serving size, so we can\'t rate these yet.'
+    ? t('result.factsHint')
     : null;
 
   const groups = [
-    { id: 'watch', title: 'Watch Out', items: watch },
-    { id: 'good', title: 'Good Points', items: all.filter((i) => i.group === 'good') },
-    { id: 'facts', title: 'Nutrition Facts', hint: factsHint, items: factItems },
-    { id: 'missing', title: 'Not Available', items: items.filter((i) => i.group === 'missing') },
+    { id: 'watch', title: t('group.watch'), items: watch },
+    { id: 'good', title: t('group.good'), items: all.filter((i) => i.group === 'good') },
+    { id: 'facts', title: t('group.facts'), hint: factsHint, items: factItems },
+    { id: 'missing', title: t('group.missing'), items: items.filter((i) => i.group === 'missing') },
   ].filter((g) => g.items.length > 0);
 
   return {
@@ -153,60 +154,13 @@ export function buildView(p) {
   };
 }
 
-// All shopper-facing wording for the rows, in one place so it can be translated to Thai later.
-// {n} = nutrient word, {pct} = % of the daily guide, {daily} = the daily guide amount. Each entry is a
-// whole sentence or phrase (no pieces glued together), so a translation can change the word order.
-const TEXT = {
-  noun: { energy: 'calories', sugars: 'sugar', fat: 'fat', satfat: 'saturated fat', sodium: 'sodium', protein: 'protein', fibre: 'fibre', carbs: 'carbs' },
-  // Row subtitle, by level.
-  tooMuch: 'Too much {n}',
-  tooMuchServing: 'Too much {n} per serving',
-  bitTooMuch: 'A bit too much {n}',
-  lowIn: 'Low in {n}',
-  highIn: 'High in {n}',
-  goodAmount: 'Good amount of {n}',
-  highForCalories: 'High in {n} for its calories',
-  goodForCalories: 'Good amount of {n} for its calories',
-  notMuch: 'Not much {n}',
-  some: 'Some {n}',
-  fairAmount: 'A fair amount of {n}',
-  // Calories and carbs: a neutral size word that matches the bar (share of a day), never a warning
-  // (Nathan, 24 Nov 2026: "Not low in calories" beside a short bar was confusing).
-  caloriesLight: 'Light on calories',
-  caloriesModerate: 'Moderate calories',
-  caloriesRich: 'Energy-rich',
-  carbsSmall: 'Light on carbs',
-  carbsModerate: 'Moderate carbs',
-  carbsLarge: 'Carb-rich',
-  cantRate: 'Can\'t rate this yet',
-  healthyFats: 'Mostly healthy fats',
-  // Dropdown, first sentence: the Thai daily guide amount. The amount itself is on the row and in the
-  // gauge, so "One serving has…" was dropped (Nathan, 24 Nov 2026: redundant).
-  shareLimit: 'The Thai daily guide says no more than {daily} of {n} a day.',
-  shareAmount: 'The Thai daily guide is {daily} of {n} a day.',
-  shareCalories: 'The Thai daily guide is {daily} a day.',
-  // Dropdown, second sentence (only when it adds something).
-  sugarTax: 'Drinks this sweet are taxed as sugary drinks in Thailand.',
-  portionBig: 'One serving is large, so it counts as too much.',
-  caloriesLightWhy: 'About as much as a light snack.',
-  caloriesModerateWhy: 'About as much as a big snack.',
-  caloriesRichWhy: 'About as much as a meal.',
-  lowCalories: 'Low enough to count as a low-calorie food.',
-  proteinHigh: 'At least 20% of its calories come from protein.',
-  proteinSource: 'At least 12% of its calories come from protein.',
-  proteinLow: 'Less than 12% of its calories come from protein.',
-  proteinNoCalories: 'It can\'t be rated without the calories.',
-  fibreHigh: 'Enough to count as high in fibre.',
-  fibreSource: 'Enough to count as a source of fibre.',
-  fibreLow: 'Not enough to count as a source of fibre.',
-  carbsAbout: 'Carbs are the body\'s main source of energy.',
-  noServingSize: 'The label didn\'t give the serving size, so we can\'t rate it yet.',
-  healthyFatWhy: 'Less than a quarter of the fat is saturated, which is typical of nuts, seeds and plant oils, so it isn\'t a warning.',
-};
-
-function say(key, vars = {}) {
-  return TEXT[key].replace(/\{(\w+)\}/g, (_, k) => vars[k]);
-}
+// All shopper-facing wording for the rows lives in strings.js (English and Thai side by side), under
+// row.* (subtitles), why.* (dropdown sentences), noun.* and nut.*. {n} = nutrient word, {daily} = the daily
+// guide amount. Each entry is a whole sentence or phrase (no pieces glued together), so Thai can change
+// the word order.
+const sub = (key, vars) => t(`row.${key}`, vars); // the line under a row's name
+const whyText = (key, vars) => t(`why.${key}`, vars); // the dropdown sentences
+const noun = (key) => t(`noun.${key}`);
 
 const LIMIT_KEYS = ['sugars', 'fat', 'satfat', 'sodium'];
 // Always listed under "Nutrition facts", in this order (Nathan, 24 Nov 2026).
@@ -214,53 +168,53 @@ const FACT_KEYS = ['energy', 'protein', 'fibre', 'carbs'];
 
 // The one-line subtitle under a row's name. Describes what classify() decided; never changes it.
 function subtitle(f, level, why, energy100, pct) {
-  const n = TEXT.noun[f.key];
+  const n = noun(f.key);
   // Carbs and calories: a size word that matches the bar (share of a day). Thresholds 10% and 25%.
   const size = pct < 10 ? 0 : pct < 25 ? 1 : 2;
-  if (f.key === 'carbs') return say(['carbsSmall', 'carbsModerate', 'carbsLarge'][size]);
-  if (f.judge100 === null) return say('cantRate');
-  if (why === 'healthyFat') return say('healthyFats');
+  if (f.key === 'carbs') return sub(['carbsSmall', 'carbsModerate', 'carbsLarge'][size]);
+  if (f.judge100 === null) return sub('cantRate');
+  if (why === 'healthyFat') return sub('healthyFats');
   if (LIMIT_KEYS.includes(f.key)) {
-    if (level === 'high') return say(why === 'portion' ? 'tooMuchServing' : 'tooMuch', { n });
-    return say(level === 'medium' ? 'bitTooMuch' : 'lowIn', { n });
+    if (level === 'high') return sub(why === 'portion' ? 'tooMuchServing' : 'tooMuch', { n });
+    return sub(level === 'medium' ? 'bitTooMuch' : 'lowIn', { n });
   }
   if (f.key === 'energy') {
-    return level === 'low' ? say('lowIn', { n }) : say(['caloriesLight', 'caloriesModerate', 'caloriesRich'][size]);
+    return level === 'low' ? sub('lowIn', { n }) : sub(['caloriesLight', 'caloriesModerate', 'caloriesRich'][size]);
   }
-  if (f.key === 'protein' && !energy100) return say('cantRate');
+  if (f.key === 'protein' && !energy100) return sub('cantRate');
   // Protein and fibre: a good point is judged against the calories (EU claims), so a short bar gets
   // "for its calories" to explain it. Otherwise the words follow the bar.
   if (level === 'good') {
-    if (pct < 10) return say(why === 'high' ? 'highForCalories' : 'goodForCalories', { n });
-    return say(why === 'high' ? 'highIn' : 'goodAmount', { n });
+    if (pct < 10) return sub(why === 'high' ? 'highForCalories' : 'goodForCalories', { n });
+    return sub(why === 'high' ? 'highIn' : 'goodAmount', { n });
   }
-  return say(['notMuch', 'some', 'fairAmount'][size], { n });
+  return sub(['notMuch', 'some', 'fairAmount'][size], { n });
 }
 
 // The dropdown text: one or two short sentences (Nathan, 23 Nov 2026: understandable at a glance).
 function explain(f, { level, why, drink, pct, useServing, energy100 }) {
-  const daily = `${format(DAILY[f.key], f.unit)} ${f.unit}`;
+  const daily = `${format(DAILY[f.key], f.unit)} ${t(`unitWord.${f.unit}`)}`; // in a sentence: 65 กรัม in Thai
   const shareKey = LIMIT_KEYS.includes(f.key) ? 'shareLimit' : f.key === 'energy' ? 'shareCalories' : 'shareAmount';
-  const share = say(shareKey, { daily, n: TEXT.noun[f.key] });
+  const share = whyText(shareKey, { daily, n: noun(f.key) });
   const v = f.judge100;
   let reason = null;
   const size = pct < 10 ? 0 : pct < 25 ? 1 : 2;
-  if (f.key === 'carbs') reason = say('carbsAbout');
-  else if (v === null) reason = say('noServingSize');
-  else if (why === 'healthyFat') reason = say('healthyFatWhy');
+  if (f.key === 'carbs') reason = whyText('carbsAbout');
+  else if (v === null) reason = whyText('noServingSize');
+  else if (why === 'healthyFat') reason = whyText('healthyFat');
   else if (LIMIT_KEYS.includes(f.key)) {
     // The UK traffic-light sentence is gone (Nathan, 24 Nov 2026: too much text); the colour says it.
-    if (f.key === 'sugars' && drink && v > THAI_SUGAR_TAX) reason = say('sugarTax');
-    else if (level === 'high' && why === 'portion') reason = say('portionBig');
+    if (f.key === 'sugars' && drink && v > THAI_SUGAR_TAX) reason = whyText('sugarTax');
+    else if (level === 'high' && why === 'portion') reason = whyText('portionBig');
   } else if (f.key === 'energy') {
     // The snack or meal comparison only makes sense for one serving, not for 100 g.
-    if (level === 'low') reason = say('lowCalories');
-    else if (useServing) reason = say(['caloriesLightWhy', 'caloriesModerateWhy', 'caloriesRichWhy'][size]);
+    if (level === 'low') reason = whyText('lowCalories');
+    else if (useServing) reason = whyText(['caloriesLight', 'caloriesModerate', 'caloriesRich'][size]);
   } else if (f.key === 'protein') {
-    reason = !energy100 ? say('proteinNoCalories')
-      : level === 'good' ? say(why === 'high' ? 'proteinHigh' : 'proteinSource') : say('proteinLow');
+    reason = !energy100 ? whyText('proteinNoCalories')
+      : level === 'good' ? whyText(why === 'high' ? 'proteinHigh' : 'proteinSource') : whyText('proteinLow');
   } else if (f.key === 'fibre') {
-    reason = level === 'good' ? say(why === 'high' ? 'fibreHigh' : 'fibreSource') : say('fibreLow');
+    reason = level === 'good' ? whyText(why === 'high' ? 'fibreHigh' : 'fibreSource') : whyText('fibreLow');
   }
   return reason ? `${share} ${reason}` : share;
 }
@@ -303,21 +257,22 @@ function gaugeFor(f, { level, why, drink, pct, amountValue, useServing, servingA
 }
 
 // "0.5 bag (30 g)" → "Per serving of 30 g (half a bag)". Open Food Facts writes serving sizes in many
-// ways; the weight or volume comes first because the values are for that amount.
+// ways; the weight or volume comes first because the values are for that amount. In Thai the words in
+// brackets stay as the database wrote them ("0.5 bag"), like product names.
 const HOW_MANY = { '0.5': 'half a', '1/2': 'half a', '0.25': 'a quarter of a', '1/4': 'a quarter of a', '1': '1' };
 export function servingText(size) {
-  if (!size) return 'Per serving';
+  if (!size) return t('serving.plain');
   const text = String(size).trim().replace(/\s+/g, ' ');
   const amount = (t) => t.replace(/(\d)\s*(g|ml|mg|kg|l|cl|กรัม|มล)(?![a-z])/gi, '$1 $2').trim();
   const m = text.match(/^(.*?)\s*\(([^()]*\d[^()]*)\)$/);
   if (m && m[1] && /\d\s*(g|ml|l|cl|กรัม|มล)/i.test(m[2])) {
     let what = m[1].trim();
     const n = what.match(/^(\d+(?:[.,]\d+)?|\d\/\d)\s+(.+)$/);
-    if (n && HOW_MANY[n[1].replace(',', '.')]) what = `${HOW_MANY[n[1].replace(',', '.')]} ${n[2]}`;
-    return `Per serving of ${amount(m[2])} (${what})`;
+    if (lang === 'en' && n && HOW_MANY[n[1].replace(',', '.')]) what = `${HOW_MANY[n[1].replace(',', '.')]} ${n[2]}`;
+    return t('serving.ofWhat', { amount: amount(m[2]), what });
   }
-  if (/^\d+(?:[.,]\d+)?\s*(g|ml|l|cl|กรัม|มล)$/i.test(text)) return `Per serving of ${amount(text)}`;
-  return `Per serving, ${text}`;
+  if (/^\d+(?:[.,]\d+)?\s*(g|ml|l|cl|กรัม|มล)$/i.test(text)) return t('serving.of', { amount: amount(text) });
+  return t('serving.other', { text });
 }
 
 // high / medium / low for nutrients to limit; good / neutral for the others. Uses per-100 values.

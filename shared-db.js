@@ -9,9 +9,9 @@
 // from its label, our values are shown (testers found Open Food Facts often differs from the pack),
 // with the Open Food Facts photo when there is one. Values are kept exactly as typed: a blank box stays
 // "not available", "<1" stays "<1".
-import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r8';
-import { lookupProduct, NUTRIENTS } from './lookup.js?v=r8';
-import { ADD_FIELDS, countAddedValues } from './audit.js?v=r8';
+import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r9';
+import { lookupProduct, NUTRIENTS } from './lookup.js?v=r9';
+import { ADD_FIELDS, countAddedValues } from './audit.js?v=r9';
 
 const ADDED_KEY = 'nutrition-scanner-added-products-v1';
 const PASSCODE_KEY = 'nutrition-scanner-contributor-passcode';

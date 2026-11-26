@@ -8,7 +8,7 @@
   <title>Bettr</title>
   <link rel="preload" href="fonts/LINESeedSansTH-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/LINESeedSansTH-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=r8">
+  <link rel="stylesheet" href="style.css?v=r9">
 </head>
 <body data-screen="screen-start" class="has-tabbar">
   <!-- Icons and the Bettr wordmark, drawn once and reused with <use>. Shapes come from the Bettr
@@ -41,6 +41,7 @@
     <symbol id="i-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM9 11h6M9 15h6"/></symbol>
     <symbol id="i-photo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 4h5L16.5 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3.5z"/><circle cx="12" cy="13" r="3.5"/></symbol>
     <symbol id="i-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5M10 2.5h4M12 2.5V6"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
   </svg>
 
   <!-- Splash (Figma A0): the Bettr wordmark on cream for about a second while the app loads. -->
@@ -58,58 +59,58 @@
         <svg class="scan-logo" viewBox="0 0 66 20" role="img" aria-label="Bettr"><use href="#logo"/></svg>
         <div class="scan-actions">
           <!-- The torch only shows on phones whose browser can switch it on (most Android phones). -->
-          <button id="torch-button" class="round-btn" type="button" aria-label="Torch" aria-pressed="false" hidden>
+          <button id="torch-button" class="round-btn" type="button" aria-label="Torch" data-i18n-attr="aria-label:scan.torch" aria-pressed="false" hidden>
             <svg width="20" height="20"><use href="#i-zap"/></svg>
           </button>
-          <button id="more-button" class="round-btn" type="button" aria-label="More" aria-haspopup="dialog">
+          <button id="more-button" class="round-btn" type="button" aria-label="More" data-i18n-attr="aria-label:scan.more" aria-haspopup="dialog">
             <svg width="20" height="20"><use href="#i-menu"/></svg>
           </button>
         </div>
       </div>
       <div class="scan-hero">
-        <h2>Scan a barcode</h2>
-        <p class="scan-sub">Hold the barcode inside the frame</p>
+        <h2 data-i18n="scan.title">Scan a barcode</h2>
+        <p class="scan-sub" data-i18n="scan.sub">Hold the barcode inside the frame</p>
         <div class="scan-stage">
           <button id="scan-button" class="scan-start" type="button">
-            <span id="scan-button-text" class="scan-start-text">Tap to start the camera</span>
+            <span id="scan-button-text" class="scan-start-text" data-i18n="scan.tap">Tap to start the camera</span>
           </button>
           <div class="frame-overlay" aria-hidden="true"><span class="corners"></span><span class="scan-line"></span></div>
         </div>
-        <button id="stop-button" class="ghost-dark" type="button" hidden>Stop camera</button>
-        <p class="scan-hint">Hold steady, 10–20 cm away, in good light</p>
+        <button id="stop-button" class="ghost-dark" type="button" hidden data-i18n="scan.stop">Stop camera</button>
+        <p class="scan-hint" data-i18n="scan.hint">Hold steady, 10–20 cm away, in good light</p>
         <p id="photo-status" class="scan-status" hidden></p>
         <!-- Camera blocked (Figma S3): the screen turns light and offers the other ways in. -->
         <div id="camera-error" class="camera-error" hidden>
           <div class="state-icon tone-caramel" aria-hidden="true"><svg width="30" height="30"><use href="#i-camera-off"/></svg></div>
           <strong id="camera-error-title"></strong>
           <p id="camera-error-text"></p>
-          <button id="camera-retry" class="btn btn-primary" type="button">Try the camera again</button>
+          <button id="camera-retry" class="btn btn-primary" type="button" data-i18n="scan.retry">Try the camera again</button>
         </div>
       </div>
 
       <div class="sheet">
         <div class="sheet-head">
-          <p id="sheet-title" class="sheet-title">Can’t scan it?</p>
-          <button id="type-close" class="icon-btn" type="button" aria-label="Close" hidden>
+          <p id="sheet-title" class="sheet-title" data-i18n="scan.cantScan">Can’t scan it?</p>
+          <button id="type-close" class="icon-btn" type="button" aria-label="Close" data-i18n-attr="aria-label:common.close" hidden>
             <svg width="20" height="20"><use href="#i-close"/></svg>
           </button>
         </div>
         <form id="manual-form" autocomplete="off" hidden>
-          <label for="barcode-input" class="visually-hidden">Barcode number</label>
+          <label for="barcode-input" class="visually-hidden" data-i18n="scan.barcodeNumber">Barcode number</label>
           <input id="barcode-input" name="barcode" inputmode="numeric" pattern="[0-9]*"
-                 placeholder="e.g. 8851351932913" maxlength="14">
+                 placeholder="e.g. 8851351932913" data-i18n-attr="placeholder:scan.placeholder" maxlength="14">
           <p id="manual-error" class="field-error" hidden></p>
-          <button type="submit" class="btn btn-primary">Look it up</button>
-          <p class="or">or</p>
-          <label class="btn btn-secondary" for="photo-input">Use a photo instead</label>
+          <button type="submit" class="btn btn-primary" data-i18n="scan.lookUp">Look it up</button>
+          <p class="or" data-i18n="scan.or">or</p>
+          <label class="btn btn-secondary" for="photo-input" data-i18n="scan.photoInstead">Use a photo instead</label>
         </form>
         <!-- Side by side, so both fit above the tabs on an iPhone even when a camera message shows. -->
         <div id="fallbacks" class="fallbacks">
           <button id="type-toggle" class="btn-soft" type="button">
-            <svg width="19" height="15" aria-hidden="true"><use href="#i-keyboard"/></svg>Type it
+            <svg width="19" height="15" aria-hidden="true"><use href="#i-keyboard"/></svg><span data-i18n="scan.typeIt">Type it</span>
           </button>
           <label id="photo-label" class="btn-soft" for="photo-input">
-            <svg width="18" height="18" aria-hidden="true"><use href="#i-image"/></svg>Use a photo
+            <svg width="18" height="18" aria-hidden="true"><use href="#i-image"/></svg><span data-i18n="scan.usePhoto">Use a photo</span>
           </label>
         </div>
         <input id="photo-input" type="file" accept="image/*" hidden>
@@ -126,7 +127,7 @@
         <div class="sk-card"><span class="sk sk-line w40"></span><span class="sk sk-line w90"></span><span class="sk sk-line w80"></span></div>
         <div class="sk-card"><span class="sk sk-line w40"></span><span class="sk sk-line w90"></span></div>
       </div>
-      <p class="loading-text"><span class="spinner" aria-hidden="true"></span>Looking up <span id="loading-barcode"></span></p>
+      <p class="loading-text"><span class="spinner" aria-hidden="true"></span><span data-i18n="loading.text">Looking up</span> <span id="loading-barcode"></span></p>
     </section>
 
     <!-- Result (Figma R1). Product card, then Watch Out, Good Points, Nutrition Facts, Not Available. -->
@@ -164,45 +165,44 @@
       <!-- Found, no nutrition facts (Figma R4) -->
       <div id="no-nutrition" class="info-card" hidden>
         <div class="state-icon small tone-blue" aria-hidden="true"><svg width="22" height="22"><use href="#i-info"/></svg></div>
-        <p class="info-title">Product found, but no nutrition facts yet</p>
-        <p>Add them from the label and the next shopper gets a score.</p>
-        <button id="no-nutrition-add" class="btn btn-primary" type="button" hidden>Add the nutrition facts</button>
+        <p class="info-title" data-i18n="noNutrition.title">Product found, but no nutrition facts yet</p>
+        <p data-i18n="noNutrition.text">Add them from the label and the next shopper gets a score.</p>
+        <button id="no-nutrition-add" class="btn btn-primary" type="button" hidden data-i18n="noNutrition.add">Add the nutrition facts</button>
       </div>
       <div id="groups"></div>
 
       <p class="attribution">
-        <span id="source-off">Nutrition data from <a id="off-link" href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>
-        (open database, ODbL).</span>
+        <span id="source-off"><span data-i18n="attr.offBefore">Nutrition data from</span> <a id="off-link" href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>
+        <span data-i18n="attr.offAfter">(open database, ODbL).</span></span>
         <span id="source-ours" hidden></span>
-        % of a day uses the Thai daily guide (2,000 kcal). If the pack says something
-        different, trust the pack.
+        <span data-i18n="attr.daily">% of a day uses the Thai daily guide (2,000 kcal). If the pack says something different, trust the pack.</span>
       </p>
-      <button class="btn btn-text again" type="button">Scan another</button>
+      <button class="btn btn-text again" type="button" data-i18n="result.again">Scan another</button>
 
       <!-- Store audit (v0.2 tools). Closed by default so shoppers don't see it. -->
       <details id="audit-box" class="audit-box">
-        <summary>Check it against the pack (store audit)</summary>
+        <summary data-i18n="audit.box">Check it against the pack (store audit)</summary>
         <p class="meta mono" id="product-barcode"></p>
-        <p id="history-note" class="meta" hidden>Opened from History. To check it against the pack, scan it again.</p>
+        <p id="history-note" class="meta" hidden data-i18n="audit.fromHistory">Opened from History. To check it against the pack, scan it again.</p>
         <div id="nutrition" hidden>
           <p id="completeness" class="notice small" hidden></p>
           <table class="nutrition">
             <thead>
-              <tr><th scope="col">Nutrient</th><th scope="col" id="per100-head">Per 100 <span id="per-unit">g</span></th><th scope="col" id="serving-head">Per serving</th></tr>
+              <tr><th scope="col" data-i18n="audit.colNutrient">Nutrient</th><th scope="col" id="per100-head"><span data-i18n="audit.colPer100">Per 100</span> <span id="per-unit">g</span></th><th scope="col" id="serving-head">Per serving</th></tr>
             </thead>
             <tbody id="nutrition-body"></tbody>
           </table>
         </div>
         <div id="label-check" class="label-check" hidden>
-          <p class="label-check-q">Does this match the label on the pack?</p>
-          <div class="choices" role="group" aria-label="Does this match the label on the pack?">
-            <button type="button" class="choice-btn" data-check="matches">Matches</button>
-            <button type="button" class="choice-btn" data-check="differs">Differs</button>
-            <button type="button" class="choice-btn" data-check="cant-tell">Can't tell</button>
+          <p class="label-check-q" data-i18n="audit.matchQ">Does this match the label on the pack?</p>
+          <div class="choices" role="group" aria-label="Does this match the label on the pack?" data-i18n-attr="aria-label:audit.matchQ">
+            <button type="button" class="choice-btn" data-check="matches" data-i18n="audit.matches">Matches</button>
+            <button type="button" class="choice-btn" data-check="differs" data-i18n="audit.differs">Differs</button>
+            <button type="button" class="choice-btn" data-check="cant-tell" data-i18n="audit.cantTell">Can't tell</button>
           </div>
           <div id="label-note-row" hidden>
-            <label for="label-note">Which value differs? (optional)</label>
-            <input id="label-note" type="text" maxlength="200" placeholder="e.g. sodium 1760 mg on the pack">
+            <label for="label-note" data-i18n="audit.whichDiffers">Which value differs? (optional)</label>
+            <input id="label-note" type="text" maxlength="200" placeholder="e.g. sodium 1760 mg on the pack" data-i18n-attr="placeholder:audit.whichPlaceholder">
           </div>
           <p id="label-check-status" class="saved-note" hidden></p>
         </div>
@@ -228,28 +228,28 @@
         <p id="message-share" class="share-note" hidden></p>
       </div>
       <div class="message-actions">
-        <button id="message-retry" class="btn btn-primary" type="button" hidden>Try again</button>
-        <button id="message-add" class="btn btn-primary" type="button" hidden>Add this product</button>
-        <button class="btn btn-secondary again" type="button">Scan another</button>
+        <button id="message-retry" class="btn btn-primary" type="button" hidden data-i18n="msg.retry">Try again</button>
+        <button id="message-add" class="btn btn-primary" type="button" hidden data-i18n="msg.add">Add this product</button>
+        <button class="btn btn-secondary again" type="button" data-i18n="result.again">Scan another</button>
       </div>
     </section>
 
     <!-- History (H1, H2): products looked up on this phone (saved in this browser only) -->
     <section id="screen-history" class="screen" hidden>
       <div class="page-head">
-        <h2>History</h2>
-        <p class="page-sub">Products you found on this phone</p>
+        <h2 data-i18n="history.title">History</h2>
+        <p class="page-sub" data-i18n="history.sub">Products you found on this phone</p>
       </div>
       <div id="history-empty" class="empty" hidden>
         <div class="state-icon tone-caramel" aria-hidden="true"><svg width="30" height="30"><use href="#i-clock"/></svg></div>
-        <h3>No products yet</h3>
-        <p>Products you scan show up here. They stay on this phone.</p>
-        <button id="history-scan" class="btn btn-primary" type="button">Scan a product</button>
+        <h3 data-i18n="history.emptyTitle">No products yet</h3>
+        <p data-i18n="history.emptyText">Products you scan show up here. They stay on this phone.</p>
+        <button id="history-scan" class="btn btn-primary" type="button" data-i18n="history.scan">Scan a product</button>
       </div>
       <div id="history-full" hidden>
         <div id="history-list" class="history-list"></div>
-        <button id="history-clear" class="btn btn-text danger" type="button">Clear history</button>
-        <p class="hint center">Clearing history doesn’t touch the audit log.</p>
+        <button id="history-clear" class="btn btn-text danger" type="button" data-i18n="history.clear">Clear history</button>
+        <p class="hint center" data-i18n="history.clearHint">Clearing history doesn’t touch the audit log.</p>
       </div>
     </section>
 
@@ -257,8 +257,8 @@
     <section id="screen-favorite" class="screen" hidden>
       <div class="empty empty-tall">
         <div class="state-icon tone-caramel" aria-hidden="true"><svg width="30" height="30"><use href="#i-heart"/></svg></div>
-        <h3>Favorites are coming soon</h3>
-        <p>Soon you can save products you like and find them again fast.</p>
+        <h3 data-i18n="fav.title">Favorites are coming soon</h3>
+        <p data-i18n="fav.text">Soon you can save products you like and find them again fast.</p>
       </div>
     </section>
 
@@ -266,118 +266,118 @@
     <section id="screen-add" class="screen" hidden>
       <form id="add-form" autocomplete="off" novalidate>
         <div class="add-head">
-          <button id="add-back" class="icon-btn" type="button" aria-label="Back, nothing is saved">
+          <button id="add-back" class="icon-btn" type="button" aria-label="Back, nothing is saved" data-i18n-attr="aria-label:form.back">
             <svg width="24" height="24"><use href="#i-back"/></svg>
           </button>
-          <h2 id="add-title">Add a product</h2>
+          <h2 id="add-title" data-i18n="form.addTitle">Add a product</h2>
           <p class="timer" aria-live="off"><svg width="14" height="14" aria-hidden="true"><use href="#i-timer"/></svg><span id="add-timer" class="mono">0:00</span></p>
         </div>
-        <p class="hint">Barcode <span id="add-barcode" class="mono"></span>. The timer measures how long adding takes (the target is 3 minutes).</p>
+        <p class="hint"><span data-i18n="form.barcode">Barcode</span> <span id="add-barcode" class="mono"></span><span data-i18n="form.timerHint">. The timer measures how long adding takes (the target is 3 minutes).</span></p>
 
         <label class="photo-drop" for="label-photo-input">
           <svg width="22" height="22" aria-hidden="true"><use href="#i-photo"/></svg>
-          <span class="photo-drop-title">Add a photo of the nutrition label</span>
-          <span class="photo-drop-sub">Only shown here to read from. It isn’t uploaded or saved.</span>
+          <span class="photo-drop-title" data-i18n="form.photoTitle">Add a photo of the nutrition label</span>
+          <span class="photo-drop-sub" data-i18n="form.photoSub">Only shown here to read from. It isn’t uploaded or saved.</span>
         </label>
         <input id="label-photo-input" type="file" accept="image/*" hidden>
-        <img id="label-photo" class="label-photo" alt="Label photo" hidden>
+        <img id="label-photo" class="label-photo" alt="Label photo" data-i18n-attr="alt:form.photoAlt" hidden>
 
-        <label for="add-name">Product name <span class="req">(required)</span></label>
+        <label for="add-name"><span data-i18n="form.name">Product name</span> <span class="req" data-i18n="form.required">(required)</span></label>
         <input id="add-name" type="text" maxlength="200">
-        <p id="add-name-error" class="field-error" hidden>Please type the product name.</p>
+        <p id="add-name-error" class="field-error" hidden data-i18n="form.nameError">Please type the product name.</p>
 
         <div class="two">
           <div>
-            <label for="add-brand">Brand</label>
+            <label for="add-brand" data-i18n="form.brand">Brand</label>
             <input id="add-brand" type="text" maxlength="100">
           </div>
           <div>
-            <label for="add-quantity">Quantity</label>
-            <input id="add-quantity" type="text" maxlength="50" placeholder="e.g. 60 g">
+            <label for="add-quantity" data-i18n="form.quantity">Quantity</label>
+            <input id="add-quantity" type="text" maxlength="50" placeholder="e.g. 60 g" data-i18n-attr="placeholder:form.quantityPlaceholder">
           </div>
         </div>
 
         <fieldset class="basis">
-          <legend>The values on the label are</legend>
+          <legend data-i18n="form.basis">The values on the label are</legend>
           <div class="segmented">
-            <label class="choice"><input type="radio" name="basis" value="per serving" checked><span>Per serving</span></label>
-            <label class="choice"><input type="radio" name="basis" value="per 100 g"><span>Per 100 g</span></label>
-            <label class="choice"><input type="radio" name="basis" value="per 100 ml"><span>Per 100 ml</span></label>
+            <label class="choice"><input type="radio" name="basis" value="per serving" checked><span data-i18n="form.perServing">Per serving</span></label>
+            <label class="choice"><input type="radio" name="basis" value="per 100 g"><span data-i18n="form.per100g">Per 100 g</span></label>
+            <label class="choice"><input type="radio" name="basis" value="per 100 ml"><span data-i18n="form.per100ml">Per 100 ml</span></label>
           </div>
         </fieldset>
         <div id="serving-row">
-          <label for="add-serving">Serving size</label>
-          <input id="add-serving" type="text" maxlength="50" placeholder="e.g. 30 g">
+          <label for="add-serving" data-i18n="form.servingSize">Serving size</label>
+          <input id="add-serving" type="text" maxlength="50" placeholder="e.g. 30 g" data-i18n-attr="placeholder:form.servingPlaceholder">
         </div>
 
-        <h3>Nutrition facts</h3>
-        <p class="hint">Leave a box empty if the label doesn't show that value. Type 0 only if the label says 0.</p>
+        <h3 data-i18n="form.facts">Nutrition facts</h3>
+        <p class="hint" data-i18n="form.factsHint">Leave a box empty if the label doesn't show that value. Type 0 only if the label says 0.</p>
         <div id="add-nutrients" class="nutrient-grid"></div>
-        <p id="add-number-error" class="field-error" hidden>Some boxes have something that isn't a number. Please check the boxes marked in red.</p>
+        <p id="add-number-error" class="field-error" hidden data-i18n="form.numberError">Some boxes have something that isn't a number. Please check the boxes marked in red.</p>
 
-        <h3>Ingredients (optional)</h3>
-        <p class="hint">These let the app check for additives. Copy them from the pack if you have time. If not, the INS numbers alone are enough.</p>
-        <label for="add-ingredients">Ingredients list</label>
-        <textarea id="add-ingredients" rows="4" maxlength="5000" placeholder="e.g. Wheat flour, palm oil, salt, sugar"></textarea>
-        <label for="add-ins">INS or E numbers</label>
-        <input id="add-ins" type="text" maxlength="500" placeholder="e.g. 211, 621, E102">
-        <p class="hint">Type every number you see, with commas between them. Leave it empty if there are none.</p>
+        <h3 data-i18n="form.ingredientsHead">Ingredients (optional)</h3>
+        <p class="hint" data-i18n="form.ingredientsHint">These let the app check for additives. Copy them from the pack if you have time. If not, the INS numbers alone are enough.</p>
+        <label for="add-ingredients" data-i18n="form.ingredients">Ingredients list</label>
+        <textarea id="add-ingredients" rows="4" maxlength="5000" placeholder="e.g. Wheat flour, palm oil, salt, sugar" data-i18n-attr="placeholder:form.ingredientsPlaceholder"></textarea>
+        <label for="add-ins" data-i18n="form.ins">INS or E numbers</label>
+        <input id="add-ins" type="text" maxlength="500" placeholder="e.g. 211, 621, E102" data-i18n-attr="placeholder:form.insPlaceholder">
+        <p class="hint" data-i18n="form.insHint">Type every number you see, with commas between them. Leave it empty if there are none.</p>
 
-        <button class="btn btn-primary" type="submit">Save product</button>
-        <button id="add-cancel" class="btn btn-text" type="button">Cancel (nothing is saved)</button>
-        <p id="add-save-error" class="field-error" hidden>This phone couldn't save the entry. Its storage may be full or blocked (for example in a private window).</p>
+        <button class="btn btn-primary" type="submit" data-i18n="form.save">Save product</button>
+        <button id="add-cancel" class="btn btn-text" type="button" data-i18n="form.cancel">Cancel (nothing is saved)</button>
+        <p id="add-save-error" class="field-error" hidden data-i18n="form.saveError">This phone couldn't save the entry. Its storage may be full or blocked (for example in a private window).</p>
       </form>
     </section>
 
     <!-- Audit log (M2, testers, v0.2): summary against the pass marks, export, and the recent scans -->
     <section id="screen-audit" class="screen" hidden>
       <div class="add-head">
-        <button id="audit-back-top" class="icon-btn" type="button" aria-label="Back to scanning">
+        <button id="audit-back-top" class="icon-btn" type="button" aria-label="Back to scanning" data-i18n-attr="aria-label:log.back">
           <svg width="24" height="24"><use href="#i-back"/></svg>
         </button>
-        <h2>Audit log</h2>
+        <h2 data-i18n="log.title">Audit log</h2>
       </div>
       <div class="card">
-        <h3 class="first">Audit summary</h3>
-        <p id="audit-empty" class="meta" hidden>No scans recorded yet. Every barcode you look up is saved here, on this phone only.</p>
+        <h3 class="first" data-i18n="log.summary">Audit summary</h3>
+        <p id="audit-empty" class="meta" hidden data-i18n="log.empty">No scans recorded yet. Every barcode you look up is saved here, on this phone only.</p>
         <p id="audit-small" class="notice small" hidden></p>
         <div id="audit-marks"></div>
         <p id="audit-totals" class="meta"></p>
       </div>
 
       <div class="card">
-        <h3 class="first">Save the log</h3>
-        <p class="hint">The log is kept in this browser on this phone only. Export it after every store visit. iPhone Safari can delete a website's saved data if the site isn't opened for 7 days.</p>
-        <button id="export-button" class="btn btn-primary" type="button">Download CSV spreadsheet</button>
-        <button id="share-button" class="btn btn-secondary" type="button" hidden>Share CSV (Files, Mail, LINE…)</button>
+        <h3 class="first" data-i18n="log.saveHead">Save the log</h3>
+        <p class="hint" data-i18n="log.saveHint">The log is kept in this browser on this phone only. Export it after every store visit. iPhone Safari can delete a website's saved data if the site isn't opened for 7 days.</p>
+        <button id="export-button" class="btn btn-primary" type="button" data-i18n="log.download">Download CSV spreadsheet</button>
+        <button id="share-button" class="btn btn-secondary" type="button" hidden data-i18n="log.share">Share CSV (Files, Mail, LINE…)</button>
         <p id="export-status" class="small-status" hidden></p>
       </div>
 
       <div class="card">
-        <h3 class="first">Shared product database</h3>
+        <h3 class="first" data-i18n="log.sharedHead">Shared product database</h3>
         <p id="shared-status" class="hint"></p>
         <form id="passcode-form" hidden>
-          <label for="passcode-input">Contributor passcode</label>
+          <label for="passcode-input" data-i18n="log.passcode">Contributor passcode</label>
           <input id="passcode-input" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="100">
-          <button class="btn btn-secondary" type="submit">Save passcode</button>
+          <button class="btn btn-secondary" type="submit" data-i18n="log.savePasscode">Save passcode</button>
         </form>
         <p id="passcode-status" class="small-status" hidden></p>
-        <button id="passcode-forget" class="btn btn-secondary" type="button" hidden>Remove the passcode from this phone</button>
-        <button id="send-waiting" class="btn btn-primary" type="button" hidden>Send waiting products</button>
+        <button id="passcode-forget" class="btn btn-secondary" type="button" hidden data-i18n="log.forget">Remove the passcode from this phone</button>
+        <button id="send-waiting" class="btn btn-primary" type="button" hidden data-i18n="log.sendWaitingStatic">Send waiting products</button>
       </div>
 
       <div class="card">
-        <h3 class="first">Recent scans</h3>
+        <h3 class="first" data-i18n="log.recent">Recent scans</h3>
         <ol id="recent-list" class="recent"></ol>
-        <button id="clear-button" class="btn btn-text danger" type="button">Clear the log</button>
+        <button id="clear-button" class="btn btn-text danger" type="button" data-i18n="log.clear">Clear the log</button>
       </div>
 
-      <button id="audit-back" class="btn btn-primary" type="button">Back to scanning</button>
+      <button id="audit-back" class="btn btn-primary" type="button" data-i18n="log.back">Back to scanning</button>
     </section>
   </main>
 
   <footer class="foot">
-    <p>Product data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> and products our testers typed in from the pack. No accounts, no tracking. Your history and the audit log stay on this phone.</p>
+    <p data-i18n-html="foot.text">Product data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> and products our testers typed in from the pack. No accounts, no tracking. Your history and the audit log stay on this phone.</p>
   </footer>
 
   <!-- More menu (Figma M1): opens from the menu button on Scan. The Audit log lives here for testers. -->
@@ -385,60 +385,70 @@
     <div class="more-backdrop" data-close></div>
     <div class="more-sheet" role="dialog" aria-modal="true" aria-labelledby="more-title">
       <span class="grabber" aria-hidden="true"></span>
-      <h2 id="more-title">More</h2>
+      <h2 id="more-title" data-i18n="more.title">More</h2>
+      <!-- Language (26 Nov 2026): English or Thai, remembered on this phone. The small line is in the other
+           language, so someone who can't read the current one can still find it. -->
+      <div class="more-item more-lang">
+        <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-globe"/></svg></span>
+        <span class="more-text"><b id="lang-title" data-i18n="more.language">Language</b><small data-i18n="more.languageSub">ภาษา</small></span>
+        <div class="lang-switch" role="group" aria-labelledby="lang-title">
+          <button type="button" class="lang-btn" data-lang="en" lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="th" lang="th">ไทย</button>
+        </div>
+      </div>
       <details class="more-item">
         <summary>
           <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-gauge"/></svg></span>
-          <span class="more-text"><b>How the score works</b><small>Great, Good, OK, Poor and Bad</small></span>
+          <span class="more-text"><b data-i18n="more.scoreTitle">How the score works</b><small data-i18n="more.scoreSub">Great, Good, OK, Poor and Bad</small></span>
           <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
         </summary>
-        <p class="more-body">Every product starts at 100. Points come off for too much sugar, fat or salt and for additives of concern, and a few come back for protein and fibre.</p>
-        <p class="more-body">Great is 90 or more, Good is 75 or more, OK is 50 or more, Poor is 25 or more, and Bad is below 25.</p>
+        <p class="more-body" data-i18n="more.scoreBody1">Every product starts at 100. Points come off for too much sugar, fat or salt and for additives of concern, and a few come back for protein and fibre.</p>
+        <p class="more-body" data-i18n="more.scoreBody2">Great is 90 or more, Good is 75 or more, OK is 50 or more, Poor is 25 or more, and Bad is below 25.</p>
       </details>
       <details class="more-item">
         <summary>
           <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-database"/></svg></span>
-          <span class="more-text"><b>Where our data comes from</b><small>Open Food Facts and labels we check</small></span>
+          <span class="more-text"><b data-i18n="more.dataTitle">Where our data comes from</b><small data-i18n="more.dataSub">Open Food Facts and labels we check</small></span>
           <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
         </summary>
-        <p class="more-body">Products come from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>, a free open database (ODbL), and from labels our testers type in from the pack. A missing value says Not available. We never guess.</p>
+        <p class="more-body" data-i18n-html="more.dataBody">Products come from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>, a free open database (ODbL), and from labels our testers type in from the pack. A missing value says Not available. We never guess.</p>
       </details>
       <details class="more-item">
         <summary>
           <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-info"/></svg></span>
-          <span class="more-text"><b>About Bettr</b><small>What this app is</small></span>
+          <span class="more-text"><b data-i18n="more.aboutTitle">About Bettr</b><small data-i18n="more.aboutSub">What this app is</small></span>
           <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
         </summary>
-        <p class="more-body">Bettr helps you see what is in packaged food at 7-Eleven Thailand. It is an early prototype, with no accounts and no tracking. Your history stays on this phone.</p>
+        <p class="more-body" data-i18n="more.aboutBody">Bettr helps you see what is in packaged food at 7-Eleven Thailand. It is an early prototype, with no accounts and no tracking. Your history stays on this phone.</p>
       </details>
-      <p class="more-caption">For testers</p>
+      <p class="more-caption" data-i18n="more.testers">For testers</p>
       <button id="audit-link" class="more-item more-link" type="button">
         <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-clipboard"/></svg></span>
-        <span class="more-text"><b>Audit log</b><small>Scans, pass marks, CSV</small></span>
+        <span class="more-text"><b data-i18n="more.auditTitle">Audit log</b><small data-i18n="more.auditSub">Scans, pass marks, CSV</small></span>
         <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
       </button>
-      <p class="more-foot">Bettr prototype v0.5</p>
+      <p class="more-foot" data-i18n="more.foot">Bettr prototype v0.5</p>
     </div>
   </div>
 
   <!-- Bottom navigation (Figma tab bar): History, Scan, Favorite -->
-  <nav id="tabbar" class="tabbar" aria-label="Main">
+  <nav id="tabbar" class="tabbar" aria-label="Main" data-i18n-attr="aria-label:nav.main">
     <button class="tab" type="button" data-tab="history">
       <svg width="24" height="24" aria-hidden="true"><use href="#i-clock"/></svg>
-      <span>History</span>
+      <span data-i18n="tab.history">History</span>
     </button>
     <button class="tab tab-scan" type="button" data-tab="scan">
       <span class="scan-disc"><svg width="26" height="26" aria-hidden="true"><use href="#i-scan"/></svg></span>
-      <span>Scan</span>
+      <span data-i18n="tab.scan">Scan</span>
     </button>
     <button class="tab" type="button" data-tab="favorite">
       <svg width="24" height="24" aria-hidden="true"><use href="#i-heart"/></svg>
-      <span>Favorite</span>
+      <span data-i18n="tab.favorite">Favorite</span>
     </button>
   </nav>
 
   <!-- Barcode reader for phones without a built-in one (e.g. iPhone). MIT licence, see vendor/LICENSES.txt -->
   <script src="vendor/barcode-detector-ponyfill.js"></script>
-  <script type="module" src="app.js?v=r8"></script>
+  <script type="module" src="app.js?v=r9"></script>
 </body>
 </html>

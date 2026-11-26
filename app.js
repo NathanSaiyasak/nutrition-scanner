@@ -1,15 +1,19 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r8';
-import { startScanner, scanPhoto } from './scanner.js?v=r8';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r8';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r8';
-import { renderAudit } from './audit-screen.js?v=r8';
-import { buildView, servingText } from './nutrition-view.js?v=r8';
-import { computeScore, SCORE_TEXT } from './score.js?v=r8';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r8';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r8';
+import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r9';
+import { startScanner, scanPhoto } from './scanner.js?v=r9';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r9';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r9';
+import { renderAudit } from './audit-screen.js?v=r9';
+import { buildView, servingText } from './nutrition-view.js?v=r9';
+import { computeScore, SCORE_TEXT } from './score.js?v=r9';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r9';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r9';
+import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r9';
+
+// Fill the page's fixed text in the chosen language (English or Thai) before anything is shown.
+applyStatic();
 
 const $ = (id) => document.getElementById(id);
 const SCREENS = ['screen-start', 'screen-loading', 'screen-product', 'screen-message',
@@ -63,18 +67,8 @@ function dropAutoTry() {
   attempt.autoTry = false;
 }
 
-const CAMERA_ERRORS = {
-  denied: ['Camera access is blocked',
-    'Allow the camera in your browser settings, then tap the camera box. Or type the barcode or use a photo.'],
-  'no-camera': ['No camera found',
-    "This browser can't use a camera here. Type the barcode or use a photo instead."],
-  'in-use': ['Camera is busy',
-    'Another app may be using it. Close that app and try again, or type the barcode.'],
-  insecure: ['Camera needs a secure link',
-    'Browsers only allow the camera on https:// pages. Open the hosted link, or type the barcode.'],
-  unknown: ["Couldn't start the camera",
-    'Try again, or type the barcode.'],
-};
+// Camera problems: the key of each title and text in strings.js (camera.<key>.title / .text).
+const CAMERA_ERRORS = { denied: 'denied', 'no-camera': 'none', 'in-use': 'busy', insecure: 'insecure', unknown: 'unknown' };
 
 function startCamera(ignore = null, auto = false) {
   stopCamera();
@@ -99,9 +93,9 @@ function startCamera(ignore = null, auto = false) {
       stopCamera();
       dropAutoTry();
       cameraFailed = true; // don't keep retrying by itself; the person can tap to try again
-      const [title, text] = CAMERA_ERRORS[kind] || CAMERA_ERRORS.unknown;
-      $('camera-error-title').textContent = title;
-      $('camera-error-text').textContent = text;
+      const key = CAMERA_ERRORS[kind] || CAMERA_ERRORS.unknown;
+      $('camera-error-title').textContent = t(`camera.${key}.title`);
+      $('camera-error-text').textContent = t(`camera.${key}.text`);
       $('camera-error').hidden = false;
     },
   });
@@ -136,7 +130,7 @@ function setTapButton(state) {
   const button = $('scan-button');
   button.hidden = state === 'live';
   button.dataset.state = state;
-  $('scan-button-text').textContent = state === 'starting' ? 'Starting camera…' : 'Tap to start the camera';
+  $('scan-button-text').textContent = t(state === 'starting' ? 'scan.starting' : 'scan.tap');
   clearTimeout(stallTimer);
   clearInterval(liveCheck);
   if (state === 'tap' && !stopScanner) return;
@@ -204,7 +198,7 @@ $('photo-input').addEventListener('change', async (event) => {
   dropAutoTry();
   attempt.tries += 1;
   const status = $('photo-status');
-  status.textContent = 'Reading the barcode in your photo…';
+  status.textContent = t('scan.readingPhoto');
   status.hidden = false;
   let barcode = null;
   try {
@@ -216,7 +210,7 @@ $('photo-input').addEventListener('change', async (event) => {
     status.hidden = true;
     handleBarcode(barcode, { method: 'photo' });
   } else {
-    status.textContent = "Couldn't find a barcode in that photo. Try a closer, sharper photo with the whole barcode in view, or type the number below.";
+    status.textContent = t('scan.noBarcodeInPhoto');
   }
 });
 $('stop-button').addEventListener('click', stopCamera);
@@ -234,7 +228,7 @@ function setTyping(on) {
   $('manual-form').hidden = !on;
   $('fallbacks').hidden = on;
   $('type-close').hidden = !on;
-  $('sheet-title').textContent = on ? 'Type the barcode' : 'Can’t scan it?';
+  $('sheet-title').textContent = t(on ? 'scan.typeTitle' : 'scan.cantScan');
   if (!on) $('manual-error').hidden = true;
 }
 $('type-toggle').addEventListener('click', () => {
@@ -250,7 +244,7 @@ $('manual-form').addEventListener('submit', (event) => {
 
   // EAN-8 has 8 digits, UPC-A 12, EAN-13 13, GTIN-14 14.
   if (![8, 12, 13, 14].includes(barcode.length)) {
-    error.textContent = 'A barcode number has 8, 12 or 13 digits. Please check and try again.';
+    error.textContent = t('scan.badLength');
     error.hidden = false;
     return;
   }
@@ -313,23 +307,19 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
       updateProductAdd();
       break;
     case 'not-found':
-      showMessage('We don’t have this product yet',
-        "This barcode isn't in our database yet. You can add it from the nutrition label on the pack.", barcode);
+      showMessage(t('msg.notFound.title'), t('msg.notFound.text'), barcode);
       $('message-add').hidden = !canAdd;
       break;
     case 'timeout':
-      showMessage('This is taking too long',
-        'The connection is slow right now. Please try again in a moment.', barcode, false, 'error');
+      showMessage(t('msg.timeout.title'), t('msg.timeout.text'), barcode, false, 'error');
       $('message-retry').hidden = false;
       break;
     case 'busy':
-      showMessage('Too many lookups right now',
-        'The product database is busy. Wait a minute, then try again.', barcode, false, 'error');
+      showMessage(t('msg.busy.title'), t('msg.busy.text'), barcode, false, 'error');
       $('message-retry').hidden = false;
       break;
     default:
-      showMessage('No internet connection',
-        'Check your mobile data or wifi, then try again.', barcode, false, 'error');
+      showMessage(t('msg.network.title'), t('msg.network.text'), barcode, false, 'error');
       $('message-retry').hidden = false;
   }
 }
@@ -337,8 +327,8 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
 function showSavedNote(entry) {
   for (const el of document.querySelectorAll('.saved-note')) {
     el.textContent = entry === null
-      ? "Couldn't save this scan to the audit log. This phone's storage may be full or blocked (for example in a private window)."
-      : `Saved to audit log (#${entry}).`;
+      ? t('audit.savedNoteError')
+      : t('audit.savedNote', { n: entry });
     el.classList.toggle('field-error', entry === null);
     el.hidden = false;
   }
@@ -352,7 +342,7 @@ export function showMessage(title, text, barcode, done = false, kind = done ? 'd
   $('screen-message').dataset.kind = kind;
   $('message-title').textContent = title;
   $('message-text').textContent = text;
-  $('message-barcode').textContent = barcode ? `Barcode ${barcode}` : '';
+  $('message-barcode').textContent = barcode ? t('common.barcode', { code: barcode }) : '';
   show('screen-message');
 }
 
@@ -364,7 +354,7 @@ function renderProduct(p) {
   const brand = p.brands ? p.brands.split(',')[0].trim() : '';
   $('product-brand').textContent = brand;
   $('product-brand').hidden = !brand;
-  $('product-barcode').textContent = `Barcode ${p.barcode}`;
+  $('product-barcode').textContent = t('common.barcode', { code: p.barcode });
   renderSource(p);
 
   // The photo fills the whole frame; the grey placeholder only shows when there is no photo or it
@@ -383,7 +373,7 @@ function renderProduct(p) {
       img.hidden = true;
       placeholder.toggleAttribute('hidden', false);
     };
-    img.alt = `Photo of ${p.name}`;
+    img.alt = t('result.photoOf', { name: p.name });
     img.hidden = false;
     img.src = src;
   } else {
@@ -413,18 +403,18 @@ function renderSource(p) {
   if (p.offUrl) $('off-link').href = p.offUrl;
   if (!ours) return;
   const when = p.addedAt && !Number.isNaN(new Date(p.addedAt).getTime())
-    ? ` on ${dateFormat.format(new Date(p.addedAt))} ${new Date(p.addedAt).getFullYear()}` : '';
+    ? t('attr.when', { date: dateYearFormat.format(new Date(p.addedAt)) }) : '';
   const box = $('source-ours');
   box.replaceChildren(p.source === 'shared'
-    ? `Nutrition facts typed in from the pack by Bettr testers${when}.`
-    : `Nutrition facts typed in from the pack on this phone${when} (not in the shared database yet).`);
+    ? t('attr.shared', { when })
+    : t('attr.phone', { when }));
   if (p.photoFromOff && p.offUrl) {
     const a = document.createElement('a');
     a.href = p.offUrl;
     a.target = '_blank';
     a.rel = 'noopener';
     a.textContent = 'Open Food Facts';
-    box.append(' Photo from ', a, ' (ODbL).');
+    box.append(t('attr.photoFrom'), a, t('attr.photoAfter'));
   }
 }
 
@@ -450,9 +440,9 @@ function renderScore(result, view) {
   ring.dataset.tone = result.tone;
   ring.dataset.rating = ratingOf(result); // one of the five Bettr score colours
   ring.setAttribute('role', 'img');
-  ring.setAttribute('aria-label', `Score ${result.score} out of 100, ${result.verdict}`);
+  ring.setAttribute('aria-label', t('score.aria', { score: result.score, verdict: t(`rating.${result.verdict}`) }));
   const verdict = $('verdict');
-  verdict.textContent = result.verdict;
+  verdict.textContent = t(`rating.${result.verdict}`);
   verdict.dataset.tone = result.tone;
   verdict.dataset.rating = ratingOf(result);
   $('score-number').textContent = String(result.score);
@@ -472,7 +462,7 @@ function ratingOf(result) { return result.verdict.toLowerCase(); }
 // Calories, protein and fibre at a glance, with the same icons and amounts as the Nutrition Facts list.
 // Only the ones with a value are shown, and no stats at all when none has one (Nathan, 24 Nov 2026);
 // missing values are listed under "Not Available" further down.
-const QUICK = [['energy', 'Calories'], ['protein', 'Protein'], ['fibre', 'Fibre']];
+const QUICK = [['energy', t('nut.energy')], ['protein', t('nut.protein')], ['fibre', t('nut.fibre')]];
 function renderQuickStats(view) {
   const list = $('quick-stats');
   list.replaceChildren();
@@ -504,7 +494,7 @@ function renderGroups(view) {
       const card = el('div', 'missing-card');
       card.append(el('p', 'missing-names', group.items.map((i) => i.name).join(', ')));
       const notes = [...new Set(group.items.map((i) => i.note).filter(Boolean))];
-      card.append(el('p', 'missing-note', `${notes.join('. ')}. We never guess.`));
+      card.append(el('p', 'missing-note', t('result.missingNote', { notes: notes.join(t('common.sentenceGap')) })));
       section.append(head, card);
       box.append(section);
       return;
@@ -527,7 +517,7 @@ function renderGroups(view) {
       if (isFacts && item.mark === 'tick') {
         dot.classList.add('nicon-tick');
         dot.setAttribute('role', 'img');
-        dot.setAttribute('aria-label', 'Good point');
+        dot.setAttribute('aria-label', t('result.goodPoint'));
       } else {
         dot.setAttribute('aria-hidden', 'true');
       }
@@ -591,7 +581,7 @@ function renderNutrition(p) {
   const note = $('completeness');
   const ours = p.source === 'shared' || p.source === 'phone';
   note.textContent = missing > 0
-    ? `${missing} of ${total} key values missing from ${ours ? 'the values typed in from the label' : 'Open Food Facts'}.`
+    ? t('audit.completeness', { missing, total, from: ours ? t('audit.fromLabel') : 'Open Food Facts' })
     : '';
   note.hidden = missing === 0;
 
@@ -607,7 +597,7 @@ function renderNutrition(p) {
   for (const row of p.rows) {
     const tr = document.createElement('tr');
     const name = document.createElement('td');
-    name.textContent = row.label;
+    name.textContent = t(`label.${row.key === 'fiber' ? 'fibre' : row.key === 'proteins' ? 'protein' : row.key === 'energy-kcal' ? 'energy' : row.key}`);
     if (row.sub) name.className = 'sub';
     tr.append(name);
     if (show100) tr.append(valueCell(row.per100, row.unit, row.lessThan));
@@ -619,7 +609,7 @@ function renderNutrition(p) {
 function valueCell(value, unit, lessThan = false) {
   const td = document.createElement('td');
   if (value === null) {
-    td.textContent = 'Not available';
+    td.textContent = t('common.notAvailable');
     td.className = 'na';
   } else {
     td.textContent = `${lessThan ? '<' : ''}${formatNumber(value, unit)} ${unit}`;
@@ -655,9 +645,9 @@ function saveLabelCheck() {
   const status = $('label-check-status');
   status.textContent = ok
     ? (labelCheck === 'differs'
-      ? 'Saved. This product won\'t count as covered unless you type in the label\'s values below.'
-      : 'Saved to the audit log.')
-    : "Couldn't save this to the audit log.";
+      ? t('audit.savedDiffers')
+      : t('audit.saved'))
+    : t('audit.notSaved');
   status.classList.toggle('field-error', !ok);
   status.hidden = false;
 }
@@ -681,8 +671,8 @@ function updateProductAdd() {
   // A product found with no nutrition facts at all gets a button the shopper can see (outside Store audit).
   $('no-nutrition-add').hidden = currentEntry === null || !p || p.hasNutrition;
   $('product-add').textContent = labelCheck === 'differs'
-    ? 'Correct the values from the label (timed)'
-    : 'Add the nutrition facts from the label (timed)';
+    ? t('audit.correctTimed')
+    : t('audit.addTimed');
 }
 
 // ---------- v0.2: timed add form and audit screen ----------
@@ -697,12 +687,12 @@ function startAdd(mode) {
       const m = Math.floor(seconds / 60);
       const s = String(seconds % 60).padStart(2, '0');
       const barcode = lastBarcode;
-      showMessage(mode === 'correction' ? 'Values saved' : 'Product added',
-        `Saved to the audit log (#${currentEntry}). It took ${m}:${s}.`, barcode, true);
+      showMessage(t(mode === 'correction' ? 'msg.valuesSaved' : 'msg.productAdded'),
+        t('msg.took', { n: currentEntry, time: `${m}:${s}` }), barcode, true);
       for (const el of document.querySelectorAll('.saved-note')) el.hidden = true;
-      shareNote('Saving the product…');
+      shareNote(t('msg.saving'));
       keepAddedProduct(barcode, added).then((r) => {
-        if ($('screen-message').hidden || $('message-barcode').textContent !== `Barcode ${barcode}`) return;
+        if ($('screen-message').hidden || $('message-barcode').textContent !== t('common.barcode', { code: barcode })) return;
         shareNote(SHARE_TEXT[r.status === 'shared' ? 'shared' : r.status === 'not-saved' ? 'not-saved' : r.reason]
           || SHARE_TEXT.offline, r.status === 'shared');
       });
@@ -713,12 +703,12 @@ function startAdd(mode) {
 }
 // What happened to a product typed in from the label (shown under "Product added").
 const SHARE_TEXT = {
-  shared: 'Added to the shared database. Anyone who scans this barcode now sees these values.',
-  'not-set-up': 'Saved on this phone. Scanning this barcode here shows these values. The shared database isn’t set up yet.',
-  'no-passcode': 'Saved on this phone only. To share it with everyone, enter the contributor passcode on the Audit log screen and it is sent then.',
-  'wrong-passcode': 'Saved on this phone only, because the contributor passcode was refused. Enter it again on the Audit log screen and it is sent then.',
-  offline: 'Saved on this phone only, because the shared database couldn’t be reached. It is sent automatically next time the app opens with internet.',
-  'not-saved': 'This phone couldn’t keep a copy of the product (storage full or blocked). It is still in the audit log.',
+  shared: t('share.shared'),
+  'not-set-up': t('share.notSetUp'),
+  'no-passcode': t('share.noPasscode'),
+  'wrong-passcode': t('share.wrongPasscode'),
+  offline: t('share.offline'),
+  'not-saved': t('share.notSaved'),
 };
 function shareNote(text, ok = false) {
   const note = $('message-share');
@@ -744,6 +734,12 @@ function closeMore() {
   for (const d of $('more').querySelectorAll('details')) d.open = false;
 }
 $('more-button').addEventListener('click', openMore);
+
+// Language: EN | ไทย. The current one is pressed; picking the other reloads the app in that language.
+for (const button of document.querySelectorAll('.lang-btn')) {
+  button.setAttribute('aria-pressed', String(button.dataset.lang === lang));
+  button.addEventListener('click', () => setLang(button.dataset.lang));
+}
 $('more').querySelector('[data-close]').addEventListener('click', closeMore);
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !$('more').hidden) closeMore(); });
 
@@ -796,16 +792,18 @@ for (const button of document.querySelectorAll('.tab')) {
 }
 
 // ---------- History ----------
-const dateFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
-const timeFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
+// Thai dates use Thai month names and the Thai year (e.g. 26 พ.ย. 2569).
+const dateFormat = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' });
+const dateYearFormat = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+const timeFormat = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' });
 // The day heading over each group of the list (Bettr Figma H1): Today, Yesterday, or the date.
 function dayText(iso) {
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return 'Earlier';
+  if (Number.isNaN(d.getTime())) return t('history.earlier');
   const today = new Date();
   const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-  if (d.toDateString() === today.toDateString()) return 'Today';
-  if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  if (d.toDateString() === today.toDateString()) return t('history.today');
+  if (d.toDateString() === yesterday.toDateString()) return t('history.yesterday');
   return dateFormat.format(d);
 }
 
@@ -854,8 +852,8 @@ function renderHistory() {
     if (score && !score.missing) {
       const badge = el('span', 'history-score');
       badge.dataset.rating = ratingOf(score);
-      badge.setAttribute('aria-label', `Score ${score.score}, ${score.verdict}`);
-      badge.append(el('b', '', String(score.score)), el('small', '', score.verdict));
+      badge.setAttribute('aria-label', t('history.badge', { score: score.score, verdict: t(`rating.${score.verdict}`) }));
+      badge.append(el('b', '', String(score.score)), el('small', '', t(`rating.${score.verdict}`)));
       button.append(badge);
     }
     button.addEventListener('click', () => openFromHistory(p));
@@ -881,7 +879,7 @@ function openFromHistory(p) {
 
 $('history-scan').addEventListener('click', goToScan);
 $('history-clear').addEventListener('click', () => {
-  if (!window.confirm('Clear your scan history on this phone? The audit log is kept.')) return;
+  if (!window.confirm(t('history.clearConfirm'))) return;
   clearHistory();
   renderHistory();
 });

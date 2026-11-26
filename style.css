@@ -478,6 +478,14 @@ body:is([data-screen="screen-start"], [data-screen="screen-product"], [data-scre
 .more-caption { margin: 14px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 11px; line-height: 14px; font-weight: 700; color: var(--faint); text-transform: uppercase; letter-spacing: 0.04em; }
 .more-link { border-bottom: 0; }
 .more-foot { margin: 8px 0 0; font-size: 13px; color: var(--faint); }
+/* Language switch (26 Nov 2026): EN | ไทย, the same look as the add form's segmented choice. */
+.more-lang { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.lang-switch { display: flex; gap: 2px; padding: 3px; border-radius: 12px; background: var(--sunken); flex-shrink: 0; }
+.lang-btn { min-width: 52px; padding: 7px 10px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font: inherit; font-size: 14px; line-height: 18px; font-weight: 700; cursor: pointer; }
+.lang-btn[aria-pressed="true"] { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(77, 51, 26, 0.12); }
+.lang-btn:focus-visible { outline: 2px solid var(--caramel); outline-offset: 1px; }
+/* Thai: no letter spacing (it can pull tone marks away from their letters on some phones). */
+:lang(th) .more-caption, :lang(th) .history-day { letter-spacing: 0; }
 body:has(#more:not([hidden])) { overflow: hidden; }
 
 /* ---------- Add a product (Figma F1) ---------- */
@@ -593,7 +601,7 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 40px - var(--tabbar-
   width: 38px; height: 38px; border-radius: 50%; border: 2.5px solid var(--rate); display: flex; align-items: center; justify-content: center;
   font-size: 14px; font-weight: 800; color: var(--text); background: color-mix(in srgb, var(--rate) 8%, #fff);
 }
-.history-score small { font-size: 11px; line-height: 14px; font-weight: 700; color: var(--rate); color: color-mix(in srgb, var(--rate) 82%, #000); }
+.history-score small { white-space: nowrap; font-size: 11px; line-height: 14px; font-weight: 700; color: var(--rate); color: color-mix(in srgb, var(--rate) 82%, #000); }
 #history-clear { margin-top: 14px; }
 
 /* Shared product database (v0.4) */
