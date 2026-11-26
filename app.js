@@ -1,17 +1,17 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r11';
-import { startScanner, scanPhoto } from './scanner.js?v=r11';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r11';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r11';
-import { renderAudit } from './audit-screen.js?v=r11';
-import { buildView, servingText } from './nutrition-view.js?v=r11';
-import { computeScore, SCORE_TEXT } from './score.js?v=r11';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r11';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r11';
-import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r11';
-import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r11';
+import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r12';
+import { startScanner, scanPhoto } from './scanner.js?v=r12';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r12';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r12';
+import { renderAudit } from './audit-screen.js?v=r12';
+import { buildView, servingText } from './nutrition-view.js?v=r12';
+import { computeScore, SCORE_TEXT } from './score.js?v=r12';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r12';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r12';
+import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r12';
+import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r12';
 
 // Fill the page's fixed text in the chosen language (English or Thai) before anything is shown.
 applyStatic();

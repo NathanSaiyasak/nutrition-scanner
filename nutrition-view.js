@@ -2,8 +2,8 @@
 // Turns a product from lookup.js into the shopper view: Watch out / Good points / Nutrition facts / Not available.
 // Rules and thresholds: docs/prototype-v0.3-spec.md and docs/prototype-v0.5-spec.md.
 // Never invents a value: a missing number goes in "Not available".
-import { extraRows, nutType } from './additives.js?v=r11';
-import { t, lang } from './i18n.js?v=r11';
+import { extraRows, nutType } from './additives.js?v=r12';
+import { t, lang } from './i18n.js?v=r12';
 
 // Thai daily guide amounts, used for the "% of a day" bars.
 const DAILY = { energy: 2000, sugars: 65, fat: 65, satfat: 20, sodium: 2000, protein: 50, fibre: 25, carbs: 300 };
