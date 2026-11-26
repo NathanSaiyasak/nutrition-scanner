@@ -155,6 +155,9 @@ button:focus-visible, .btn:focus-visible, summary:focus-visible { outline: 2px s
   background: rgba(255, 255, 255, 0.16); border: 1px solid rgba(255, 255, 255, 0.35);
 }
 .scan-start[data-state="starting"] .scan-start-text { opacity: 0.75; }
+.scan-start { flex-direction: column; gap: 10px; }
+/* Why the camera is needed, visible while the phone asks for permission (UX review item 6) */
+.scan-why { font-size: 13px; line-height: 18px; color: rgba(255, 255, 255, 0.85); max-width: 230px; }
 /* Full-screen camera (Nathan, 24 Nov 2026): the live picture fills the whole screen behind the scan
    screen, with a soft dark gradient at the top and bottom so the title and buttons stay readable.
    The reader looks at the whole picture; the frame is a guide for aiming. */
@@ -421,6 +424,9 @@ summary.fact-head:focus-visible { outline-offset: 4px; border-radius: 8px; }
 .info-card p { margin: 0 0 14px; font-size: 13px; line-height: 18px; color: var(--muted); }
 
 .attribution { font-size: 13px; line-height: 18px; color: var(--faint); margin: 8px 0 4px; }
+/* One idea per line: source, daily guide, trust the pack (UX review item 17) */
+.attribution > span:not([hidden]) { display: block; margin-bottom: 4px; }
+.attribution a { display: inline-block; padding: 4px 0; margin: -4px 0; }
 .dev-note { font-size: 11px; color: var(--faint); margin: 14px 0 0; text-align: center; }
 
 .audit-box { background: var(--card); border: 1px dashed var(--line); border-radius: 16px; padding: 4px 16px; margin-top: 8px; }
@@ -439,6 +445,8 @@ table.nutrition { width: 100%; border-collapse: collapse; font-size: 13px; margi
 .message h2 { margin: 0 0 8px; font-size: 24px; line-height: 30px; font-weight: 800; }
 .message p { color: var(--muted); margin: 0 0 8px; }
 .message .mono { font-size: 13px; }
+.add-hint { margin: 10px 0 14px; }
+#message-add[hidden] + .add-hint { display: none; }
 .state-icon .mi { display: none; }
 #screen-message[data-kind="notfound"] .mi-notfound,
 #screen-message[data-kind="error"] .mi-error,
@@ -491,9 +499,6 @@ body:has(#more:not([hidden])) { overflow: hidden; }
 /* ---------- Add a product (Figma F1) ---------- */
 .add-head { display: flex; align-items: center; gap: 4px; margin: 0 0 8px; }
 .add-head h2 { margin: 0; flex: 1; font-size: 18px; line-height: 24px; }
-.timer { margin: 0; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 99px; background: var(--sunken); color: var(--coffee); font-size: 13px; font-weight: 700; }
-.timer svg { display: block; }
-.timer .over { color: var(--error); }
 #add-form label { margin-bottom: 6px; font-size: 13px; line-height: 18px; color: var(--muted); }
 #add-form input[type="text"] { display: block; width: 100%; letter-spacing: normal; margin-bottom: 14px; }
 #add-form textarea { display: block; width: 100%; margin-bottom: 14px; resize: vertical; }
@@ -513,7 +518,7 @@ body:has(#more:not([hidden])) { overflow: hidden; }
 .segmented { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--sunken); }
 #add-form .segmented .choice { flex: 1; margin: 0; position: relative; color: var(--text); font-weight: 700; }
 .segmented input { position: absolute; opacity: 0; pointer-events: none; }
-.segmented span { display: block; text-align: center; padding: 9px 4px; border-radius: 10px; font-size: 13px; cursor: pointer; }
+.segmented span { display: block; text-align: center; padding: 12px 4px; border-radius: 10px; font-size: 14px; line-height: 20px; cursor: pointer; } /* 44 px tall (UX item 11) */
 .segmented input:checked + span { background: var(--card); box-shadow: 0 1px 3px rgba(77, 51, 26, 0.12); }
 .segmented input:focus-visible + span { outline: 2px solid var(--caramel); }
 .nutrient-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
@@ -692,3 +697,5 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 40px - var(--tabbar-
   .quick-stats { gap: 10px; }
   .quick-value { font-size: 13px; }
 }
+a.more-link { color: var(--text); text-decoration: none; }
+.more-item + a.more-link { border-top: 1px solid var(--line); }

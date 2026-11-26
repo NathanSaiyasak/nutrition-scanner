@@ -1,17 +1,17 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r11';
-import { startScanner, scanPhoto } from './scanner.js?v=r11';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r11';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r11';
-import { renderAudit } from './audit-screen.js?v=r11';
-import { buildView, servingText } from './nutrition-view.js?v=r11';
-import { computeScore, SCORE_TEXT } from './score.js?v=r11';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r11';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r11';
-import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r11';
-import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r11';
+import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r12';
+import { startScanner, scanPhoto } from './scanner.js?v=r12';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r12';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r12';
+import { renderAudit } from './audit-screen.js?v=r12';
+import { buildView, servingText } from './nutrition-view.js?v=r12';
+import { computeScore, SCORE_TEXT } from './score.js?v=r12';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r12';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r12';
+import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r12';
+import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r12';
 
 // Fill the page's fixed text in the chosen language (English or Thai) before anything is shown.
 applyStatic();
@@ -72,6 +72,15 @@ function dropAutoTry() {
 // Camera problems: the key of each title and text in strings.js (camera.<key>.title / .text).
 const CAMERA_ERRORS = { denied: 'denied', 'no-camera': 'none', 'in-use': 'busy', insecure: 'insecure', unknown: 'unknown' };
 
+// Steps to allow the camera again, in the words of this phone's browser (UX review item 6).
+// iPhone Safari: the aA menu. Other iPhone browsers: the iPhone Settings app. Everything else: the lock icon.
+function deniedTextKey() {
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (!ios) return 'camera.denied.text';
+  return /CriOS|FxiOS|EdgiOS|OPiOS|Line\//.test(ua) ? 'camera.denied.textIosApp' : 'camera.denied.textSafari';
+}
+
 function startCamera(ignore = null, auto = false) {
   stopCamera();
   if (!auto) attempt.autoTry = false; // a tap to start again is a real retry
@@ -97,7 +106,7 @@ function startCamera(ignore = null, auto = false) {
       cameraFailed = true; // don't keep retrying by itself; the person can tap to try again
       const key = CAMERA_ERRORS[kind] || CAMERA_ERRORS.unknown;
       $('camera-error-title').textContent = t(`camera.${key}.title`);
-      $('camera-error-text').textContent = t(`camera.${key}.text`);
+      $('camera-error-text').textContent = t(key === 'denied' ? deniedTextKey() : `camera.${key}.text`);
       $('camera-error').hidden = false;
     },
   });
@@ -342,7 +351,7 @@ function showSavedNote(entry) {
 // kind picks the icon: 'notfound' (a box), 'error' (no connection) or 'done' (a tick).
 export function showMessage(title, text, barcode, done = false, kind = done ? 'done' : 'notfound') {
   $('message-share').hidden = true;
-  if (done) $('message-retry').hidden = true;
+  if (done) { $('message-retry').hidden = true; $('message-add').hidden = true; } // nothing left to add once saved
   $('screen-message').dataset.done = String(done);
   $('screen-message').dataset.kind = kind;
   $('message-title').textContent = title;
@@ -691,11 +700,9 @@ function startAdd(mode) {
     mode,
     name: mode === 'correction' && currentProduct ? currentProduct.name : '',
     onDone: (seconds, added) => {
-      const m = Math.floor(seconds / 60);
-      const s = String(seconds % 60).padStart(2, '0');
       const barcode = lastBarcode;
       showMessage(t(mode === 'correction' ? 'msg.valuesSaved' : 'msg.productAdded'),
-        t('msg.took', { n: currentEntry, time: `${m}:${s}` }), barcode, true);
+        t('msg.thanks'), barcode, true); // the time is kept in the Audit log, not shown to shoppers
       for (const el of document.querySelectorAll('.saved-note')) el.hidden = true;
       shareNote(t('msg.saving'));
       keepAddedProduct(barcode, added).then((r) => {
@@ -872,6 +879,9 @@ function productRow(item, onOpen, options = {}) {
     badge.setAttribute('aria-label', t('history.badge', { score: score.score, verdict: t(`rating.${score.verdict}`) }));
     badge.append(el('b', '', String(score.score)), el('small', '', t(`rating.${score.verdict}`)));
     button.append(badge);
+  } else {
+    // No score: say why in the meta line, so the row doesn't look broken (UX review item 14).
+    text.append(el('span', 'history-meta history-noscore', t(p.hasNutrition ? 'history.noScore' : 'history.noFacts')));
   }
   button.addEventListener('click', onOpen);
   li.append(button);

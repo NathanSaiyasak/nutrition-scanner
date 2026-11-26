@@ -1,8 +1,9 @@
 // add-form.js — the v0.2 timed form for typing in a product that Open Food Facts doesn't have.
-// app.js shows the screen after calling openAddForm. The timer measures the "manual add in 3 minutes or less" pass mark. Values are stored exactly
+// app.js shows the screen after calling openAddForm. A hidden timer measures the "manual add in 3 minutes or less" pass mark
+// (shown in the Audit log, not on the form: UX review item 10, 26 Nov 2026). Values are stored exactly
 // as typed: a blank box stays blank (not on the label), never 0.
-import { ADD_FIELDS, attachAddedProduct } from './audit.js?v=r11';
-import { t } from './i18n.js?v=r11';
+import { ADD_FIELDS, attachAddedProduct } from './audit.js?v=r12';
+import { t } from './i18n.js?v=r12';
 
 // Add-form field key → label text key in strings.js.
 const LABEL_KEY = {
@@ -12,14 +13,18 @@ const LABEL_KEY = {
 
 const $ = (id) => document.getElementById(id);
 
-let timer = null;
 let startedAt = 0;
 let current = null; // { entry, barcode, onDone, onCancel }
 let photoUrl = null;
 
+// The boxes follow the order of a Thai nutrition label (UX review item 10). Salt has no box: Thai labels
+// print sodium only, and sodium counts for salt in the completeness check (audit.js).
+const FORM_ORDER = ['energy_kcal', 'fat_g', 'saturated_fat_g', 'protein_g', 'carbohydrates_g', 'fibre_g', 'sugars_g', 'sodium_mg'];
+const FORM_FIELDS = FORM_ORDER.map((key) => ADD_FIELDS.find((f) => f.key === key));
+
 // Build the nutrient boxes once.
 const grid = $('add-nutrients');
-for (const f of ADD_FIELDS) {
+for (const f of FORM_FIELDS) {
   const wrap = document.createElement('div');
   const label = document.createElement('label');
   label.htmlFor = `add-${f.key}`;
@@ -47,27 +52,14 @@ export function openAddForm({ entry, barcode, mode = 'new', name = '', onDone, o
   $('add-barcode').textContent = barcode;
 
   startedAt = Date.now();
-  tick();
-  clearInterval(timer);
-  timer = setInterval(tick, 1000);
 }
 
 export function stopAddTimer() {
-  clearInterval(timer);
-  timer = null;
   clearPhoto();
 }
 
 function elapsedSeconds() {
   return Math.round((Date.now() - startedAt) / 1000);
-}
-
-function tick() {
-  const s = elapsedSeconds();
-  const text = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-  const el = $('add-timer');
-  el.textContent = text;
-  el.classList.toggle('over', s > 180);
 }
 
 // ---------- Serving size only matters for "per serving" ----------
@@ -124,6 +116,7 @@ $('add-form').addEventListener('submit', (event) => {
   let numbersOk = true;
   for (const f of ADD_FIELDS) {
     const input = $(`add-${f.key}`);
+    if (!input) { values[f.key] = null; continue; } // no box on the form (salt)
     const read = readValue(input.value);
     input.classList.toggle('invalid', !read.ok);
     if (!read.ok) numbersOk = false;

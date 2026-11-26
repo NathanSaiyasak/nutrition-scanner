@@ -2,8 +2,8 @@
 // Turns a product from lookup.js into the shopper view: Watch out / Good points / Nutrition facts / Not available.
 // Rules and thresholds: docs/prototype-v0.3-spec.md and docs/prototype-v0.5-spec.md.
 // Never invents a value: a missing number goes in "Not available".
-import { extraRows, nutType } from './additives.js?v=r11';
-import { t, lang } from './i18n.js?v=r11';
+import { extraRows, nutType } from './additives.js?v=r12';
+import { t, lang } from './i18n.js?v=r12';
 
 // Thai daily guide amounts, used for the "% of a day" bars.
 const DAILY = { energy: 2000, sugars: 65, fat: 65, satfat: 20, sodium: 2000, protein: 50, fibre: 25, carbs: 300 };
@@ -106,7 +106,7 @@ export function buildView(p) {
       ? { level: 'neutral', why: 'healthyFat' } : classify(f, drink, energy100);
     // The row shows one plain line ("A bit too much sugar"); a one- or two-sentence dropdown under it
     // gives the % of the daily guide and why (Nathan, 23 Nov 2026). All wording is in strings.js.
-    const note = subtitle(f, level, why, energy100, pct);
+    const note = subtitle(f, level, why, energy100, pct, useServing);
     const details = [explain(f, { level, why, drink, pct, amountValue, useServing, energy100 })];
     const gauge = gaugeFor(f, { level, why, drink, pct, amountValue, useServing, servingAmount });
     const tone = { high: 'bad', medium: 'warn', low: 'good', good: 'good', neutral: 'na' }[level];
@@ -167,7 +167,7 @@ const LIMIT_KEYS = ['sugars', 'fat', 'satfat', 'sodium'];
 const FACT_KEYS = ['energy', 'protein', 'fibre', 'carbs'];
 
 // The one-line subtitle under a row's name. Describes what classify() decided; never changes it.
-function subtitle(f, level, why, energy100, pct) {
+function subtitle(f, level, why, energy100, pct, useServing) {
   const n = noun(f.key);
   // Carbs and calories: a size word that matches the bar (share of a day). Thresholds 10% and 25%.
   const size = pct < 10 ? 0 : pct < 25 ? 1 : 2;
@@ -175,7 +175,14 @@ function subtitle(f, level, why, energy100, pct) {
   if (f.judge100 === null) return sub('cantRate');
   if (why === 'healthyFat') return sub('healthyFats');
   if (LIMIT_KEYS.includes(f.key)) {
-    if (level === 'high') return sub(why === 'portion' ? 'tooMuchServing' : 'tooMuch', { n });
+    if (level === 'high' && why === 'portion') {
+      // Amounts shown per 100: name the serving's amount, so "10 g" isn't read as the serving (UX item 12).
+      if (!useServing && f.portion !== null) {
+        return sub('tooMuchPortion', { n, amount: `${f.lessThan ? '<' : ''}${format(f.portion, f.unit)} ${f.unit}` });
+      }
+      return sub('tooMuchServing', { n });
+    }
+    if (level === 'high') return sub('tooMuch', { n });
     return sub(level === 'medium' ? 'bitTooMuch' : 'lowIn', { n });
   }
   if (f.key === 'energy') {
