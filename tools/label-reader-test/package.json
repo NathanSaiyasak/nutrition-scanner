@@ -1,0 +1,15 @@
+{
+  "name": "label-reader-test",
+  "private": true,
+  "description": "One-off test: can Claude read Thai nutrition labels from photos? Not part of the app.",
+  "type": "module",
+  "scripts": {
+    "test-run": "node run.mjs",
+    "dry-run": "node run.mjs --dry-run"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.14.0",
+    "sharp": "^0.35.0",
+    "zod": "^4.1.0"
+  }
+}
