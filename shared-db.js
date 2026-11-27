@@ -9,9 +9,9 @@
 // from its label, our values are shown (testers found Open Food Facts often differs from the pack),
 // with the Open Food Facts photo when there is one. Values are kept exactly as typed: a blank box stays
 // "not available", "<1" stays "<1".
-import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r14';
-import { lookupProduct, NUTRIENTS } from './lookup.js?v=r14';
-import { ADD_FIELDS, countAddedValues } from './audit.js?v=r14';
+import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r15';
+import { lookupProduct, NUTRIENTS } from './lookup.js?v=r15';
+import { ADD_FIELDS, countAddedValues } from './audit.js?v=r15';
 
 const ADDED_KEY = 'nutrition-scanner-added-products-v1';
 const PASSCODE_KEY = 'nutrition-scanner-contributor-passcode';
@@ -294,6 +294,60 @@ export function insCodes(ingredients, insNumbers) {
 }
 
 // ---------- Talking to Supabase (its standard REST interface; no extra library needed) ----------
+// ---------- Anonymous daily scan counts (27 Nov 2026) ----------
+// Each fresh lookup adds 1 to that day's count for the barcode and its result, so we can see which
+// products people scan most that we don't have yet. Only the barcode, the result, which values are
+// missing and whether this phone has the contributor passcode are sent. No device ID, no time of day.
+// The Privacy page describes exactly this. Fire and forget: a failure never affects the shopper.
+const MISSING_NAMES = {
+  'energy-kcal': 'energy', fat: 'fat', 'saturated-fat': 'saturated_fat', carbohydrates: 'carbs',
+  sugars: 'sugars', fiber: 'fibre', proteins: 'protein', salt: 'salt',
+};
+
+/** The result of a lookup in the shape scan_counts stores. product = null when not found. */
+export function scanOutcome(product) {
+  if (!product) return { outcome: 'not-found', missing: '' };
+  if (product.source === 'shared' || product.source === 'phone') return { outcome: 'pack', missing: '' };
+  if (!product.hasNutrition) return { outcome: 'no-nutrition', missing: '' };
+  const { present, total } = product.completeness;
+  if (present === total) return { outcome: 'off-complete', missing: '' };
+  const sodium = product.rows.find((r) => r.key === 'sodium');
+  const missing = product.rows
+    .filter((r) => r.counts && r.per100 === null && !(r.key === 'salt' && sodium && sodium.per100 !== null))
+    .map((r) => MISSING_NAMES[r.key])
+    .filter(Boolean);
+  return { outcome: 'incomplete', missing: missing.join(',') };
+}
+
+export function countScan(barcode, product) {
+  if (!sharedConfigured() || !/^\d{6,14}$/.test(barcode)) return;
+  const { outcome, missing } = scanOutcome(product);
+  callApi('rpc/count_scan', {
+    method: 'POST',
+    body: { p_barcode: barcode, p_outcome: outcome, p_missing: missing, p_tester: Boolean(getPasscode()) },
+  }).catch(() => {});
+}
+
+// ---------- Shared label checks (27 Nov 2026) ----------
+// A tester's "matches the label?" mark, sent so the whole team sees it. Only with the passcode.
+// checkId is made once per product view, so editing the note updates the same row.
+export function newCheckId() {
+  try { return crypto.randomUUID(); } catch { /* older browsers */ }
+  const b = Array.from({ length: 16 }, () => Math.floor(Math.random() * 256));
+  b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+  const h = b.map((x) => x.toString(16).padStart(2, '0')).join('');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+
+export function shareLabelCheck({ checkId, barcode, verdict, note, source }) {
+  const passcode = getPasscode();
+  if (!sharedConfigured() || !passcode || !checkId || !/^\d{6,14}$/.test(barcode)) return;
+  callApi('rpc/add_label_check', {
+    method: 'POST',
+    body: { p_passcode: passcode, p_check: { check_id: checkId, barcode, verdict, note: note || '', source: source || '' } },
+  }).catch(() => {});
+}
+
 async function callApi(path, { method, body }) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);

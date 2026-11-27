@@ -4,7 +4,7 @@
 // flagged in Watch out but take no points off, and sweeteners take 10 points off (Nathan, 25 Nov 2026). All wording is
 // whole sentences with no colons (Nathan, 24 Nov 2026), ready for a Thai translation later.
 
-import { t, additiveName } from './i18n.js?v=r14';
+import { t, additiveName } from './i18n.js?v=r15';
 
 // Additive groups. points: taken off the score for each additive found (all additives together at most 30).
 // tone/level: how the row looks; a 'high' additive counts as a red warning for the score's ceilings.
