@@ -1,17 +1,17 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting, countScan, newCheckId, shareLabelCheck } from './shared-db.js?v=r16';
-import { startScanner, scanPhoto } from './scanner.js?v=r16';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r16';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r16';
-import { renderAudit } from './audit-screen.js?v=r16';
-import { buildView, servingText } from './nutrition-view.js?v=r16';
-import { computeScore, SCORE_TEXT } from './score.js?v=r16';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r16';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r16';
-import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r16';
-import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r16';
+import { findProduct, keepAddedProduct, sendWaiting, countScan, newCheckId, shareLabelCheck } from './shared-db.js?v=r17';
+import { startScanner, scanPhoto } from './scanner.js?v=r17';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r17';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r17';
+import { renderAudit } from './audit-screen.js?v=r17';
+import { buildView, servingText } from './nutrition-view.js?v=r17';
+import { computeScore, SCORE_TEXT } from './score.js?v=r17';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r17';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r17';
+import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r17';
+import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r17';
 
 // Fill the page's fixed text in the chosen language (English or Thai) before anything is shown.
 applyStatic();
@@ -291,8 +291,18 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
     addToHistory(product);
     refreshFavorite(product); // a saved favorite gets the latest details
   }
-  // Anonymous daily count for the coverage dashboard. Lookup errors aren't counted.
-  if (product || result.kind === 'not-found') countScan(barcode, product);
+  // Anonymous daily count for the dashboard. Lookup errors aren't counted. The flags say what the
+  // number checks and our entries' state found about the product (nothing about the person).
+  const checks = product && product.hasNutrition ? buildView(product).checks : null;
+  if (product || result.kind === 'not-found') {
+    const flags = [
+      checks && checks.hard.length ? 'check-hard' : '',
+      checks && checks.soft.length ? 'check-soft' : '',
+      product && product.disputed ? 'disputed' : '',
+      product && product.entryState === 'pending' ? 'pending' : '',
+    ].filter(Boolean).join(',');
+    countScan(barcode, product, flags);
+  }
   const entry = logScan({
     barcode,
     method: how.method,
@@ -306,7 +316,7 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
     valuesPresent: product ? product.completeness.present : null,
     valuesTotal: product ? product.completeness.total : null,
     // Number checks and our entries' state (27 Nov 2026), for the fix list and the store test figures.
-    checks: product && product.hasNutrition ? buildView(product).checks : null,
+    checks,
     entryState: product ? product.entryState || null : null,
     disputed: product ? Boolean(product.disputed) : false,
   });

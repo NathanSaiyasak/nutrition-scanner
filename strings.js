@@ -582,6 +582,8 @@ export const STRINGS = {
   'more.testers': ['For testers', 'สำหรับทีมทดสอบ'],
   'more.auditTitle': ['Audit log', 'บันทึกการตรวจ'],
   'more.auditSub': ['Scans, pass marks, CSV', 'การสแกน เกณฑ์ผ่าน และ CSV'],
+  'more.dashTitle': ['Dashboard', 'แดชบอร์ด'],
+  'more.dashSub': ['Coverage, fix list, activity', 'ความครอบคลุม รายการที่ต้องแก้ และความเคลื่อนไหว'],
   'more.foot': ['Bettr prototype v0.5', 'Bettr ต้นแบบ v0.5'],
 
   // ---------- Footer ----------

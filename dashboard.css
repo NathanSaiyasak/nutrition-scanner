@@ -1,0 +1,139 @@
+/* Bettr operations dashboard (27 Nov 2026). Same palette and font as the app (style.css), laid out
+   for phone first and spreading to two to four columns on a wider screen. */
+@font-face {
+  font-family: "LINE Seed Sans TH"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("fonts/LINESeedSansTH-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "LINE Seed Sans TH"; font-style: normal; font-weight: 600 800; font-display: swap;
+  src: url("fonts/LINESeedSansTH-Bold.woff2") format("woff2");
+}
+
+:root {
+  --caramel: #A66E35;
+  --coffee: #6F4E37;
+  --cream: #FDECD8;
+  --bg: #FFF7ED;
+  --card: #FFFFFF;
+  --sunken: #F6EBDD;
+  --line: #EADFD2;
+  --text: #2D2D2D;
+  --muted: #6E6259;
+  --faint: #A89C92;
+  --blue: #6FA9C9;
+  --blue-soft: #E3F0F7;
+  --good: #2F7D4B; --good-bg: rgba(62, 155, 95, 0.14);
+  --warn: #A86A12; --warn-bg: rgba(232, 162, 58, 0.16);
+  --bad: #B8392D;  --bad-bg: rgba(217, 72, 59, 0.14);
+  --error: #B8392D;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: "LINE Seed Sans TH", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+  font-size: 15px; line-height: 1.47;
+}
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+a { color: var(--caramel); }
+.mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
+.meta { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+.center { text-align: center; }
+.error { color: var(--error); font-size: 14px; margin: 10px 0 0; }
+
+/* Header */
+.top { background: var(--card); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+.top-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+  padding-top: calc(10px + env(safe-area-inset-top)); padding-bottom: 10px; }
+.brand { display: flex; align-items: center; gap: 8px; color: var(--coffee); text-decoration: none; }
+.brand-sub { font-weight: 700; font-size: 14px; color: var(--muted); }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ctl select { font: inherit; font-size: 14px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); }
+.ctl.check { display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--muted); }
+.ctl.check input { width: 18px; height: 18px; accent-color: var(--caramel); }
+.btn-ghost { font: inherit; font-size: 14px; padding: 7px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--coffee); cursor: pointer; }
+.btn-primary { font: inherit; font-weight: 700; padding: 12px 18px; border-radius: 12px; border: 0; background: var(--caramel); color: #fff; cursor: pointer; }
+
+/* Passcode gate */
+.card { background: var(--card); border-radius: 16px; padding: 16px; }
+.gate { max-width: 440px; margin: 40px auto; }
+.gate h1 { font-size: 22px; margin: 0 0 6px; }
+.gate form { display: flex; gap: 8px; flex-wrap: wrap; }
+.gate input { flex: 1 1 200px; font: inherit; padding: 12px; border: 1px solid var(--line); border-radius: 12px; }
+
+/* Board */
+.stamp { color: var(--muted); font-size: 13px; margin: 14px 0 0; }
+.section { margin: 20px 0 0; }
+.section-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0 0 10px; }
+.section-head h2 { white-space: nowrap; }
+.section-head h2 { font-size: 18px; margin: 0; color: var(--coffee); }
+.section-head p { margin: 0; font-size: 13px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.panel { background: var(--card); border-radius: 16px; padding: 14px 16px; min-width: 0; grid-column: span 1; }
+.panel.wide, .panel.full { grid-column: 1 / -1; }
+.panel h3 { font-size: 14px; margin: 0 0 6px; color: var(--muted); font-weight: 700; }
+.panel .big { font-size: 30px; font-weight: 700; line-height: 1.1; margin: 2px 0 4px; color: var(--text); }
+.panel .big small { font-size: 15px; color: var(--muted); font-weight: 400; }
+.panel .sub { font-size: 13px; color: var(--muted); margin: 0; }
+.panel .sub b { color: var(--text); }
+.panel.planned { background: transparent; border: 1.5px dashed var(--line); }
+.panel.planned h3 { color: var(--faint); }
+.planned-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .02em; color: var(--coffee); background: var(--cream); border-radius: 999px; padding: 2px 8px; margin: 0 0 6px; }
+.empty { color: var(--muted); font-size: 14px; margin: 6px 0 0; }
+.goal-good { color: var(--good); }
+.goal-warn { color: var(--warn); }
+.goal-bad { color: var(--bad); }
+
+/* Meter (coverage against the 90% line) */
+.meter { position: relative; height: 8px; background: var(--sunken); border-radius: 999px; margin: 8px 0 6px; }
+.meter > span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: var(--caramel); }
+.meter > i { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--coffee); }
+
+/* Charts */
+.chart { width: 100%; height: auto; display: block; margin-top: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); margin: 8px 0 0; padding: 0; list-style: none; }
+.legend li { display: flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.stack { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: var(--sunken); margin: 10px 0 0; }
+.stack span { display: block; height: 100%; }
+
+/* Fix list */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.chip { font: inherit; font-size: 13px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--coffee); border-color: var(--coffee); color: #fff; }
+.table-wrap { overflow-x: auto; margin: 0 -16px; padding: 0 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 700; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr:last-child td { border-bottom: 0; }
+.pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.pill.bad { background: var(--bad-bg); color: var(--bad); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.info { background: var(--blue-soft); color: #2E6A8A; }
+.detail { color: var(--muted); font-size: 13px; }
+.links a { font-size: 13px; margin-right: 10px; white-space: nowrap; }
+.list-foot { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+
+.foot { color: var(--muted); font-size: 13px; margin: 28px 0 40px; max-width: 760px; }
+
+/* Phone: the fix list becomes stacked rows instead of a wide table. */
+@media (max-width: 599px) {
+  .fix-table thead { display: none; }
+  .fix-table tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .fix-table td { border: 0; padding: 0; }
+  .fix-table td.rank { display: none; }
+  .fix-table td.code { grid-column: 1; }
+  .fix-table td.num { grid-column: 2; grid-row: 1; }
+  .fix-table td.why, .fix-table td.detail, .fix-table td.seen, .fix-table td.links { grid-column: 1 / -1; }
+  .fix-table td.seen::before { content: "Last scanned "; }
+}
+
+@media (min-width: 900px) {
+  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .panel.wide { grid-column: span 2; }
+  .panel.full { grid-column: 1 / -1; }
+}

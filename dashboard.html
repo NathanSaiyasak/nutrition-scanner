@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#FFF7ED">
+  <title>Bettr dashboard</title>
+  <link rel="preload" href="fonts/LINESeedSansTH-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/LINESeedSansTH-Bold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="dashboard.css?v=r17">
+</head>
+<body>
+  <!-- Bettr operations dashboard (27 Nov 2026). For the team only: every number comes from
+       dashboard_data() in Supabase (supabase/dashboard.sql), which needs a passcode. The page code is
+       public like the rest of the site, but no numbers come back without the passcode. -->
+  <header class="top">
+    <div class="wrap top-row">
+      <a class="brand" href="./" aria-label="Back to the Bettr app">
+        <svg class="brand-logo" viewBox="0 0 66 20" width="66" height="20" aria-hidden="true"><path fill="currentColor" d="M11.9555 8.99937C13.5585 8.24358 14.5581 6.67715 14.5581 4.83491C14.5581 1.98852 12.5696 0 9.72316 0H0V18.9374H10.1788C13.2263 18.9374 15.355 16.7858 15.355 13.7048C15.355 11.4572 14.043 9.67592 11.9555 8.99937ZM4.66425 10.9772H8.75709C9.8283 10.9772 10.5749 11.7482 10.5749 12.853C10.5749 13.9577 9.80392 14.7287 8.69919 14.7287H4.66273V10.9787L4.66425 10.9772ZM8.18872 7.56246H4.66425V4.15227H8.2451C9.23098 4.15227 9.8923 4.83796 9.8923 5.85736C9.8923 6.87676 9.19136 7.56246 8.1872 7.56246H8.18872Z"/><path fill="currentColor" d="M49.5072 14.968C48.6234 15.2834 47.8249 15.2606 47.3175 14.9025C46.9351 14.6328 46.7415 14.1924 46.7415 13.5905V8.24666H50.1533V4.26353H46.7415V0.284973H42.5314V3.01556C42.5314 3.7744 42.0849 4.26505 41.3946 4.26505H37.7559V0.284973H33.5457V3.01556C33.5457 3.7744 33.0992 4.26505 32.409 4.26505H31.385V8.24818H33.3187V14.3874C33.3187 16.0849 33.951 17.438 35.1457 18.2989C36.6801 19.4052 38.9993 19.5957 41.3535 18.8109L41.5455 18.7469L40.7714 14.8781L40.523 14.9665C39.6393 15.2819 38.8408 15.259 38.3334 14.9009C37.9509 14.6312 37.7574 14.1909 37.7574 13.589V8.24513H42.3043V14.3844C42.3043 16.0819 42.9367 17.435 44.1313 18.2959C45.041 18.9511 46.2265 19.2848 47.5324 19.2848C48.4283 19.2848 49.3807 19.1279 50.3391 18.8079L50.5311 18.7439L49.7571 14.875L49.5087 14.9634L49.5072 14.968Z"/><path fill="currentColor" d="M60.4067 9.27213L60.9735 4.35341L60.8212 4.28484C59.788 3.82009 58.5919 3.79876 57.5405 4.22541C56.7664 4.53931 56.1462 5.05892 55.7516 5.71566L55.2 4.26503H51.7426V18.9374H56.1798V11.2027C56.1798 10.2123 56.5226 9.47174 57.1717 9.06033C57.9199 8.58796 59.0201 8.61539 60.1172 9.13499L60.4052 9.27213H60.4067Z"/><path fill="currentColor" d="M62.7183 13.7032C61.1686 13.7032 60.0441 14.8522 60.0441 16.4338C60.0441 18.0155 61.1686 19.1644 62.7183 19.1644C64.268 19.1644 65.3925 18.0155 65.3925 16.4338C65.3925 14.8522 64.268 13.7032 62.7183 13.7032Z"/><path fill="currentColor" d="M22.3019 4.02887C24.3559 3.66164 26.2624 4.11474 27.8136 5.34137C29.5292 6.69755 30.6356 8.93271 30.7697 11.3218L30.7804 11.524L21.2921 13.2232C21.8986 14.5276 23.105 15.207 24.4337 14.9693C25.4957 14.7788 26.2804 14.0646 26.4298 13.149L26.4679 12.9175L30.9825 13.7769L30.9474 13.9957C30.5436 16.5114 28.2234 18.5683 25.1759 19.1138C23.1005 19.4856 21.0888 19.0654 19.5148 17.9302C17.9454 16.7981 16.8709 15.0014 16.4884 12.8697C16.1968 11.2423 16.352 9.70644 16.8741 8.38043C17.0593 8.4707 17.2667 8.52301 17.4865 8.52301C18.2594 8.52266 18.8868 7.89564 18.8868 7.12262C18.8868 7.02564 18.8754 6.93084 18.8566 6.83942C19.0065 6.88423 19.1657 6.90973 19.3302 6.90973C20.2407 6.90927 20.9786 6.17086 20.9786 5.26031C20.9786 4.97166 20.9038 4.70043 20.7736 4.46442C21.2516 4.27275 21.762 4.12538 22.3009 4.02887H22.3019ZM25.7941 9.64215C25.2881 8.53162 24.1651 7.91421 22.9767 8.1275C21.8585 8.32718 21.0682 9.23564 20.8624 10.5259L25.7941 9.64215Z"/></svg>
+        <span class="brand-sub">Operations</span>
+      </a>
+      <div id="controls" class="controls" hidden>
+        <label class="ctl"><span class="visually-hidden">Period</span>
+          <select id="range">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+        </label>
+        <label class="ctl check"><input id="testers" type="checkbox"> Include testers</label>
+        <button id="refresh" class="btn-ghost" type="button">Refresh</button>
+        <button id="sign-out" class="btn-ghost" type="button">Lock</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="gate" class="gate card" hidden>
+      <h1>Team dashboard</h1>
+      <p class="meta">Type the passcode to see the numbers. Until a separate dashboard passcode is set, it is the contributor passcode testers use in the Audit log.</p>
+      <form id="gate-form" autocomplete="off">
+        <label for="passcode" class="visually-hidden">Passcode</label>
+        <input id="passcode" type="password" autocomplete="current-password" placeholder="Passcode" required>
+        <button class="btn-primary" type="submit">Open dashboard</button>
+      </form>
+      <p id="gate-error" class="error" role="alert" hidden></p>
+    </section>
+
+    <p id="loading" class="meta center" hidden>Loading…</p>
+    <p id="load-error" class="error center" role="alert" hidden></p>
+
+    <div id="board" hidden>
+      <p id="stamp" class="stamp"></p>
+      <div id="sections"></div>
+      <p class="foot">Every number comes from the anonymous daily scan counts, our product database and tester label checks. No device IDs, IP addresses or times of day are stored. Panels marked Planned show what we will add, with no made-up numbers.</p>
+    </div>
+  </main>
+
+  <script type="module" src="dashboard.js?v=r17"></script>
+</body>
+</html>
