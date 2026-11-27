@@ -19,8 +19,8 @@
 // Shown only when calories, sugar, fat, saturated fat and sodium can all be judged, and the numbers
 // pass the automatic hard checks (checks.js, 27 Nov 2026). The points themselves are unchanged.
 
-import { SWEETENED_DRINK_MAX } from './additives.js?v=r18';
-import { t } from './i18n.js?v=r18';
+import { SWEETENED_DRINK_MAX } from './additives.js?v=r19';
+import { t } from './i18n.js?v=r19';
 
 const POINTS = {
   sugars: { medium: 15, high: 35 },
