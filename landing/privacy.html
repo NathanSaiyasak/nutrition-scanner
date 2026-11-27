@@ -68,14 +68,14 @@
         <h1 data-l="th" lang="th">ความเป็นส่วนตัวใน Bettr</h1>
         <p class="lead" data-l="en">Bettr has no accounts and does not collect who you are. This page says plainly what the app does with data.</p>
         <p class="lead" data-l="th" lang="th">Bettr ไม่มีบัญชีผู้ใช้ และไม่เก็บข้อมูลว่าคุณเป็นใคร หน้านี้บอกตรงๆ ว่าแอปทำอะไรกับข้อมูลบ้าง</p>
-        <p class="updated"><span data-l="en">Last updated 26 November 2026</span><span data-l="th" lang="th">อัปเดตล่าสุด 26 พฤศจิกายน 2569</span></p>
+        <p class="updated"><span data-l="en">Last updated 27 November 2026</span><span data-l="th" lang="th">อัปเดตล่าสุด 27 พฤศจิกายน 2569</span></p>
       </div>
 
       <section class="short" aria-labelledby="short-title">
         <h2 id="short-title"><span data-l="en">The short version</span><span data-l="th" lang="th">สรุปสั้นๆ</span></h2>
         <ul>
           <li><span class="short-icon" aria-hidden="true"><svg width="18" height="18"><use href="#i-user-x"/></svg></span><span><span data-l="en">No accounts. No sign-up, no name, no email.</span><span data-l="th" lang="th">ไม่มีบัญชี ไม่ต้องสมัคร ไม่ต้องใส่ชื่อหรืออีเมล</span></span></li>
-          <li><span class="short-icon" aria-hidden="true"><svg width="18" height="18"><use href="#i-eye-off"/></svg></span><span><span data-l="en">No ads, no analytics, no tracking.</span><span data-l="th" lang="th">ไม่มีโฆษณา ไม่มีระบบวิเคราะห์ ไม่มีการติดตาม</span></span></li>
+          <li><span class="short-icon" aria-hidden="true"><svg width="18" height="18"><use href="#i-eye-off"/></svg></span><span><span data-l="en">No ads, no tracking, no analytics that identify you.</span><span data-l="th" lang="th">ไม่มีโฆษณา ไม่มีการติดตาม ไม่มีระบบวิเคราะห์ที่ระบุตัวคุณ</span></span></li>
           <li><span class="short-icon" aria-hidden="true"><svg width="18" height="18"><use href="#i-camera"/></svg></span><span><span data-l="en">The camera and photos are read on your phone and never uploaded.</span><span data-l="th" lang="th">ภาพจากกล้องและรูปถ่ายอ่านในเครื่องคุณเท่านั้น ไม่มีการอัปโหลด</span></span></li>
           <li><span class="short-icon" aria-hidden="true"><svg width="18" height="18"><use href="#i-phone"/></svg></span><span><span data-l="en">Your history, favorites and language choice stay on this phone.</span><span data-l="th" lang="th">ประวัติ รายการโปรด และภาษาที่เลือก อยู่ในเครื่องนี้</span></span></li>
           <li><span class="short-icon" aria-hidden="true"><svg width="18" height="18"><use href="#i-scan"/></svg></span><span><span data-l="en">When you scan, the app sends the barcode number to look up the product.</span><span data-l="th" lang="th">ตอนสแกน แอปส่งเลขบาร์โค้ดออกไปเพื่อหาข้อมูลสินค้า</span></span></li>
@@ -134,6 +134,7 @@
           </ul>
           <p>The product photo, when there is one, is loaded from Open Food Facts. The website itself is hosted on GitHub Pages.</p>
           <p>Like any website, these services see your device's internet address (IP address) and browser type when your phone connects, and may keep them in short technical logs under their own privacy policies. Bettr does not use these logs to identify you or to follow what you scan.</p>
+          <p>When you look up a barcode, Bettr adds 1 to a daily count for that barcode, with whether we had its nutrition facts. The count has no device ID, no IP address and no time of day, so it cannot tell who scanned or follow one person's scans. We use it to see which products are missing and add those first.</p>
           <p>Their privacy policies: <a href="https://world.openfoodfacts.org/privacy" target="_blank" rel="noopener">Open Food Facts</a>, <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase</a>, <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub</a>.</p>
         </div>
         <div data-l="th" lang="th">
@@ -144,6 +145,7 @@
           </ul>
           <p>รูปสินค้าถ้ามี โหลดมาจาก Open Food Facts ส่วนตัวเว็บไซต์ฝากไว้ที่ GitHub Pages</p>
           <p>เหมือนเว็บทั่วไป บริการเหล่านี้จะเห็นที่อยู่อินเทอร์เน็ตของเครื่อง (IP address) และชนิดเบราว์เซอร์ตอนเครื่องคุณเชื่อมต่อ และอาจเก็บไว้ในบันทึกทางเทคนิคช่วงสั้นๆ ตามนโยบายของแต่ละที่ Bettr ไม่ได้ใช้บันทึกพวกนี้เพื่อระบุตัวคุณหรือตามดูว่าคุณสแกนอะไร</p>
+          <p>ตอนคุณค้นหาบาร์โค้ด Bettr จะนับเพิ่ม 1 ในยอดรายวันของบาร์โค้ดนั้น พร้อมบอกว่าเรามีข้อมูลโภชนาการของสินค้านี้หรือเปล่า ยอดนี้ไม่มีรหัสเครื่อง ไม่มี IP address และไม่มีเวลาที่สแกน เลยบอกไม่ได้ว่าใครสแกน และตามดูการสแกนของใครคนหนึ่งไม่ได้ เราใช้ยอดนี้ดูว่าสินค้าไหนยังขาด แล้วเพิ่มสินค้าพวกนั้นก่อน</p>
           <p>นโยบายความเป็นส่วนตัวของแต่ละที่ <a href="https://world.openfoodfacts.org/privacy" target="_blank" rel="noopener">Open Food Facts</a> <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase</a> <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub</a></p>
         </div>
       </section>
@@ -152,10 +154,12 @@
         <h2 id="add-title"><span data-l="en">Products our testers add</span><span data-l="th" lang="th">สินค้าที่ทีมทดสอบเพิ่ม</span></h2>
         <div data-l="en">
           <p>Testers with a contributor passcode can add a product that is missing or has wrong values. What is sent is the barcode, product name, brand, pack size, serving size, the nutrition values, the ingredients and INS numbers if typed, how long it took to type, and when.</p>
+          <p>Testers can also mark whether the values on screen match the pack. That mark (matches, differs or can't tell), an optional note, the barcode and when are sent so the whole team sees it. On a tester's phone the daily count is marked as a tester scan, so store tests are counted apart from shoppers.</p>
           <p>No name, email, photo or location is sent. Products added this way can be read by anyone who uses the app, because that is how other shoppers see them.</p>
         </div>
         <div data-l="th" lang="th">
           <p>ทีมทดสอบที่มีรหัสผู้ร่วมเพิ่มข้อมูล เพิ่มสินค้าที่ยังไม่มีหรือข้อมูลผิดได้ สิ่งที่ส่งไปคือ เลขบาร์โค้ด ชื่อสินค้า แบรนด์ ขนาดบรรจุ ขนาดต่อหนึ่งหน่วยบริโภค ค่าโภชนาการ ส่วนผสมและเลข INS ถ้ากรอกไว้ เวลาที่ใช้กรอก และวันเวลาที่กรอก</p>
+          <p>ทีมทดสอบยังบอกได้ว่าค่าบนจอตรงกับฉลากไหม สิ่งที่ส่งไปคือ ผลที่เลือก (ตรง ไม่ตรง หรือบอกไม่ได้) โน้ตถ้าเขียนไว้ เลขบาร์โค้ด และวันเวลา เพื่อให้ทั้งทีมเห็น ในเครื่องของทีมทดสอบ ยอดนับรายวันจะถูกแยกเป็นการสแกนของทีมทดสอบ เพื่อไม่ให้ปนกับการสแกนของคนทั่วไป</p>
           <p>ไม่มีการส่งชื่อ อีเมล รูปถ่าย หรือตำแหน่งของคุณ สินค้าที่เพิ่มแบบนี้ใครใช้แอปก็เห็นได้ เพราะเป็นวิธีที่คนอื่นจะได้เห็นข้อมูลด้วย</p>
         </div>
       </section>
@@ -164,14 +168,14 @@
         <h2 id="dont-title"><span data-l="en">What we don't do</span><span data-l="th" lang="th">สิ่งที่เราไม่ทำ</span></h2>
         <ul data-l="en">
           <li>No accounts or sign-in</li>
-          <li>No analytics, ads or tracking tools</li>
+          <li>No ads, no tracking tools, no analytics that identify you</li>
           <li>No cookies</li>
           <li>No location</li>
           <li>We don't sell or share data about you, because we don't collect any</li>
         </ul>
         <ul data-l="th" lang="th">
           <li>ไม่มีบัญชีหรือการล็อกอิน</li>
-          <li>ไม่มีระบบวิเคราะห์ โฆษณา หรือเครื่องมือติดตาม</li>
+          <li>ไม่มีโฆษณา ไม่มีเครื่องมือติดตาม ไม่มีระบบวิเคราะห์ที่ระบุตัวคุณ</li>
           <li>ไม่ใช้คุกกี้</li>
           <li>ไม่ขอตำแหน่งที่อยู่</li>
           <li>ไม่ขายหรือแบ่งปันข้อมูลเกี่ยวกับตัวคุณ เพราะเราไม่ได้เก็บไว้เลย</li>

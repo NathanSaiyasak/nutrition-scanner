@@ -1,17 +1,17 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r15';
-import { startScanner, scanPhoto } from './scanner.js?v=r15';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r15';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r15';
-import { renderAudit } from './audit-screen.js?v=r15';
-import { buildView, servingText } from './nutrition-view.js?v=r15';
-import { computeScore, SCORE_TEXT } from './score.js?v=r15';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r15';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r15';
-import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r15';
-import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r15';
+import { findProduct, keepAddedProduct, sendWaiting, countScan, newCheckId, shareLabelCheck } from './shared-db.js?v=r16';
+import { startScanner, scanPhoto } from './scanner.js?v=r16';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r16';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r16';
+import { renderAudit } from './audit-screen.js?v=r16';
+import { buildView, servingText } from './nutrition-view.js?v=r16';
+import { computeScore, SCORE_TEXT } from './score.js?v=r16';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r16';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r16';
+import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r16';
+import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r16';
 
 // Fill the page's fixed text in the chosen language (English or Thai) before anything is shown.
 applyStatic();
@@ -291,6 +291,8 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
     addToHistory(product);
     refreshFavorite(product); // a saved favorite gets the latest details
   }
+  // Anonymous daily count for the coverage dashboard. Lookup errors aren't counted.
+  if (product || result.kind === 'not-found') countScan(barcode, product);
   const entry = logScan({
     barcode,
     method: how.method,
@@ -663,14 +665,27 @@ function formatNumber(value, unit) {
 // Open Food Facts data can be out of date (old recipe, different size or flavour under the same
 // barcode), so the tester compares it with the pack in their hand.
 let labelCheck = null;
+let labelCheckId = null; // one shared row per product view, so editing the note updates it
 
 function resetLabelCheck(visible) {
   labelCheck = null;
+  labelCheckId = newCheckId();
   $('label-check').hidden = !visible;
   $('label-note').value = '';
   $('label-note-row').hidden = true;
   $('label-check-status').hidden = true;
   for (const b of document.querySelectorAll('.choice-btn')) b.classList.remove('selected');
+}
+
+function shareCurrentLabelCheck() {
+  if (currentEntry === null || !labelCheck || !currentProduct) return;
+  shareLabelCheck({
+    checkId: labelCheckId,
+    barcode: lastBarcode,
+    verdict: labelCheck,
+    note: labelCheck === 'differs' ? $('label-note').value.trim() : '',
+    source: currentProduct.source,
+  });
 }
 
 function saveLabelCheck() {
@@ -693,10 +708,12 @@ for (const button of document.querySelectorAll('.choice-btn')) {
     for (const b of document.querySelectorAll('.choice-btn')) b.classList.toggle('selected', b === button);
     $('label-note-row').hidden = labelCheck !== 'differs';
     saveLabelCheck();
+    shareCurrentLabelCheck();
     updateProductAdd();
   });
 }
 $('label-note').addEventListener('input', saveLabelCheck);
+$('label-note').addEventListener('change', shareCurrentLabelCheck); // sent when the tester leaves the box
 
 // The timed form is offered when nutrition is missing or incomplete, or differs from the label.
 function updateProductAdd() {
