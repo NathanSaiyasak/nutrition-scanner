@@ -12,7 +12,7 @@
 // (Nathan, 24 Nov 2026). Benzoates take 8 points again (they were flag only from 25 Nov 2026).
 // All wording is whole sentences with no colons (Nathan, 24 Nov 2026), in strings.js under add.*.
 
-import { t, additiveName } from './i18n.js?v=r18';
+import { t, additiveName } from './i18n.js?v=r19';
 
 export const TIER_POINTS = { high: 15, moderate: 8, limited: 3 };
 export const ADDITIVE_POINTS_MAX = 40;
@@ -125,7 +125,8 @@ export function extraRows(p, { drink, sugar100, nutType }) {
       additivePoints += points;
       if (groupKey === 'enhancer') { enhancers.push(name); continue; }
       if (g.tier === 'limited') { limited.push(`${name} (INS ${code})`); continue; }
-      const details = [say(`tier.${g.tier}`), say(`${groupKey}.why`), say('pointsOff', { n: points }), say('insCode', { code })];
+      // Only why it is a watch out, not how many points it takes off (Nathan, 28 Nov 2026).
+      const details = [say(`tier.${g.tier}`), say(`${groupKey}.why`), say('insCode', { code })];
       items.push({
         key: `additive-${code}`,
         name: name.charAt(0).toUpperCase() + name.slice(1),
@@ -167,7 +168,7 @@ export function extraRows(p, { drink, sugar100, nutType }) {
       name: say('sweetenerName'),
       amount: '',
       note,
-      details: [`${say(drink ? 'sweetenerDrinkWhy' : 'sweetenerWhy', { n: SWEETENED_DRINK_MAX })} ${found}`],
+      details: [`${say(drink ? 'sweetenerDrinkWhy' : 'sweetenerWhy')} ${found}`],
       pct: null,
       tone: 'warn',
       level: 'medium',
@@ -199,8 +200,7 @@ export function extraRows(p, { drink, sugar100, nutType }) {
   // Plain lines under the lists: limited risk additives (3 points each), then flavour enhancers (0 points).
   const lines = [];
   if (limited.length) {
-    lines.push(say(limited.length > 1 ? 'limitedMany' : 'limitedOne',
-      { list: joinList(limited), n: limited.length * TIER_POINTS.limited }));
+    lines.push(say(limited.length > 1 ? 'limitedMany' : 'limitedOne', { list: joinList(limited) }));
   }
   if (enhancers.length) lines.push(say(enhancers.length > 1 ? 'enhancerMany' : 'enhancerOne', { list: joinList(enhancers) }));
   return {

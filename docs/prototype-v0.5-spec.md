@@ -144,3 +144,9 @@ This replaces the additive table and the sweetener rule above.
   65 → 49; water, soda water and unsweetened tea 89 unchanged; Coca-Cola 30 unchanged; Est Cola 30 → 19;
   Koh Kae chicken peanuts 2 → 0; Mama tom yum 0 unchanged.
 
+## Changed 28 Nov 2026, later (Nathan: "No need to explain how many points are taken off. Just explain why it is a watch out")
+
+- Watch Out dropdowns and the plain lines under the lists no longer say how many points come off or that
+  sweetened drinks score 65 at most. They keep the tier, the reason, the INS number and which sweeteners
+  were found. "Very high" now says only that it is more than twice the high amount. Scoring unchanged.
+

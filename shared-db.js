@@ -10,11 +10,11 @@
 // with the Open Food Facts photo when there is one. Which of our entries is shown, and whether our
 // entries disagree, follows entry-state.js (27 Nov 2026; before that the newest entry won). Values are kept exactly as typed: a blank box stays
 // "not available", "<1" stays "<1".
-import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r18';
-import { lookupProduct, NUTRIENTS } from './lookup.js?v=r18';
-import { ADD_FIELDS, countAddedValues } from './audit.js?v=r18';
-import { chooseEntry, entriesAgree } from './entry-state.js?v=r18';
-import { readAdditives } from './ingredients-read.js?v=r18';
+import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r19';
+import { lookupProduct, NUTRIENTS } from './lookup.js?v=r19';
+import { ADD_FIELDS, countAddedValues } from './audit.js?v=r19';
+import { chooseEntry, entriesAgree } from './entry-state.js?v=r19';
+import { readAdditives } from './ingredients-read.js?v=r19';
 
 const ADDED_KEY = 'nutrition-scanner-added-products-v1';
 const PASSCODE_KEY = 'nutrition-scanner-contributor-passcode';
