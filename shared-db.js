@@ -10,10 +10,11 @@
 // with the Open Food Facts photo when there is one. Which of our entries is shown, and whether our
 // entries disagree, follows entry-state.js (27 Nov 2026; before that the newest entry won). Values are kept exactly as typed: a blank box stays
 // "not available", "<1" stays "<1".
-import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r17';
-import { lookupProduct, NUTRIENTS } from './lookup.js?v=r17';
-import { ADD_FIELDS, countAddedValues } from './audit.js?v=r17';
-import { chooseEntry, entriesAgree } from './entry-state.js?v=r17';
+import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r18';
+import { lookupProduct, NUTRIENTS } from './lookup.js?v=r18';
+import { ADD_FIELDS, countAddedValues } from './audit.js?v=r18';
+import { chooseEntry, entriesAgree } from './entry-state.js?v=r18';
+import { readAdditives } from './ingredients-read.js?v=r18';
 
 const ADDED_KEY = 'nutrition-scanner-added-products-v1';
 const PASSCODE_KEY = 'nutrition-scanner-contributor-passcode';
@@ -316,15 +317,12 @@ export function fromAdded(rec, source) {
   };
 }
 
-// INS / E numbers typed in the add form, as additive tags the score reads ("ins:211").
-// In the INS box every three digit number counts ("211, 621", "E102", "INS 150d").
-// In the ingredients text only numbers written after INS or E count, the same as lookup.js, so
-// "100 g" or "250 ml" isn't mistaken for an additive. Longer codes (like 1422) aren't scored.
+// Additives typed in the add form, as tags the score reads ("ins:211"). In the INS box every three or four
+// digit number counts ("211, 621", "E102", "INS 150d"). In the ingredients text, numbers written after
+// INS or E count (so "100 g" isn't mistaken for an additive), and so do additive names in Thai or English
+// words (ingredients-read.js, 28 Nov 2026).
 export function insCodes(ingredients, insNumbers) {
-  const codes = new Set();
-  for (const m of String(insNumbers || '').matchAll(/(?<!\d)(\d{3})(?!\d)/g)) codes.add(`ins:${m[1]}`);
-  for (const m of String(ingredients || '').matchAll(/\b(?:INS|E)\s*-?\s*(\d{3})(?!\d)/gi)) codes.add(`ins:${m[1]}`);
-  return [...codes];
+  return readAdditives(ingredients, insNumbers);
 }
 
 // ---------- Talking to Supabase (its standard REST interface; no extra library needed) ----------

@@ -236,8 +236,38 @@ export const STRINGS = {
   ],
   'add.benzoate.note': ['Contains {name}, a preservative', 'มี{name} สารกันเสีย'],
   'add.benzoate.why': [
-    'With vitamin C it can form small amounts of benzene, and one study linked it to hyperactivity in children. It is allowed at normal levels, so it is only flagged and takes no points off.',
-    'ถ้าเจอวิตามินซีอาจเกิดสารเบนซีนเล็กน้อย และมีงานวิจัยหนึ่งพบว่าเกี่ยวกับอาการไม่อยู่นิ่งในเด็ก แต่ใช้ได้ในปริมาณปกติ เลยแค่แจ้งไว้และไม่หักคะแนน',
+    'With vitamin C it can form small amounts of benzene, and one study linked it to hyperactivity in children.',
+    'ถ้าเจอวิตามินซีอาจเกิดสารเบนซีนเล็กน้อย และมีงานวิจัยหนึ่งพบว่าเกี่ยวกับอาการไม่อยู่นิ่งในเด็ก',
+  ],
+  'add.bromate.note': ['Contains {name}, a flour additive banned in many countries', 'มี{name} สารปรับปรุงแป้งที่หลายประเทศห้ามใช้'],
+  'add.bromate.why': [
+    'It is banned in the European Union, the UK and many other countries because it may cause cancer.',
+    'สหภาพยุโรป สหราชอาณาจักร และอีกหลายประเทศห้ามใช้ เพราะอาจก่อมะเร็ง',
+  ],
+  'add.aspartame.note': ['Contains {name}, a sweetener rated possibly cancer-causing', 'มี{name} สารให้ความหวานที่อาจก่อมะเร็ง'],
+  'add.aspartame.why': [
+    'In 2023 the WHO\'s cancer agency rated it as possibly cancer-causing. The WHO food safety committee still says normal amounts are safe.',
+    'ปี 2566 หน่วยงานวิจัยมะเร็งของ WHO จัดให้เป็นสารที่อาจก่อมะเร็ง แต่คณะกรรมการด้านความปลอดภัยอาหารของ WHO ยังบอกว่าปริมาณปกติปลอดภัย',
+  ],
+  'add.caramel.note': ['Contains {name}, a colour used in colas', 'มี{name} สีที่ใช้ในน้ำโคล่า'],
+  'add.caramel.why': [
+    'It can contain 4-MEI, which California lists as possibly cancer-causing.',
+    'อาจมีสาร 4-MEI ซึ่งรัฐแคลิฟอร์เนียจัดให้เป็นสารที่อาจก่อมะเร็ง',
+  ],
+  'add.sweetener.note': ['Contains {name}, a sweetener', 'มี{name} สารให้ความหวาน'],
+  'add.sweetener.why': [
+    'The WHO advises against using sweeteners to control weight, and research on their long-term effects is still mixed.',
+    'WHO แนะนำว่าไม่ควรใช้สารให้ความหวานเพื่อคุมน้ำหนัก และงานวิจัยเรื่องผลระยะยาวยังสรุปไม่ได้',
+  ],
+  'add.tier.high': ['A high risk additive.', 'เป็นวัตถุเจือปนความเสี่ยงสูง'],
+  'add.tier.moderate': ['A moderate risk additive.', 'เป็นวัตถุเจือปนความเสี่ยงปานกลาง'],
+  'add.limitedOne': [
+    'Also contains {list}, a limited risk additive. Takes {n} points off the score.',
+    'มี{list} ด้วย ซึ่งเป็นวัตถุเจือปนความเสี่ยงต่ำ หัก {n} คะแนน',
+  ],
+  'add.limitedMany': [
+    'Also contains {list}, limited risk additives. Together they take {n} points off the score.',
+    'มี{list} ด้วย ซึ่งเป็นวัตถุเจือปนความเสี่ยงต่ำ รวมหัก {n} คะแนน',
   ],
   'add.sulphite.note': ['Contains {name}, a preservative that can trigger asthma', 'มี{name} สารกันเสียที่อาจทำให้หอบหืดกำเริบ'],
   'add.sulphite.why': ['Sulphites can cause asthma attacks in sensitive people.', 'ซัลไฟต์อาจทำให้คนที่แพ้ง่ายหอบหืดกำเริบ'],
@@ -247,9 +277,15 @@ export const STRINGS = {
   'add.insCode': ['Shown on the pack as INS {code}.', 'บนฉลากเขียนว่า INS {code}'],
   'add.sweetenerName': ['Sweeteners', 'สารให้ความหวาน'],
   'add.sweetenerNote': ['Contains sweeteners', 'มีสารให้ความหวาน'],
+  'add.sweetenerNoteZero': ['No sugar, but uses sweeteners', 'ไม่มีน้ำตาล แต่ใช้สารให้ความหวาน'],
+  'add.sweetenerNoteBoth': ['Sweetened with sugar and sweeteners', 'หวานด้วยน้ำตาลและสารให้ความหวาน'],
   'add.sweetenerWhy': [
-    'Sweeteners replace sugar, and the WHO advises against using them to control weight. Takes {n} points off the score.',
-    'สารให้ความหวานใช้แทนน้ำตาล และ WHO แนะนำว่าไม่ควรใช้เพื่อคุมน้ำหนัก หัก {n} คะแนน',
+    'Sweeteners replace sugar, and the WHO advises against using them to control weight.',
+    'สารให้ความหวานใช้แทนน้ำตาล และ WHO แนะนำว่าไม่ควรใช้เพื่อคุมน้ำหนัก',
+  ],
+  'add.sweetenerDrinkWhy': [
+    'Drinks with sweeteners score {n} at most. Research on sweeteners is still mixed, and the WHO advises against using them to control weight. Water or unsweetened tea is the better everyday choice.',
+    'เครื่องดื่มที่ใส่สารให้ความหวานได้คะแนนไม่เกิน {n} งานวิจัยเรื่องสารให้ความหวานยังสรุปไม่ได้ และ WHO แนะนำว่าไม่ควรใช้เพื่อคุมน้ำหนัก น้ำเปล่าหรือชาไม่หวานเป็นตัวเลือกที่ดีกว่าสำหรับทุกวัน',
   ],
   'add.sweetenerFound': ['Found {list}.', 'ในสินค้านี้มี{list}'],
   'add.sweetenerByName': ['The product name says it has no sugar, which usually means sweeteners.', 'ชื่อสินค้าบอกว่าไม่มีน้ำตาล ซึ่งมักแปลว่าใช้สารให้ความหวาน'],
@@ -562,8 +598,8 @@ export const STRINGS = {
   'more.scoreTitle': ['How the score works', 'คะแนนคิดยังไง'],
   'more.scoreSub': ['Great, Good, OK, Poor and Bad', 'ดีมาก ดี พอใช้ ไม่ค่อยดี และแย่'],
   'more.scoreBody1': [
-    'Every product starts at 100. Points come off for too much sugar, fat or salt and for additives of concern, and a few come back for protein and fibre.',
-    'ทุกสินค้าเริ่มที่ 100 คะแนน จะโดนหักถ้ามีน้ำตาล ไขมัน หรือเกลือมากไป หรือมีวัตถุเจือปนที่น่ากังวล และได้คะแนนคืนบ้างถ้ามีโปรตีนและใยอาหาร',
+    'Every product starts at 100. Points come off for too much sugar, fat or salt and for additives, more for high risk ones than for limited risk ones, and a few come back for protein and fibre. Drinks with sweeteners score 65 at most.',
+    'ทุกสินค้าเริ่มที่ 100 คะแนน จะโดนหักถ้ามีน้ำตาล ไขมัน หรือเกลือมากไป หรือมีวัตถุเจือปน ยิ่งความเสี่ยงสูงยิ่งหักมาก และได้คะแนนคืนบ้างถ้ามีโปรตีนและใยอาหาร เครื่องดื่มที่ใส่สารให้ความหวานได้ไม่เกิน 65 คะแนน',
   ],
   'more.scoreBody2': [
     'Great is 90 or more, Good is 75 or more, OK is 50 or more, Poor is 25 or more, and Bad is below 25.',
@@ -604,6 +640,11 @@ export const ADDITIVE_TH = {
   228: 'โพแทสเซียมไบซัลไฟต์',
   319: 'TBHQ', 321: 'BHT',
   621: 'ผงชูรส (MSG)', 627: 'ไดโซเดียมกัวไนเลต', 631: 'ไดโซเดียมไอโนซิเนต', 635: 'ไดโซเดียมไรโบนิวคลีโอไทด์',
+  924: 'โพแทสเซียมโบรเมต', '150d': 'สีคาราเมล ชนิดที่ 4',
+  338: 'กรดฟอสฟอริก', 339: 'โซเดียมฟอสเฟต', 340: 'โพแทสเซียมฟอสเฟต', 341: 'แคลเซียมฟอสเฟต',
+  450: 'ไดฟอสเฟต', 451: 'ไตรฟอสเฟต', 452: 'โพลีฟอสเฟต',
+  407: 'คาราจีแนน', 466: 'CMC', 433: 'โพลีซอร์เบต 80', 471: 'โมโนและไดกลีเซอไรด์', 472: 'เอสเทอร์ของโมโนและไดกลีเซอไรด์',
+  968: 'อีริทริทอล',
   950: 'อะซีซัลเฟมโพแทสเซียม', 951: 'แอสปาร์แตม', 952: 'ไซคลาเมต', 954: 'ขัณฑสกร (แซคคาริน)', 955: 'ซูคราโลส',
   960: 'หญ้าหวาน (สตีเวีย)', 961: 'นีโอแตม', 962: 'แอสปาร์แตม-อะซีซัลเฟม', 969: 'แอดแวนแตม',
 };

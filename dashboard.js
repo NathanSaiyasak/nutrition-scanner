@@ -7,7 +7,7 @@
 // 'wide' = two, 'full' = the whole row), a title and a render(data) function that returns HTML. A
 // panel that is not built yet gets `planned: 'what it will show and what it needs'` instead of render,
 // and shows as a dashed box with no numbers. New sections go in SECTIONS.
-import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r17';
+import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r18';
 
 const SESSION_KEY = 'bettr-dashboard-passcode'; // this browser tab only, gone when it is closed
 const CONTRIBUTOR_KEY = 'nutrition-scanner-contributor-passcode'; // saved by the app's Audit log

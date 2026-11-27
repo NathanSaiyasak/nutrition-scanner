@@ -109,3 +109,38 @@ our 2 typed-in products). Point sizes, bonuses, ceilings, sweetener −10, addit
 - When both boxes are empty and Open Food Facts has ingredients for the barcode, those are used instead.
 - No change to the scoring rules.
 - Organic, emulsifiers and phosphates.
+
+## Changed 28 Nov 2026 (Nathan: ranked additives, Option D of the diet drink proposal)
+
+Proposal and test results: https://claude.ai/artifact/MKsmYPbhmsjT34qyDWgN2p (31 drinks and 8 snacks and
+noodles from Open Food Facts). Reason: Coke Zero scored 79 Good, only 10 under water; Yuka gives Diet Coke 41.
+This replaces the additive table and the sweetener rule above.
+
+- **Additives in four tiers** (`additives.js`). The higher the tier, the more points off. All additives
+  together take at most 40 points (was 30).
+
+  | Tier | Points | Row | Additives (INS) |
+  |---|---|---|---|
+  | High risk | −15, counts as a red | Red row in Watch Out | Nitrites and nitrates 249–252, titanium dioxide 171, BHA 320, potassium bromate 924, aspartame 951 (and 962) |
+  | Moderate risk | −8, counts as an orange | Orange row in Watch Out | Colours 102, 104, 110, 122, 124, 129; sulphites 220–228; TBHQ 319, BHT 321; benzoates 210–213; caramel colour IV 150d; acesulfame K 950, cyclamate 952, saccharin 954, sucralose 955, neotame 961, advantame 969 |
+  | Limited risk | −3 | Plain line under the lists | Phosphoric acid and phosphates 338–341, 450–452; carrageenan 407, CMC 466, polysorbate 433, mono- and diglycerides 471, 472; erythritol 968 |
+  | Limited risk, 0 points | 0 | Plain line under the lists (as before) | MSG 621 and flavour enhancers 627, 631, 635 (Nathan, 24 Nov 2026) |
+  | No known risk | 0 | Not shown | Everything else, including stevia 960, plain caramel 150a, citric acid, vitamin C |
+
+  The dropdown of each Watch Out additive starts with its tier ("A high risk additive."), then why, the
+  points and the INS number. **Benzoates take 8 points again** (flag only from 25 Nov 2026) and **MSG
+  stays at 0**; both are easy to change in `additives.js` (GROUPS).
+- **Sweeteners.** Each named sweetener is ranked like any additive, so the old 10 points for any
+  sweetener is gone. **A drink with sweeteners scores 65 at most** (`SWEETENED_DRINK_MAX`), which also
+  covers diet drinks whose ingredients can't be read (spotted by name, category or "Max" as before). Drinks
+  get one Sweeteners row that explains the limit ("No sugar, but uses sweeteners" or "Sweetened with sugar
+  and sweeteners"); foods get it only when the sweetener is known from the name alone.
+- **Additives read from Thai and English words** (`ingredients-read.js`), not only INS numbers, in Open Food
+  Facts ingredients and in the add form: "ซูคราโลส", "โซเดียมเบนโซเอต", "ผงชูรส", "sucralose"… Also
+  "INS211" without a space, "INS 150d", and lists like "INS 296, 327, 330". Before this, a Thai Sprite with
+  sugar, sucralose and acesulfame K scored 85, above Coke Zero.
+- Sample scores (today → now): Coke Zero Thailand 79 → 65 OK; Diet Coke caffeine free UK 79 → 65;
+  Pepsi Max Australia 79 → 60; Thai Sprite (sugar and sweeteners) 85 → 65; 100Plus 85 → 65; Calpis Lacto
+  65 → 49; water, soda water and unsweetened tea 89 unchanged; Coca-Cola 30 unchanged; Est Cola 30 → 19;
+  Koh Kae chicken peanuts 2 → 0; Mama tom yum 0 unchanged.
+

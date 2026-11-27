@@ -1,17 +1,17 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting, countScan, newCheckId, shareLabelCheck } from './shared-db.js?v=r17';
-import { startScanner, scanPhoto } from './scanner.js?v=r17';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r17';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r17';
-import { renderAudit } from './audit-screen.js?v=r17';
-import { buildView, servingText } from './nutrition-view.js?v=r17';
-import { computeScore, SCORE_TEXT } from './score.js?v=r17';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r17';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r17';
-import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r17';
-import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r17';
+import { findProduct, keepAddedProduct, sendWaiting, countScan, newCheckId, shareLabelCheck } from './shared-db.js?v=r18';
+import { startScanner, scanPhoto } from './scanner.js?v=r18';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r18';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r18';
+import { renderAudit } from './audit-screen.js?v=r18';
+import { buildView, servingText } from './nutrition-view.js?v=r18';
+import { computeScore, SCORE_TEXT } from './score.js?v=r18';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r18';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r18';
+import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r18';
+import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r18';
 
 // Fill the page's fixed text in the chosen language (English or Thai) before anything is shown.
 applyStatic();
