@@ -10,6 +10,8 @@
 //   soft: unusual but possible. Scored as normal, the barcode goes on the fix list for a look.
 //
 // The thresholds are first proposals, to tune with the store test data. Nothing here changes a value.
+// Tried on 285 Thai products from Open Food Facts on 27 Nov 2026: 6 failed a hard check (2%), and all 6
+// looked genuinely wrong (saturated fat above fat, 720 kcal rice with no carbs, 111 g in 100 g).
 
 const SLACK_G = 0.5; // labels round, so "sugar 10.2 g, carbs 10 g" is not an error
 
@@ -40,15 +42,17 @@ export function checkNumbers(p, facts, { drink = false, servingAmount = null } =
   if (sugars !== null && carbs !== null && sugars > carbs + SLACK_G) hard.push('sugarOverCarbs');
   if (sat !== null && fat !== null && sat > fat + SLACK_G) hard.push('satOverFat');
 
-  // 100 g can't hold more than about 100 g of carbs, protein, fat and salt.
+  // 100 g can't hold more than 100 g of carbs, protein and fat (5 g slack for rounding). Salt is left
+  // out: tried on 285 Thai products from Open Food Facts (27 Nov 2026), it flagged real soup powders.
   const parts = [carbs, protein, fat];
   if (parts.filter((x) => x !== null).length >= 2) {
-    const total = parts.reduce((sum, x) => sum + (x ?? 0), 0) + (sodium !== null ? sodium / 400 : 0);
+    const total = parts.reduce((sum, x) => sum + (x ?? 0), 0);
     if (total > 105) hard.push('tooHeavy');
   }
 
-  // Pure fat is 900 kcal per 100 g, nothing is higher.
-  if (energy !== null && energy > 900) hard.push('energyTooHigh');
+  // Pure fat is 900 kcal per 100 g, nothing is higher. 950 leaves room for labels that round per
+  // serving (coconut oil printed as 130 kcal per 14 g works out at 929).
+  if (energy !== null && energy > 950) hard.push('energyTooHigh');
 
   // Calories against the macros: 4 kcal per g of carbs and protein, 9 per g of fat.
   if (energy !== null && carbs !== null && protein !== null && fat !== null) {
@@ -58,12 +62,14 @@ export function checkNumbers(p, facts, { drink = false, servingAmount = null } =
       hard.push('looksLikeKj'); // kilojoules typed or stored as kcal (1 kcal = 4.184 kJ)
     } else {
       const gap = Math.abs(energy - fromMacros);
-      const allowed = (pct) => Math.max(pct * Math.max(energy, fromMacros), 15 + 2 * (fibre ?? 0));
+      // Small servings round a lot (1 g of protein in 15 ml of sauce is 6.7 g per 100), so the hard
+      // check allows 25 kcal either way, the soft one 15, plus 2 kcal per gram of fibre.
+      const allowed = (pct, kcal) => Math.max(pct * Math.max(energy, fromMacros), kcal + 2 * (fibre ?? 0));
       // Sugar alcohols, sweeteners and alcohol don't follow the 4-4-9 rule, so only flag softly there.
       const otherEnergy = /sugar[- ]?free|no[- ]sugar|zero|diet|light|ไม่มีน้ำตาล|ไม่เติมน้ำตาล/.test(name)
         || cats.some((c) => /sugar-free|artificially-sweetened|no-added-sugar|diet|alcoholic/.test(c));
-      if (gap > allowed(0.3) && !otherEnergy) hard.push('energyVsMacros');
-      else if (gap > allowed(0.2)) soft.push('energyVsMacros');
+      if (gap > allowed(0.3, 25) && !otherEnergy) hard.push('energyVsMacros');
+      else if (gap > allowed(0.2, 15)) soft.push('energyVsMacros');
     }
   }
 
