@@ -2,6 +2,8 @@
 // Rule: never invent or estimate a value. If Open Food Facts has no number, we return null
 // and the screen shows "Not available".
 
+import { readAdditives } from './ingredients-read.js?v=r18';
+
 const OFF_PRODUCT_API = 'https://world.openfoodfacts.org/api/v2/product/';
 const OFF_PRODUCT_PAGE = 'https://world.openfoodfacts.org/product/';
 const TIMEOUT_MS = 8000;
@@ -90,9 +92,9 @@ export function normalise(raw, barcode) {
   // Facts may miss when it can't read the Thai text.
   const ingredientsText = clean(raw.ingredients_text);
   const additives = Array.isArray(raw.additives_tags) ? raw.additives_tags.map(String) : [];
-  if (ingredientsText) {
-    for (const m of ingredientsText.matchAll(/\b(?:INS|E)\s*-?\s*(\d{3})(?!\d)/gi)) additives.push(`ins:${m[1]}`);
-  }
+  // Also additives named in Thai or English words ("ซูคราโลส", "sodium benzoate"), not only by number
+  // (28 Nov 2026: Thai Sprite's sweeteners were missed because the label names them in Thai).
+  if (ingredientsText) additives.push(...readAdditives(ingredientsText));
   const fvn = readNumber(n['fruits-vegetables-nuts-estimate-from-ingredients_100g'])
     ?? readNumber(n['fruits-vegetables-legumes-estimate-from-ingredients_100g'])
     ?? readNumber(n['fruits-vegetables-nuts_100g']);

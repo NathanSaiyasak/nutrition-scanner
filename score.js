@@ -6,19 +6,21 @@
 // 2. Take points off for each nutrient in Watch out (POINTS below). A drink over 6 g sugar per 100 ml
 //    (the Thai sugar tax line) loses 8 more points for each gram over 6, at most 35. "Very high" (more
 //    than twice the UK red line) loses 10 more and counts as a second red (Nathan, 26 Nov 2026).
-// 3. Take points off for additives of concern (−15 or −8 each, at most −30; benzoates are flagged
-//    in Watch out but take nothing off, Nathan 25 Nov 2026; additives.js).
+// 3. Take points off for additives by their risk tier (Nathan, 28 Nov 2026; additives.js): high risk 15,
+//    moderate 8, limited 3, no known risk 0, at most 40 in all. MSG takes 0 (Nathan, 24 Nov 2026).
 // 4. Add points for Good points: protein, fibre (+5 source, +10 high), mostly fruit/vegetables/nuts (+10).
 //    At most +20.
 // 5. Ceilings: any orange, no Good point, or no ingredients list → 89 (so Great needs none of these);
-//    1 red → 70, 2 reds → 45, 3 or more → 20 (a red additive counts as a red).
-// 6. Sweeteners → 10 points off, after the ceilings so they always count (Nathan, 25 Nov 2026).
+//    1 red → 70, 2 reds → 45, 3 or more → 20 (a high risk additive counts as a red).
+// 6. A drink with sweeteners scores 65 at most (Nathan, 28 Nov 2026). Each named sweetener is ranked as an
+//    additive (aspartame high, acesulfame K and sucralose moderate…), so the old 10 points for any
+//    sweetener (25 Nov 2026) is gone. The limit also catches diet drinks whose ingredients we can't read.
 // 7. Labels: 90+ Great, 75+ Good, 50+ OK, 25+ Poor, else Bad.
 // Shown only when calories, sugar, fat, saturated fat and sodium can all be judged, and the numbers
 // pass the automatic hard checks (checks.js, 27 Nov 2026). The points themselves are unchanged.
 
-import { SWEETENER_POINTS } from './additives.js?v=r17';
-import { t } from './i18n.js?v=r17';
+import { SWEETENED_DRINK_MAX } from './additives.js?v=r18';
+import { t } from './i18n.js?v=r18';
 
 const POINTS = {
   sugars: { medium: 15, high: 35 },
@@ -93,10 +95,9 @@ export function computeScore(view) {
   else if (reds === 2) ceiling = 45;
   else if (reds >= 3) ceiling = 20;
 
-  // Sweeteners come off after the ceilings, so they always cost 10 points (taken before the 89
-  // ceiling, a zero-calorie diet drink would score the same as water).
-  const sweetener = view.extras.sweetener ? SWEETENER_POINTS : 0;
-  const score = Math.max(0, Math.min(ceiling, 100 - minus + bonus) - sweetener);
+  let score = Math.max(0, Math.min(ceiling, 100 - minus + bonus));
+  // Sweetened drinks: at most 65 (OK), so a diet drink never ends up near water (89).
+  if (view.drink && view.extras.sweetener) score = Math.min(score, SWEETENED_DRINK_MAX);
   // verdict stays the English name (it picks the colour); the screen shows it in the chosen language.
   const [verdict, tone] = score >= 90 ? ['Great', 'great']
     : score >= 75 ? ['Good', 'good']
