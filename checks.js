@@ -10,7 +10,7 @@
 //   soft: unusual but possible. Scored as normal, the barcode goes on the fix list for a look.
 //
 // The thresholds are first proposals, to tune with the store test data. Nothing here changes a value.
-// Tried on 285 Thai products from Open Food Facts on 27 Nov 2026: 6 failed a hard check (2%), and all 6
+// Tried on 285 Thai products from Open Food Facts on 27 Nov 2026: 5 failed a hard check (2%), and all 5
 // looked genuinely wrong (saturated fat above fat, 720 kcal rice with no carbs, 111 g in 100 g).
 
 const SLACK_G = 0.5; // labels round, so "sugar 10.2 g, carbs 10 g" is not an error
@@ -90,7 +90,7 @@ export function checkNumbers(p, facts, { drink = false, servingAmount = null } =
   // Unusual for the type of product.
   if (drink && energy !== null && energy > 100) soft.push('drinkEnergy');
   const salty = cats.some((c) => /sauce|seasoning|condiment|salt|stock|bouillon|soy|fish-sauce|paste/.test(c))
-    || /sauce|seasoning|ซอส|น้ำปลา|ซีอิ๊ว|เครื่องปรุง|ผงปรุงรส|เกลือ|กะปิ/.test(name);
+    || /sauce|seasoning|paste|ซอส|น้ำปลา|ซีอิ๊ว|เครื่องปรุง|ผงปรุงรส|เกลือ|กะปิ/.test(name);
   if (!drink && sodium !== null && sodium > 8000 && !salty) soft.push('sodiumVeryHigh');
 
   // Per serving and per 100 both on the label: they should agree with the serving size.

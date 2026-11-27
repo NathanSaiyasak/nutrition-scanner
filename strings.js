@@ -279,7 +279,7 @@ export const STRINGS = {
   'audit.disputed': ['Our entries for this product disagree, so it\'s on the fix list in the Audit log.', 'ข้อมูลที่เรากรอกไว้ของสินค้านี้ไม่ตรงกัน เลยอยู่ในรายการที่ต้องแก้ในบันทึกตรวจสอบ'],
   'check.sugarOverCarbs': ['Sugar is more than carbs.', 'น้ำตาลมากกว่าคาร์บ'],
   'check.satOverFat': ['Saturated fat is more than total fat.', 'ไขมันอิ่มตัวมากกว่าไขมันทั้งหมด'],
-  'check.tooHeavy': ['Carbs, protein, fat and salt add up to more than 100 g.', 'คาร์บ โปรตีน ไขมัน และเกลือ รวมกันเกิน 100 กรัม'],
+  'check.tooHeavy': ['Carbs, protein and fat add up to more than 100 g.', 'คาร์บ โปรตีน และไขมัน รวมกันเกิน 100 กรัม'],
   'check.energyTooHigh': ['More than 900 kcal per 100 g.', 'พลังงานเกิน 900 กิโลแคลอรีต่อ 100 กรัม'],
   'check.looksLikeKj': ['Calories look like kilojoules, about 4 times too high.', 'แคลอรีดูเหมือนเป็นกิโลจูล สูงไปราว 4 เท่า'],
   'check.energyVsMacros': ['Calories don\'t match the carbs, protein and fat.', 'แคลอรีไม่ตรงกับคาร์บ โปรตีน และไขมัน'],

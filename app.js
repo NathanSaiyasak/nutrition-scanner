@@ -420,7 +420,8 @@ function renderProduct(p) {
 // for this product disagree (entry-state.js). Shoppers only see "Some numbers on this one look off".
 function renderChecks(view, p) {
   const box = $('number-checks');
-  const list = (codes) => codes.map((c) => t(`check.${c}`)).join(t('common.sentenceGap'));
+  // Each English line ends with its own full stop and Thai uses a space between sentences, so a space joins both.
+  const list = (codes) => codes.map((c) => t(`check.${c}`)).join(' ');
   const lines = [];
   if (view && view.checks.hard.length) lines.push(t('audit.checksHard', { list: list(view.checks.hard) }));
   if (view && view.checks.soft.length) lines.push(t('audit.checksSoft', { list: list(view.checks.soft) }));
