@@ -1,13 +1,13 @@
 // audit-screen.js — the v0.2 audit summary: figures against the go/no-go pass marks,
 // CSV export, the recent scans, and "clear the log".
 import {
-  loadLog, clearLog, summarise, toCsv, csvFileName, localDateTime,
+  loadLog, clearLog, summarise, toCsv, csvFileName, localDateTime, fixList,
   ADD_TARGET_SECONDS, SMALL_SAMPLE,
-} from './audit.js?v=r15';
+} from './audit.js?v=r16';
 import {
   sharedConfigured, getPasscode, savePasscode, forgetPasscode, sendWaiting, waitingCount,
-} from './shared-db.js?v=r15';
-import { t } from './i18n.js?v=r15';
+} from './shared-db.js?v=r16';
+import { t } from './i18n.js?v=r16';
 
 const $ = (id) => document.getElementById(id);
 
@@ -108,6 +108,7 @@ export function renderAudit() {
     })
     : '';
 
+  renderFixList(log);
   renderRecent(log);
   renderShared();
 
@@ -115,6 +116,22 @@ export function renderAudit() {
   $('clear-button').disabled = s.scans === 0;
   $('share-button').hidden = s.scans === 0 || !canShareFiles();
   $('export-status').hidden = true;
+}
+
+function renderFixList(log) {
+  const items = fixList(log);
+  const list = $('fix-list');
+  list.replaceChildren();
+  $('fix-empty').hidden = items.length > 0;
+  for (const item of items) {
+    const li = el('li');
+    const top = el('div', 'recent-top');
+    top.append(el('span', 'mono', item.barcode), el('span', 'meta', t('log.fix.scans', { n: item.scans })));
+    li.append(top);
+    if (item.name) li.append(el('div', 'recent-name', item.name));
+    li.append(el('div', 'meta', t(`log.fix.${item.reason}`)));
+    list.append(li);
+  }
 }
 
 function renderRecent(log) {

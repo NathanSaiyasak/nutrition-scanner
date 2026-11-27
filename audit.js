@@ -78,6 +78,11 @@ export function logScan(scan) {
     valuesPresent: scan.valuesPresent ?? null,
     valuesTotal: scan.valuesTotal ?? null,
     complete,
+    // Automatic number checks (checks.js) and our entries' state (entry-state.js), 27 Nov 2026.
+    checksHard: scan.checks ? scan.checks.hard : [],
+    checksSoft: scan.checks ? scan.checks.soft : [],
+    entryState: scan.entryState ?? null, // 'verified' | 'pending' | 'unverified' (Open Food Facts)
+    disputed: Boolean(scan.disputed),
     labelCheck: null, // 'matches' | 'differs' | 'cant-tell', set on the product screen
     labelNote: null,
     added: null,
@@ -183,6 +188,41 @@ function median(sorted) {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
+// ---------- Fix list (27 Nov 2026) ----------
+// What our team should fix first: barcodes whose latest scan was not found, had no nutrition facts,
+// failed a hard number check, has disagreeing entries, didn't match the pack, or is worth a look.
+// Most scanned first, so a few products cover most real scans. Products added by hand since are left out.
+const FIX_ORDER = ['notFound', 'noFacts', 'hard', 'disputed', 'differs', 'soft'];
+
+export function fixList(log, max = 30) {
+  const byBarcode = new Map();
+  for (const row of log) {
+    if (row.result === 'error') continue;
+    const item = byBarcode.get(row.barcode) || { barcode: row.barcode, scans: 0, latest: null, name: null };
+    item.scans += 1;
+    item.latest = row;
+    item.name = row.productName || row.added?.name || item.name;
+    byBarcode.set(row.barcode, item);
+  }
+  const items = [];
+  for (const item of byBarcode.values()) {
+    const r = item.latest;
+    if (r.added) continue; // fixed by hand on this scan
+    let reason = null;
+    if (r.result === 'not-found') reason = 'notFound';
+    else if (!(r.valuesPresent > 0)) reason = 'noFacts';
+    else if ((r.checksHard || []).length) reason = 'hard';
+    else if (r.disputed) reason = 'disputed';
+    else if (r.labelCheck === 'differs') reason = 'differs';
+    else if ((r.checksSoft || []).length) reason = 'soft';
+    if (reason) items.push({ ...item, reason, time: r.time });
+  }
+  items.sort((a, b) => (b.scans - a.scans)
+    || (FIX_ORDER.indexOf(a.reason) - FIX_ORDER.indexOf(b.reason))
+    || String(b.time).localeCompare(String(a.time)));
+  return items.slice(0, max);
+}
+
 // ---------- CSV ----------
 
 const CSV_COLUMNS = [
@@ -199,6 +239,10 @@ const CSV_COLUMNS = [
   ['open_food_facts_complete', (r) => (r.source && r.source !== 'off' ? yesNo(r.offComplete) : '')],
   ['nutrition_values_present', (r) => (r.valuesPresent == null ? '' : `${r.valuesPresent} of ${r.valuesTotal}`)],
   ['nutrition_complete', (r) => yesNo(r.complete)],
+  ['number_checks_failed', (r) => (r.checksHard || []).join('; ')],
+  ['number_checks_worth_a_look', (r) => (r.checksSoft || []).join('; ')],
+  ['entry_state', (r) => ({ verified: 'verified', pending: 'pending', unverified: 'Open Food Facts, not checked' }[r.entryState] || '')],
+  ['our_entries_disagree', (r) => (r.result === 'found' && r.source && r.source !== 'off' ? yesNo(Boolean(r.disputed)) : '')],
   ['matches_label', (r) => ({ matches: 'matches', differs: 'differs', 'cant-tell': "can't tell" }[r.labelCheck] || '')],
   ['label_difference_note', (r) => r.labelNote],
   ['added_by_hand', (r) => (r.added ? (r.added.kind === 'correction' ? 'yes (correction)' : 'yes (new product)') : 'no')],

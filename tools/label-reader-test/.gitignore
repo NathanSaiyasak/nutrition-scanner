@@ -1,0 +1,5 @@
+photos/
+results/
+node_modules/
+answer-key.csv
+.env

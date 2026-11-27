@@ -94,6 +94,7 @@ export const STRINGS = {
   'score.aria': ['Score {score} out of 100, {verdict}', 'คะแนน {score} จาก 100 ระดับ{verdict}'],
   'score.unchecked': ['Ingredients not available, so additives weren\'t checked.', 'ไม่มีรายการส่วนประกอบ เลยยังไม่ได้ตรวจวัตถุเจือปน'],
   'score.missing': ['Not enough information to score yet.', 'ข้อมูลยังไม่พอให้คะแนน'],
+  'score.flagged': ['Some numbers on this one look off, so there\'s no score yet.', 'ตัวเลขบางค่าของสินค้านี้ดูไม่ถูกต้อง เลยยังไม่ให้คะแนน'],
   'result.photoOf': ['Photo of {name}', 'รูป {name}'],
   'result.goodPoint': ['Good point', 'ข้อดี'],
   'group.watch': ['Watch Out', 'ควรระวัง'],
@@ -272,6 +273,22 @@ export const STRINGS = {
 
   // ---------- Store audit box on the result ----------
   'audit.box': ['Check it against the pack (store audit)', 'เทียบกับฉลาก (ตรวจในร้าน)'],
+  // Automatic number checks and our entries' state (27 Nov 2026), shown to testers in the store audit box.
+  'audit.checksHard': ['No score, because a number check failed. {list}', 'ไม่ให้คะแนน เพราะตัวเลขไม่ผ่านการตรวจ {list}'],
+  'audit.checksSoft': ['Scored, but worth a look. {list}', 'ให้คะแนนแล้ว แต่ควรตรวจดู {list}'],
+  'audit.disputed': ['Our entries for this product disagree, so it\'s on the fix list in the Audit log.', 'ข้อมูลที่เรากรอกไว้ของสินค้านี้ไม่ตรงกัน เลยอยู่ในรายการที่ต้องแก้ในบันทึกตรวจสอบ'],
+  'check.sugarOverCarbs': ['Sugar is more than carbs.', 'น้ำตาลมากกว่าคาร์บ'],
+  'check.satOverFat': ['Saturated fat is more than total fat.', 'ไขมันอิ่มตัวมากกว่าไขมันทั้งหมด'],
+  'check.tooHeavy': ['Carbs, protein and fat add up to more than 100 g.', 'คาร์บ โปรตีน และไขมัน รวมกันเกิน 100 กรัม'],
+  'check.energyTooHigh': ['More than 900 kcal per 100 g.', 'พลังงานเกิน 900 กิโลแคลอรีต่อ 100 กรัม'],
+  'check.looksLikeKj': ['Calories look like kilojoules, about 4 times too high.', 'แคลอรีดูเหมือนเป็นกิโลจูล สูงไปราว 4 เท่า'],
+  'check.energyVsMacros': ['Calories don\'t match the carbs, protein and fat.', 'แคลอรีไม่ตรงกับคาร์บ โปรตีน และไขมัน'],
+  'check.allZero': ['Every value is 0.', 'ทุกค่าเป็น 0'],
+  'check.saltVsSodium': ['Salt and sodium don\'t match.', 'เกลือกับโซเดียมไม่ตรงกัน'],
+  'check.sodiumTiny': ['Sodium looks far too low, maybe the wrong unit.', 'โซเดียมต่ำผิดปกติ อาจใส่หน่วยผิด'],
+  'check.drinkEnergy': ['Over 100 kcal per 100 ml, unusual for a drink.', 'พลังงานเกิน 100 กิโลแคลอรีต่อ 100 มล ซึ่งแปลกสำหรับเครื่องดื่ม'],
+  'check.sodiumVeryHigh': ['Over 8,000 mg of sodium per 100 g.', 'โซเดียมเกิน 8,000 มิลลิกรัมต่อ 100 กรัม'],
+  'check.servingMaths': ['Per serving and per 100 don\'t match the serving size.', 'ค่าต่อหน่วยบริโภคกับค่าต่อ 100 ไม่ตรงกับขนาดหน่วยบริโภค'],
   'audit.fromHistory': ['Opened from History. To check it against the pack, scan it again.', 'เปิดจากประวัติ ถ้าจะเทียบกับฉลาก ให้สแกนใหม่อีกครั้ง'],
   'audit.fromFavorites': ['Opened from Favorites. To check it against the pack, scan it again.', 'เปิดจากรายการโปรด ถ้าจะเทียบกับฉลาก ให้สแกนใหม่อีกครั้ง'],
   'audit.colNutrient': ['Nutrient', 'สารอาหาร'],
@@ -354,6 +371,7 @@ export const STRINGS = {
   'history.badge': ['Score {score}, {verdict}', 'คะแนน {score} ระดับ{verdict}'],
   // Rows without a score say why instead of showing nothing (UX review item 14).
   'history.noFacts': ['No nutrition facts yet', 'ยังไม่มีข้อมูลโภชนาการ'],
+  'history.flagged': ['Some numbers look off, so no score', 'ตัวเลขดูไม่ถูกต้อง เลยยังไม่ให้คะแนน'],
   'history.noScore': ['Not enough information to score', 'ข้อมูลยังไม่พอให้คะแนน'],
 
   // ---------- Favorite (V1) ----------
@@ -427,6 +445,17 @@ export const STRINGS = {
   'log.forget': ['Remove the passcode from this phone', 'ลบรหัสออกจากเครื่องนี้'],
   'log.sendWaitingStatic': ['Send waiting products', 'ส่งสินค้าที่รออยู่'],
   'log.recent': ['Recent scans', 'การสแกนล่าสุด'],
+  // Fix list (27 Nov 2026): what our team should fix first, most-scanned first.
+  'log.fix.title': ['Fix list', 'รายการที่ต้องแก้'],
+  'log.fix.intro': ['Products to fix first, most scanned on this phone at the top. Scan one and use the store audit box to fix it.', 'สินค้าที่ควรแก้ก่อน เรียงจากที่สแกนบ่อยที่สุดในเครื่องนี้ สแกนแล้วใช้กล่องตรวจกับฉลากเพื่อแก้'],
+  'log.fix.empty': ['Nothing to fix yet.', 'ยังไม่มีอะไรต้องแก้'],
+  'log.fix.notFound': ['Not found', 'ไม่เจอ'],
+  'log.fix.noFacts': ['No nutrition facts', 'ไม่มีข้อมูลโภชนาการ'],
+  'log.fix.hard': ['Numbers look off, no score', 'ตัวเลขดูไม่ถูกต้อง ไม่มีคะแนน'],
+  'log.fix.disputed': ['Our entries disagree', 'ข้อมูลที่เรากรอกไม่ตรงกัน'],
+  'log.fix.differs': ['Doesn\'t match the pack', 'ไม่ตรงกับฉลาก'],
+  'log.fix.soft': ['Worth a look', 'ควรตรวจดู'],
+  'log.fix.scans': [({ n }) => `${n} scan${s(n, '', 's')}`, 'สแกน {n} ครั้ง'],
   'log.clear': ['Clear the log', 'ล้างบันทึก'],
   'log.chip.pass': ['Pass', 'ผ่าน'],
   'log.chip.below': ['Below target', 'ต่ำกว่าเป้า'],
