@@ -7,11 +7,13 @@
 //
 // Lookups ask Open Food Facts and our own products at the same time. If we have typed the product in
 // from its label, our values are shown (testers found Open Food Facts often differs from the pack),
-// with the Open Food Facts photo when there is one. Values are kept exactly as typed: a blank box stays
+// with the Open Food Facts photo when there is one. Which of our entries is shown, and whether our
+// entries disagree, follows entry-state.js (27 Nov 2026; before that the newest entry won). Values are kept exactly as typed: a blank box stays
 // "not available", "<1" stays "<1".
-import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r14';
-import { lookupProduct, NUTRIENTS } from './lookup.js?v=r14';
-import { ADD_FIELDS, countAddedValues } from './audit.js?v=r14';
+import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r15';
+import { lookupProduct, NUTRIENTS } from './lookup.js?v=r15';
+import { ADD_FIELDS, countAddedValues } from './audit.js?v=r15';
+import { chooseEntry, entriesAgree } from './entry-state.js?v=r15';
 
 const ADDED_KEY = 'nutrition-scanner-added-products-v1';
 const PASSCODE_KEY = 'nutrition-scanner-contributor-passcode';
@@ -171,16 +173,26 @@ function toDbRow(rec) {
  * product.source is 'off' (Open Food Facts), 'shared' (our shared database) or 'phone' (added on this phone).
  */
 export async function findProduct(barcode) {
-  const [off, shared] = await Promise.all([lookupProduct(barcode), lookupShared(barcode)]);
+  const [off, sharedRows] = await Promise.all([lookupProduct(barcode), lookupShared(barcode)]);
   const local = latestLocal(barcode);
 
-  // Our own entry, the newest of the shared one and the one saved on this phone.
-  let ours = shared;
-  if (local && (!ours || local.savedAt > ours.savedAt)) ours = local;
+  // Our own entries, newest first: the shared ones plus the latest one saved on this phone (skipped when
+  // it is already in the shared list). Entries saved on this phone are a tester's, so they count as verified.
+  const entries = [...sharedRows];
+  const time = (iso) => { const ms = new Date(iso || 0).getTime(); return Number.isFinite(ms) ? ms : 0; };
+  if (local && !sharedRows.some((r) => r.addedAt && time(r.addedAt) === time(local.savedAt))) entries.push(local);
+  entries.sort((a, b) => time(b.savedAt) - time(a.savedAt));
+  const choice = chooseEntry(entries);
+  const ours = choice ? choice.entry : null;
 
   if (ours) {
     const offProduct = off.kind === 'found' ? off.product : null;
-    const product = fromAdded(ours, ours === shared ? 'shared' : 'phone');
+    const product = fromAdded(ours, ours === local ? 'phone' : 'shared');
+    product.entryState = choice.state;
+    product.disputed = choice.disputed;
+    // A shopper's entry that agrees with Open Food Facts counts as checked (two independent sources).
+    if (choice.state === 'pending' && !choice.disputed && offProduct
+      && entriesAgree(ours, offAsEntry(offProduct)) === true) product.entryState = 'verified';
     if (offProduct) {
       product.image = offProduct.image; // photo from Open Food Facts, values from the label
       product.offUrl = offProduct.offUrl;
@@ -199,8 +211,22 @@ export async function findProduct(barcode) {
     if (off.kind !== 'found' && off.kind !== 'not-found') product.offComplete = null; // unknown
     return { kind: 'found', product };
   }
-  if (off.kind === 'found') off.product.source = 'off';
+  if (off.kind === 'found') {
+    off.product.source = 'off';
+    off.product.entryState = 'unverified'; // Open Food Facts, never compared with the pack by us
+    off.product.disputed = false;
+  }
   return off;
+}
+
+// Open Food Facts values in the shape of one of our entries, to compare them (per 100 g or ml).
+function offAsEntry(offProduct) {
+  const values = {};
+  for (const [field, rowKey] of Object.entries(FIELD_TO_ROW)) {
+    const row = offProduct.rows.find((r) => r.key === rowKey);
+    values[field] = row && row.per100 !== null ? row.per100 : null;
+  }
+  return { basis: 'per 100 g', servingSize: null, values };
 }
 
 function latestLocal(barcode) {
@@ -208,18 +234,26 @@ function latestLocal(barcode) {
   return mine.length ? mine[mine.length - 1] : null;
 }
 
-// Newest shared entry for a barcode, in the same shape as a phone-saved record, or null.
+// The newest shared entries for a barcode (up to 10, newest first), in the same shape as a phone-saved
+// record. An empty list when there are none or the database can't be reached.
 async function lookupShared(barcode) {
-  if (!sharedConfigured() || !/^\d{6,14}$/.test(barcode)) return null;
+  if (!sharedConfigured() || !/^\d{6,14}$/.test(barcode)) return [];
   const res = await callApi(
-    `${TABLE}?barcode=eq.${barcode}&order=created_at.desc&limit=1&select=*`, { method: 'GET' });
-  if (!res.ok || !Array.isArray(res.data) || !res.data.length) return null; // any problem: fall back
-  const r = res.data[0];
+    `${TABLE}?barcode=eq.${barcode}&order=created_at.desc&limit=10&select=*`, { method: 'GET' });
+  if (!res.ok || !Array.isArray(res.data)) return []; // any problem: fall back
+  return res.data.map(fromRow);
+}
+
+function fromRow(r) {
   const values = {};
   for (const f of ADD_FIELDS) values[f.key] = parseValue(r[f.key]);
   return {
     barcode: r.barcode,
     savedAt: r.created_at,
+    addedAt: r.added_at || null, // the phone's own save time, to spot an entry this phone already sent
+    // Missing on databases set up before 27 Nov 2026 (supabase/add-status.sql): every entry so far came
+    // from a tester with the passcode, so it counts as verified.
+    status: r.status === 'pending' ? 'pending' : 'verified',
     kind: r.kind,
     name: r.name,
     brand: r.brand,

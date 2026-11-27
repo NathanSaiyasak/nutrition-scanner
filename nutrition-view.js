@@ -2,8 +2,9 @@
 // Turns a product from lookup.js into the shopper view: Watch out / Good points / Nutrition facts / Not available.
 // Rules and thresholds: docs/prototype-v0.3-spec.md and docs/prototype-v0.5-spec.md.
 // Never invents a value: a missing number goes in "Not available".
-import { extraRows, nutType } from './additives.js?v=r14';
-import { t, lang } from './i18n.js?v=r14';
+import { extraRows, nutType } from './additives.js?v=r15';
+import { t, lang } from './i18n.js?v=r15';
+import { checkNumbers } from './checks.js?v=r15';
 
 // Thai daily guide amounts, used for the "% of a day" bars.
 const DAILY = { energy: 2000, sugars: 65, fat: 65, satfat: 20, sodium: 2000, protein: 50, fibre: 25, carbs: 300 };
@@ -36,7 +37,7 @@ const FIBRE_MIN = 1.5;
 
 /**
  * Build the shopper view of a product.
- * Returns { basisLabel, groups: [{ id, title, items }], items, facts, drink, healthyFat, extras, ingredientsKnown, judged }
+ * Returns { basisLabel, groups: [{ id, title, items }], items, facts, drink, healthyFat, extras, ingredientsKnown, judged, checks }
  * Each item: { key, name, amount, note, details (string[]), pct (0–100+ or null), tone: 'bad'|'warn'|'good'|'na', level }
  */
 export function buildView(p) {
@@ -161,8 +162,11 @@ export function buildView(p) {
     { id: 'missing', title: t('group.missing'), items: items.filter((i) => i.group === 'missing') },
   ].filter((g) => g.items.length > 0);
 
+  // Automatic number checks (27 Nov 2026, checks.js): a hard failure means no score.
+  const checks = checkNumbers(p, facts, { drink, servingAmount });
+
   return {
-    basisLabel, groups, items, facts, drink, healthyFat, extras, judged,
+    basisLabel, groups, items, facts, drink, healthyFat, extras, judged, checks,
     infoLine: extras.infoLine,
     ingredientsKnown: Boolean(p.ingredientsKnown),
   };

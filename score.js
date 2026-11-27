@@ -14,10 +14,11 @@
 //    1 red → 70, 2 reds → 45, 3 or more → 20 (a red additive counts as a red).
 // 6. Sweeteners → 10 points off, after the ceilings so they always count (Nathan, 25 Nov 2026).
 // 7. Labels: 90+ Great, 75+ Good, 50+ OK, 25+ Poor, else Bad.
-// Shown only when calories, sugar, fat, saturated fat and sodium can all be judged.
+// Shown only when calories, sugar, fat, saturated fat and sodium can all be judged, and the numbers
+// pass the automatic hard checks (checks.js, 27 Nov 2026). The points themselves are unchanged.
 
-import { SWEETENER_POINTS } from './additives.js?v=r14';
-import { t } from './i18n.js?v=r14';
+import { SWEETENER_POINTS } from './additives.js?v=r15';
+import { t } from './i18n.js?v=r15';
 
 const POINTS = {
   sugars: { medium: 15, high: 35 },
@@ -39,17 +40,21 @@ export const SCORE_TEXT = {
   checked: '', // nothing shown when the ingredients were checked (Nathan, 24 Nov 2026)
   unchecked: t('score.unchecked'),
   missing: t('score.missing'),
+  flagged: t('score.flagged'),
 };
 
 /**
  * Score a view from nutrition-view.js buildView().
  * Returns null when there is nothing to judge, { missing: true } when a key value is missing,
+ * { missing: true, flagged: true } when a number fails a hard check (checks.js),
  * otherwise { score, verdict, tone, note }.
  */
 export function computeScore(view) {
   if (!view || !view.judged) return null;
   const known = (key) => view.facts.some((f) => f.key === key && f.judge100 !== null);
   if (!REQUIRED.every(known)) return { missing: true, note: SCORE_TEXT.missing };
+  // Numbers that can't be right (sugar above carbs, kJ stored as kcal…): show them, but don't score them.
+  if (view.checks && view.checks.hard.length) return { missing: true, flagged: true, note: SCORE_TEXT.flagged };
 
   let minus = 0;
   let reds = 0;

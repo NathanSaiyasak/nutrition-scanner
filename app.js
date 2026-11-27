@@ -1,17 +1,17 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r14';
-import { startScanner, scanPhoto } from './scanner.js?v=r14';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r14';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r14';
-import { renderAudit } from './audit-screen.js?v=r14';
-import { buildView, servingText } from './nutrition-view.js?v=r14';
-import { computeScore, SCORE_TEXT } from './score.js?v=r14';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r14';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r14';
-import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r14';
-import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r14';
+import { findProduct, keepAddedProduct, sendWaiting } from './shared-db.js?v=r15';
+import { startScanner, scanPhoto } from './scanner.js?v=r15';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r15';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r15';
+import { renderAudit } from './audit-screen.js?v=r15';
+import { buildView, servingText } from './nutrition-view.js?v=r15';
+import { computeScore, SCORE_TEXT } from './score.js?v=r15';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r15';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r15';
+import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r15';
+import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r15';
 
 // Fill the page's fixed text in the chosen language (English or Thai) before anything is shown.
 applyStatic();
@@ -303,6 +303,10 @@ export async function handleBarcode(barcode, how = { method: 'typed' }) {
     offComplete: product ? (product.source === 'off' ? product.completeness.present === product.completeness.total : product.offComplete) : null,
     valuesPresent: product ? product.completeness.present : null,
     valuesTotal: product ? product.completeness.total : null,
+    // Number checks and our entries' state (27 Nov 2026), for the fix list and the store test figures.
+    checks: product && product.hasNutrition ? buildView(product).checks : null,
+    entryState: product ? product.entryState || null : null,
+    disputed: product ? Boolean(product.disputed) : false,
   });
 
   if (lookupId !== currentLookup) return; // the person already moved on
@@ -407,8 +411,22 @@ function renderProduct(p) {
   const view = p.hasNutrition ? buildView(p) : null;
   renderScore(computeScore(view), view);
   renderGroups(view);
+  renderChecks(view, p);
 
   show('screen-product');
+}
+
+// For testers, in the store audit box: which number checks failed (checks.js) and whether our entries
+// for this product disagree (entry-state.js). Shoppers only see "Some numbers on this one look off".
+function renderChecks(view, p) {
+  const box = $('number-checks');
+  const list = (codes) => codes.map((c) => t(`check.${c}`)).join(t('common.sentenceGap'));
+  const lines = [];
+  if (view && view.checks.hard.length) lines.push(t('audit.checksHard', { list: list(view.checks.hard) }));
+  if (view && view.checks.soft.length) lines.push(t('audit.checksSoft', { list: list(view.checks.soft) }));
+  if (p.disputed) lines.push(t('audit.disputed'));
+  box.textContent = lines.join(' ');
+  box.hidden = lines.length === 0;
 }
 
 // Where the values come from: Open Food Facts, or typed in from the pack by our testers.
@@ -881,7 +899,8 @@ function productRow(item, onOpen, options = {}) {
     button.append(badge);
   } else {
     // No score: say why in the meta line, so the row doesn't look broken (UX review item 14).
-    text.append(el('span', 'history-meta history-noscore', t(p.hasNutrition ? 'history.noScore' : 'history.noFacts')));
+    const why = !p.hasNutrition ? 'history.noFacts' : score && score.flagged ? 'history.flagged' : 'history.noScore';
+    text.append(el('span', 'history-meta history-noscore', t(why)));
   }
   button.addEventListener('click', onOpen);
   li.append(button);
