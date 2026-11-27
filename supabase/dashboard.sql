@@ -64,6 +64,8 @@ create table if not exists private.security_events (
   kind text not null check (kind in ('wrong-passcode-audit', 'wrong-passcode-dashboard'))
 );
 create index if not exists security_events_at_idx on private.security_events (at desc);
+-- Row Level Security on with no policies: only the functions below (which run as the owner) can touch it.
+alter table private.security_events enable row level security;
 
 -- The Audit log screen's "Save passcode" button calls check_passcode. It now notes a wrong passcode.
 -- (When add_product or add_label_check get a wrong passcode they still refuse, but that note is undone
@@ -93,6 +95,7 @@ create table if not exists private.dashboard_passcode (
   id   integer primary key default 1 check (id = 1),
   hash text not null
 );
+alter table private.dashboard_passcode enable row level security;
 
 create or replace function private.dashboard_passcode_ok(p_passcode text)
 returns boolean
