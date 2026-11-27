@@ -8,7 +8,7 @@
   <title>Bettr</title>
   <link rel="preload" href="fonts/LINESeedSansTH-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/LINESeedSansTH-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=r16">
+  <link rel="stylesheet" href="style.css?v=r17">
 </head>
 <body data-screen="screen-start" class="has-tabbar">
   <!-- Icons and the Bettr wordmark, drawn once and reused with <use>. Shapes come from the Bettr
@@ -36,6 +36,7 @@
     <symbol id="i-chev-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></symbol>
     <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M8 16v-5M12.5 16V7M17 16v-8"/></symbol>
     <symbol id="i-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 18a9 9 0 1 1 15 0M12 13l3.5-3.5"/></symbol>
     <symbol id="i-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.5"/><path d="M4.5 5.5v13c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-13M4.5 12c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5"/></symbol>
     <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></symbol>
@@ -453,6 +454,11 @@
         <span class="more-text"><b data-i18n="more.auditTitle">Audit log</b><small data-i18n="more.auditSub">Scans, pass marks, CSV</small></span>
         <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
       </button>
+      <a class="more-item more-link" href="dashboard.html">
+        <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-chart"/></svg></span>
+        <span class="more-text"><b data-i18n="more.dashTitle">Dashboard</b><small data-i18n="more.dashSub">Coverage, fix list, activity</small></span>
+        <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
+      </a>
       <p class="more-foot" data-i18n="more.foot">Bettr prototype v0.5</p>
     </div>
   </div>
@@ -481,6 +487,6 @@
 
   <!-- Barcode reader for phones without a built-in one (e.g. iPhone). MIT licence, see vendor/LICENSES.txt -->
   <script src="vendor/barcode-detector-ponyfill.js"></script>
-  <script type="module" src="app.js?v=r16"></script>
+  <script type="module" src="app.js?v=r17"></script>
 </body>
 </html>

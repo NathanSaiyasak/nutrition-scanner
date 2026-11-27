@@ -10,10 +10,10 @@
 // with the Open Food Facts photo when there is one. Which of our entries is shown, and whether our
 // entries disagree, follows entry-state.js (27 Nov 2026; before that the newest entry won). Values are kept exactly as typed: a blank box stays
 // "not available", "<1" stays "<1".
-import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r16';
-import { lookupProduct, NUTRIENTS } from './lookup.js?v=r16';
-import { ADD_FIELDS, countAddedValues } from './audit.js?v=r16';
-import { chooseEntry, entriesAgree } from './entry-state.js?v=r16';
+import { SHARED_DB_URL, SHARED_DB_KEY } from './config.js?v=r17';
+import { lookupProduct, NUTRIENTS } from './lookup.js?v=r17';
+import { ADD_FIELDS, countAddedValues } from './audit.js?v=r17';
+import { chooseEntry, entriesAgree } from './entry-state.js?v=r17';
 
 const ADDED_KEY = 'nutrition-scanner-added-products-v1';
 const PASSCODE_KEY = 'nutrition-scanner-contributor-passcode';
@@ -353,13 +353,15 @@ export function scanOutcome(product) {
   return { outcome: 'incomplete', missing: missing.join(',') };
 }
 
-export function countScan(barcode, product) {
+export function countScan(barcode, product, flags = '') {
   if (!sharedConfigured() || !/^\d{6,14}$/.test(barcode)) return;
   const { outcome, missing } = scanOutcome(product);
-  callApi('rpc/count_scan', {
-    method: 'POST',
-    body: { p_barcode: barcode, p_outcome: outcome, p_missing: missing, p_tester: Boolean(getPasscode()) },
-  }).catch(() => {});
+  const body = { p_barcode: barcode, p_outcome: outcome, p_missing: missing, p_tester: Boolean(getPasscode()) };
+  // flags: what the number checks and entry states said about the product (dashboard.sql, 27 Nov 2026).
+  // Until that SQL has been run, the database only knows the 4-value version, so fall back to it.
+  callApi('rpc/count_scan', { method: 'POST', body: { ...body, p_flags: flags } })
+    .then((res) => { if (res.status === 404) return callApi('rpc/count_scan', { method: 'POST', body }); })
+    .catch(() => {});
 }
 
 // ---------- Shared label checks (27 Nov 2026) ----------
