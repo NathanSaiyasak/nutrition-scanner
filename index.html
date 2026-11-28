@@ -8,7 +8,15 @@
   <title>Bettr</title>
   <link rel="preload" href="fonts/LINESeedSansTH-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/LINESeedSansTH-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=r19">
+  <link rel="stylesheet" href="style.css?v=r20">
+  <!-- Installable web app (28 Nov 2026): name, icons and full-screen mode for the home screen. -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Bettr">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body data-screen="screen-start" class="has-tabbar">
   <!-- Icons and the Bettr wordmark, drawn once and reused with <use>. Shapes come from the Bettr
@@ -44,6 +52,7 @@
     <symbol id="i-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM9 11h6M9 15h6"/></symbol>
     <symbol id="i-photo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 4h5L16.5 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3.5z"/><circle cx="12" cy="13" r="3.5"/></symbol>
     <symbol id="i-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5M10 2.5h4M12 2.5V6"/></symbol>
+    <symbol id="i-add-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 8.5v6M9 11.5h6M10.5 18.5h3"/></symbol>
     <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
   </svg>
 
@@ -59,7 +68,7 @@
         <video id="camera-video" playsinline muted autoplay></video>
       </div>
       <div class="scan-top">
-        <svg class="scan-logo" viewBox="0 0 66 20" role="img" aria-label="Bettr"><use href="#logo"/></svg>
+        <svg class="scan-logo" viewBox="0 0 66 20" role="img" aria-label="Bettr" data-app-name><use href="#logo"/></svg>
         <div class="scan-actions">
           <!-- The torch only shows on phones whose browser can switch it on (most Android phones). -->
           <button id="torch-button" class="round-btn" type="button" aria-label="Torch" data-i18n-attr="aria-label:scan.torch" aria-pressed="false" hidden>
@@ -421,6 +430,18 @@
           <button type="button" class="lang-btn" data-lang="th" lang="th">ไทย</button>
         </div>
       </div>
+      <!-- Add to home screen (28 Nov 2026): steps for this phone's browser, or the browser's own install
+           button where it has one (install.js). Hidden when the app is already open from the home screen
+           or inside the iPhone or Android app. -->
+      <details id="install-item" class="more-item" hidden>
+        <summary>
+          <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-add-home"/></svg></span>
+          <span class="more-text"><b data-i18n="install.title">Add {app} to your home screen</b><small data-i18n="install.sub">Opens full screen, like an app</small></span>
+          <svg class="more-chev" width="20" height="20" aria-hidden="true"><use href="#i-chev-right"/></svg>
+        </summary>
+        <p id="install-steps" class="more-body"></p>
+        <button id="install-button" class="btn btn-primary install-btn" type="button" data-i18n="install.button" hidden>Add to home screen</button>
+      </details>
       <details class="more-item">
         <summary>
           <span class="more-icon" aria-hidden="true"><svg width="20" height="20"><use href="#i-gauge"/></svg></span>
@@ -487,6 +508,7 @@
 
   <!-- Barcode reader for phones without a built-in one (e.g. iPhone). MIT licence, see vendor/LICENSES.txt -->
   <script src="vendor/barcode-detector-ponyfill.js"></script>
-  <script type="module" src="app.js?v=r19"></script>
+  <script type="module" src="app.js?v=r20"></script>
+  <script type="module" src="install.js?v=r20"></script>
 </body>
 </html>

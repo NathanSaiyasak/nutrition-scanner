@@ -117,7 +117,7 @@ export const STRINGS = {
   // "% of a day" wording is gone.
   'attr.daily': ['Bars compare with the Thai daily guide (2,000 kcal).', 'แถบเทียบกับค่าแนะนำต่อวันของไทย (2,000 kcal)'],
   'attr.trust': ['If the pack says something different, trust the pack.', 'ถ้าบนฉลากเขียนไม่ตรงกัน ให้เชื่อฉลาก'],
-  'attr.shared': ['Nutrition facts typed in from the pack by Bettr testers{when}.', 'ข้อมูลโภชนาการกรอกจากฉลากโดยทีมทดสอบ Bettr{when}'],
+  'attr.shared': ['Nutrition facts typed in from the pack by {app} testers{when}.', 'ข้อมูลโภชนาการกรอกจากฉลากโดยทีมทดสอบ {app}{when}'],
   'attr.phone': [
     'Nutrition facts typed in from the pack on this phone{when} (not in the shared database yet).',
     'ข้อมูลโภชนาการกรอกจากฉลากในเครื่องนี้{when} (ยังไม่ได้ส่งเข้าฐานข้อมูลกลาง)',
@@ -553,7 +553,7 @@ export const STRINGS = {
   'log.out.corrected': [' · corrected by hand in {t}', ' · แก้ด้วยมือใน {t}'],
   'log.out.added': [' · added by hand in {t}', ' · เพิ่มด้วยมือใน {t}'],
   'log.exported': ['Saved {file}. On iPhone it goes to the Files app, in Downloads.', 'บันทึก {file} แล้ว บน iPhone ไฟล์จะอยู่ในแอป Files โฟลเดอร์ Downloads'],
-  'log.shareTitle': ['Bettr scan log', 'บันทึกการสแกน Bettr'],
+  'log.shareTitle': ['{app} scan log', 'บันทึกการสแกน {app}'],
   'log.shareFailed': ['Couldn\'t share the file. Use Download instead.', 'แชร์ไฟล์ไม่ได้ ใช้ปุ่มดาวน์โหลดแทน'],
   'log.clearConfirm': [
     'Delete all {n} scans from this phone? This can\'t be undone. Export the CSV first if you need it.',
@@ -594,6 +594,25 @@ export const STRINGS = {
   'more.title': ['More', 'เพิ่มเติม'],
   'more.language': ['Language', 'ภาษา'],
   'more.languageSub': ['ภาษา', 'Language'],
+  'install.title': ['Add {app} to your home screen', 'เพิ่ม {app} ไว้ที่หน้าจอโฮม'],
+  'install.sub': ['Opens full screen, like an app', 'เปิดเต็มจอเหมือนแอป'],
+  'install.button': ['Add to home screen', 'เพิ่มไว้ที่หน้าจอโฮม'],
+  'install.ios': [
+    'In Safari, tap the Share button at the bottom of the screen, then tap Add to Home Screen',
+    'ใน Safari แตะปุ่มแชร์ด้านล่างของจอ แล้วแตะ เพิ่มไปยังหน้าจอโฮม',
+  ],
+  'install.iosOther': [
+    'Open this page in Safari, tap the Share button, then tap Add to Home Screen',
+    'เปิดหน้านี้ใน Safari แตะปุ่มแชร์ แล้วแตะ เพิ่มไปยังหน้าจอโฮม',
+  ],
+  'install.prompt': [
+    'Your phone will ask once, then {app} sits on your home screen and opens without the browser bars',
+    'เครื่องจะถามหนึ่งครั้ง แล้ว {app} จะอยู่ที่หน้าจอโฮม เปิดได้โดยไม่มีแถบเบราว์เซอร์',
+  ],
+  'install.other': [
+    'Open your browser menu, then tap Add to Home screen or Install app',
+    'เปิดเมนูของเบราว์เซอร์ แล้วแตะ เพิ่มไปยังหน้าจอหลัก หรือ ติดตั้งแอป',
+  ],
   'more.scoreTitle': ['How the score works', 'คะแนนคิดยังไง'],
   'more.scoreSub': ['Great, Good, OK, Poor and Bad', 'ดีมาก ดี พอใช้ ไม่ค่อยดี และแย่'],
   'more.scoreBody1': [
@@ -610,7 +629,7 @@ export const STRINGS = {
     'Products come from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>, a free open database (ODbL), and from labels our testers type in from the pack. A missing value says Not available. We never guess.',
     'ข้อมูลสินค้ามาจาก <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> ฐานข้อมูลเปิดที่ใช้ฟรี (ODbL) และจากฉลากที่ทีมทดสอบกรอกจากสินค้าจริง ค่าไหนไม่มีจะขึ้นว่า ไม่มีข้อมูล เราไม่เดาเอง',
   ],
-  'more.aboutTitle': ['About Bettr', 'เกี่ยวกับ Bettr'],
+  'more.aboutTitle': ['About {app}', 'เกี่ยวกับ {app}'],
   'more.aboutSub': ['What this app is', 'แอปนี้คืออะไร'],
   'more.privacyTitle': ['Privacy', 'ความเป็นส่วนตัว'],
   'more.privacySub': ['What stays on your phone', 'อะไรอยู่ในเครื่องคุณบ้าง'],
@@ -619,7 +638,7 @@ export const STRINGS = {
   'more.auditSub': ['Scans, pass marks, CSV', 'การสแกน เกณฑ์ผ่าน และ CSV'],
   'more.dashTitle': ['Dashboard', 'แดชบอร์ด'],
   'more.dashSub': ['Coverage, fix list, activity', 'ความครอบคลุม รายการที่ต้องแก้ และความเคลื่อนไหว'],
-  'more.foot': ['Bettr prototype v0.5', 'Bettr ต้นแบบ v0.5'],
+  'more.foot': ['{app} prototype v0.5', '{app} ต้นแบบ v0.5'],
 
   // ---------- Footer ----------
   'foot.text': [

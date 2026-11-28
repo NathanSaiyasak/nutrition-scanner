@@ -1,0 +1,12 @@
+{
+  "appId": "io.github.nathansaiyasak.nutritionscanner",
+  "appName": "Bettr",
+  "webDir": "www",
+  "backgroundColor": "#FFF7ED",
+  "ios": {
+    "backgroundColor": "#FFF7ED"
+  },
+  "android": {
+    "backgroundColor": "#FFF7ED"
+  }
+}
