@@ -250,8 +250,19 @@ body:has(#camera-error:not([hidden]))[data-screen="screen-start"] { background: 
 }
 .photo img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
 .product-text { min-width: 0; flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.product-text h2 { margin: 0; font-size: 18px; line-height: 24px; overflow-wrap: anywhere; }
+.product-text h2 { margin: 0; font-size: 17px; line-height: 23px; overflow-wrap: anywhere; }
 .alt-name { margin: 0; color: var(--muted); font-size: 14px; line-height: 20px; overflow-wrap: anywhere; }
+/* Long names stop at 2 lines with "…"; tapping the name shows all of it (Nathan, 28 Nov 2026).
+   A little top padding keeps Thai marks above the letters from being clipped. */
+.product-text h2, .product-text .alt-name {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+  overflow: hidden; padding-top: 2px; margin-top: -2px;
+}
+.product-text .alt-name[hidden] { display: none; }
+.product-text.is-open h2, .product-text.is-open .alt-name { display: block; -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; }
+.product-text.is-open .alt-name[hidden] { display: none; }
+.product-text.can-open { cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 8px; }
+.product-text.can-open:focus-visible { outline: 2px solid var(--caramel); outline-offset: 2px; }
 .brand-tag { display: inline-block; font-size: 11px; line-height: 14px; font-weight: 700; color: var(--muted); background: var(--sunken); border-radius: 99px; padding: 4px 10px; margin-top: 2px; }
 .product-summary { display: flex; align-items: center; gap: 24px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
 
@@ -293,17 +304,18 @@ body:has(#camera-error:not([hidden]))[data-screen="screen-start"] { background: 
 /* Icon above the amount: Figma draws it beside the amount, but three stats beside the ring only
    fit on a phone when the icon sits on its own line. */
 .quick-stat .nicon { width: 16px; height: 16px; border-radius: 0; background: none; margin-bottom: 4px; }
-.quick-stat .nicon::before { inset: 0; background: var(--caramel); }
+.quick-stat .nicon::before { inset: 0; background: var(--n, var(--caramel)); }
 .quick-value { order: 1; font-size: 15px; line-height: 22px; font-weight: 700; color: var(--text); white-space: nowrap; }
 .quick-label { order: 2; font-size: 13px; line-height: 18px; color: var(--muted); }
 
-/* "Per serving of 30 g (half a bag)" above the lists */
+/* "Per serving of 30 g (half a bag)" on the first heading's line, at the right (Nathan, 28 Nov 2026) */
 .basis-line { margin: 0 0 14px; font-size: 13px; line-height: 18px; color: var(--muted); }
+.group-head .basis-line { margin: 0; text-align: right; min-width: 0; }
 
 /* Lists: Watch Out, Good Points, Nutrition Facts, Not Available */
 .group { margin-bottom: 14px; }
-.group-head { margin-bottom: 14px; }
-.group-head h3 { margin: 0; font-size: 18px; line-height: 24px; }
+.group-head { margin-bottom: 14px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.group-head h3 { margin: 0; font-size: 18px; line-height: 24px; flex-shrink: 0; }
 .group-hint { margin: -6px 0 10px; font-size: 13px; line-height: 18px; color: var(--muted); }
 .info-line { margin: 0 0 14px; }
 .group-card { list-style: none; margin: 0; padding: 0 16px; background: var(--card); border-radius: var(--radius-card); }
@@ -355,6 +367,24 @@ summary.fact-head:focus-visible { outline-offset: 4px; border-radius: 8px; }
   border: 2px solid var(--card); box-sizing: content-box; background: var(--good)
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 8.4l2.6 2.6L12 5.6' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 10px no-repeat;
 }
+/* Nutrition Facts colours (Nathan, 28 Nov 2026): each nutrient has its own colour on its icon, bar
+   and dropdown dial, here and in the quick stats on the card. These say which nutrient it is, not
+   good or bad, so they stay clear of the red and orange used for warnings. Watch Out and Good Points
+   keep their level colours. */
+.facts-card [data-key], .quick-stat[data-key] { --n: var(--caramel); }
+.facts-card [data-key="energy"], .quick-stat[data-key="energy"] { --n: #A66E35; }   /* caramel */
+.facts-card [data-key="protein"], .quick-stat[data-key="protein"] { --n: #4D8FBF; }  /* blue */
+.facts-card [data-key="fibre"], .quick-stat[data-key="fibre"] { --n: #5A9A3C; }    /* leaf green */
+.facts-card [data-key="carbs"], .quick-stat[data-key="carbs"] { --n: #D9AE1E; }    /* yellow */
+.facts-card [data-key="sugars"] { --n: #C9668F; }                                   /* pink */
+.facts-card [data-key="fat"] { --n: #8A76C2; }                                      /* lavender */
+.facts-card [data-key="satfat"] { --n: #6B5AA6; }                                   /* purple */
+.facts-card [data-key="sodium"] { --n: #6D8596; }                                   /* slate */
+.facts-card .nicon { --lv: var(--n); }
+/* Yellow is light, so its shape is drawn a shade darker to stay easy to see. */
+.facts-card [data-key="carbs"] .nicon::before, .quick-stat[data-key="carbs"] .nicon::before { background: color-mix(in srgb, var(--n) 78%, #000); }
+.facts-card [data-key="carbs"] .nicon { background: color-mix(in srgb, var(--n) 20%, transparent); }
+
 /* Nutrient shapes (stroke icons) */
 [data-key] { --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3s-6 7-6 11.2a6 6 0 0 0 12 0C18 10 12 3 12 3z'/%3E%3C/svg%3E"); }
 [data-key="energy"] { --n-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21.5c3.9 0 6.5-2.6 6.5-6.3 0-3.4-2.3-5.6-3.7-7.7-.5 1.8-1.5 2.9-2.6 3.4.3-3-1.1-5.9-3.7-8.4.1 3.5-3 6-3 10.7 0 4.3 2.6 8.3 6.5 8.3z'/%3E%3C/svg%3E"); }
@@ -404,6 +434,7 @@ summary.fact-head:focus-visible { outline-offset: 4px; border-radius: 8px; }
 .gauge:not(.is-on) .gauge-fill, .gauge:not(.is-on) .gauge-knob { transition: none; }
 @media (prefers-reduced-motion: reduce) { .gauge-fill, .gauge-knob { transition: none; } }
 .facts-card .gauge-num { color: var(--coffee); }
+.facts-card .gauge-fill ~ .gauge-knob .knob-dot { --knob: var(--n, var(--caramel)); }
 
 /* Bars under each row: level colour, caramel on Nutrition Facts */
 .bar { height: 6px; border-radius: 3px; background: var(--track); margin-top: 10px; overflow: hidden; }
@@ -411,7 +442,7 @@ summary.fact-head:focus-visible { outline-offset: 4px; border-radius: 8px; }
 .bar [data-tone="bad"] { background: var(--bad); }
 .bar [data-tone="warn"] { background: var(--warn); }
 .bar [data-tone="good"] { background: var(--good); }
-.facts-card .bar span { background: var(--caramel); }
+.facts-card .bar span { background: var(--n, var(--caramel)); }
 
 /* Not Available (Figma R1): one card naming what is missing, and why. */
 .missing-card { background: var(--card); border-radius: var(--radius-card); padding: 16px; }

@@ -2,7 +2,7 @@
 // Rule: never invent or estimate a value. If Open Food Facts has no number, we return null
 // and the screen shows "Not available".
 
-import { readAdditives } from './ingredients-read.js?v=r20';
+import { readAdditives } from './ingredients-read.js?v=r21';
 
 const OFF_PRODUCT_API = 'https://world.openfoodfacts.org/api/v2/product/';
 const OFF_PRODUCT_PAGE = 'https://world.openfoodfacts.org/product/';
