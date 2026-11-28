@@ -272,8 +272,7 @@ body:has(#camera-error:not([hidden]))[data-screen="screen-start"] { background: 
 .ring-track, .ring-arc { fill: none; stroke-width: 8; }
 .ring-track { stroke: var(--track); }
 .ring-arc { stroke: var(--ring); stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: calc(100 - var(--score)); }
-.score-ring.is-on .ring-arc { transition: stroke-dashoffset 0.7s cubic-bezier(0.22, 0.61, 0.36, 1); }
-@media (prefers-reduced-motion: reduce) { .score-ring.is-on .ring-arc { transition: none; } }
+/* The ring and the number inside it move together, frame by frame, from app.js (runScoreRing). */
 .ring-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .score { display: flex; flex-direction: column; align-items: center; color: var(--text); line-height: 1; }
 .score b { font-size: 26px; line-height: 30px; font-weight: 800; }
@@ -341,7 +340,7 @@ summary.fact-head:focus-visible { outline-offset: 4px; border-radius: 8px; }
 @media (prefers-reduced-motion: reduce) { .chevron { transition: none; } }
 .fact-body { overflow: hidden; }
 /* A thin line where the dropdown begins (Nathan, 24 Nov 2026). */
-.fact-inner { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.fact-inner { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding-top: 14px; padding-bottom: 2px; border-top: 1px solid var(--line); }
 /* Text-only dropdowns (additives, sweeteners) line up with the row title, past the 36 px icon. */
 .fact-inner.text-only { padding-left: 48px; }
 .fact-details { flex: 1; min-width: 0; font-size: 14px; color: var(--text); line-height: 1.45; }
@@ -425,7 +424,9 @@ summary.fact-head:focus-visible { outline-offset: 4px; border-radius: 8px; }
   display: flex; flex-direction: column; align-items: center; gap: 2px;
 }
 .gauge-num b { font-weight: 800; }
-.gauge-unit { font-size: 12px; font-weight: 700; }
+/* The unit sits under the number. Its line is tall enough for letters that hang below the line
+   (the tail of g, the Thai vowels), so the dropdown's edge can't cut them off (Nathan, 28 Nov 2026). */
+.gauge-unit { font-size: 12px; font-weight: 700; line-height: 16px; }
 .gauge[data-tone="good"] .gauge-num { color: var(--good-text); }
 .gauge[data-tone="warn"] .gauge-num { color: var(--warn-text); }
 .gauge[data-tone="bad"] .gauge-num { color: var(--bad-text); }
@@ -658,9 +659,16 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 40px - var(--tabbar-
 .fav-btn[aria-pressed="true"] .fav-off { display: none; }
 .fav-btn:active { background: var(--sunken); }
 .fav-btn:focus-visible { outline: 2px solid var(--caramel); outline-offset: -2px; }
+.fav-btn { position: relative; }
 .fav-btn.pop svg { animation: fav-pop 0.3s ease-out; }
+/* A soft caramel ring spreads out from the heart when a product is saved (28 Nov 2026). */
+.fav-btn.pop::after {
+  content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 2px solid var(--caramel);
+  animation: fav-ring 0.45s ease-out forwards; pointer-events: none;
+}
+@keyframes fav-ring { from { transform: scale(0.6); opacity: 0.7; } to { transform: scale(1.35); opacity: 0; } }
 @keyframes fav-pop { 0% { transform: scale(0.7); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
-@media (prefers-reduced-motion: reduce) { .fav-btn.pop svg { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .fav-btn.pop svg, .fav-btn.pop::after { animation: none; } .fav-btn.pop::after { display: none; } }
 
 /* The list reuses the History rows; each row has a filled heart at the end that removes it. */
 .fav-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
@@ -732,4 +740,38 @@ body.has-tabbar #screen-message { min-height: calc(100dvh - 40px - var(--tabbar-
   .score-ring { height: 86px; }
   .quick-stats { gap: 10px; }
   .quick-value { font-size: 13px; }
+}
+
+/* ---------- Micro animations (Nathan, 28 Nov 2026) ----------
+   A few short touches, each 150 to 700 ms, all turned off when the phone asks for less motion.
+   The score ring counting up is in app.js (runScoreRing); the gauges and dropdowns in dropdown.js. */
+
+/* The product card and each list on the result screen fade in and rise a little, one after another. */
+#screen-product:not([hidden]) .product-card { animation: rise-in 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+#groups .group { animation: rise-in 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) both; animation-delay: calc(120ms + var(--i, 0) * 70ms); }
+@keyframes rise-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* Each bar fills from the left to its amount, just after its list appears. */
+#groups .bar span { animation: bar-fill 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) both; animation-delay: calc(220ms + var(--i, 0) * 70ms); }
+@keyframes bar-fill { from { width: 0; } }
+
+/* History and Favorites lists fade in when the tab opens. */
+#screen-history:not([hidden]) > *, #screen-favorite:not([hidden]) > * { animation: fade-in 0.25s ease-out both; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Press feedback: buttons, tabs and rows shrink a touch while held, and spring back. */
+.btn, .tab, .fav-btn, .history-item, .btn-soft, .lang-switch button {
+  transition: transform 0.15s ease-out, background-color 0.15s ease-out;
+}
+.btn:active, .btn-soft:active, .fav-btn:active, .lang-switch button:active { transform: scale(0.96); }
+.history-item:active { transform: scale(0.985); }
+.tab:active { transform: scale(0.92); }
+.btn:disabled:active { transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-product:not([hidden]) .product-card, #groups .group, #groups .bar span,
+  #screen-history:not([hidden]) > *, #screen-favorite:not([hidden]) > * { animation: none; }
+  .btn, .tab, .fav-btn, .history-item, .btn-soft, .lang-switch button { transition: none; }
+  .btn:active, .btn-soft:active, .fav-btn:active, .lang-switch button:active,
+  .history-item:active, .tab:active { transform: none; }
 }

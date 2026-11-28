@@ -2,7 +2,7 @@
 // 1. Starts sw.js, which keeps a copy of the app's files so it opens without internet.
 // 2. Fills "Add to your home screen" in the More menu with the steps for this phone's browser.
 // Inside the iPhone or Android app (Capacitor) neither is needed: the files are already on the phone.
-import { t } from './i18n.js?v=r21';
+import { t } from './i18n.js?v=r22';
 
 const $ = (id) => document.getElementById(id);
 const inNativeApp = Boolean(window.Capacitor?.isNativePlatform?.());
