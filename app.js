@@ -1,17 +1,17 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting, countScan, newCheckId, shareLabelCheck } from './shared-db.js?v=r21';
-import { startScanner, scanPhoto } from './scanner.js?v=r21';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r21';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r21';
-import { renderAudit } from './audit-screen.js?v=r21';
-import { buildView, servingText } from './nutrition-view.js?v=r21';
-import { computeScore, SCORE_TEXT } from './score.js?v=r21';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r21';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r21';
-import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r21';
-import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r21';
+import { findProduct, keepAddedProduct, sendWaiting, countScan, newCheckId, shareLabelCheck } from './shared-db.js?v=r22';
+import { startScanner, scanPhoto } from './scanner.js?v=r22';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r22';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r22';
+import { renderAudit } from './audit-screen.js?v=r22';
+import { buildView, servingText } from './nutrition-view.js?v=r22';
+import { computeScore, SCORE_TEXT } from './score.js?v=r22';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r22';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r22';
+import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r22';
+import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r22';
 
 // Fill the page's fixed text in the chosen language (English or Thai) before anything is shown.
 applyStatic();
@@ -523,15 +523,32 @@ function renderScore(result, view) {
   verdict.textContent = t(`rating.${result.verdict}`);
   verdict.dataset.tone = result.tone;
   verdict.dataset.rating = ratingOf(result);
-  $('score-number').textContent = String(result.score);
-  // The ring fills from zero to the score (skipped with reduce motion, see style.css).
-  ring.style.setProperty('--score', '0');
-  ring.classList.remove('is-on');
-  void ring.getBoundingClientRect();
-  requestAnimationFrame(() => {
-    ring.style.setProperty('--score', String(result.score));
-    ring.classList.add('is-on');
-  });
+  // The ring fills from zero to the score and the number counts up with it, both driven by the same
+  // clock so they stay in step (Nathan, 28 Nov 2026). With reduce motion on, both show the score at once.
+  runScoreRing(ring, result.score);
+}
+
+const RING_MS = 700;
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Ease-out, the same feel as the gauges and dropdowns: quick at first, settling gently.
+const easeOut = (t) => 1 - (1 - t) ** 3;
+function runScoreRing(ring, score) {
+  const number = $('score-number');
+  cancelAnimationFrame(Number(ring.dataset.raf || 0));
+  const paint = (value) => {
+    ring.style.setProperty('--score', String(value));
+    number.textContent = String(Math.round(value));
+  };
+  if (reducedMotion()) { paint(score); return; }
+  paint(0);
+  let start = null;
+  const step = (now) => {
+    if (start === null) start = now;
+    const t = Math.min(1, (now - start) / RING_MS);
+    paint(t < 1 ? score * easeOut(t) : score);
+    if (t < 1) ring.dataset.raf = String(requestAnimationFrame(step));
+  };
+  ring.dataset.raf = String(requestAnimationFrame(step));
 }
 
 // The rating's name decides its colour (Great, Good, OK, Poor, Bad). Display only; score.js decides.
@@ -564,8 +581,9 @@ function renderGroups(view) {
   // "Per serving of 30 g (half a bag)" sits on the first heading's line, at the right (Nathan,
   // 28 Nov 2026). With no list to sit beside, it stays on its own line.
   let basisPlaced = false;
-  view.groups.forEach((group) => {
+  view.groups.forEach((group, groupIndex) => {
     const section = el('section', 'group');
+    section.style.setProperty('--i', String(groupIndex)); // the sections come in one after another
     const head = el('div', 'group-head');
     head.append(el('h3', '', group.title));
     if (!basisPlaced) {
