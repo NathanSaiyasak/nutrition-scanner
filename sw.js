@@ -5,7 +5,7 @@
 //
 // On every release, change VERSION to the same rN as the ?v=rN on the files. The phone then fetches
 // the new files and throws away the old copy, so it never mixes new and old code.
-const VERSION = 'r20';
+const VERSION = 'r21';
 const CACHE = `app-shell-${VERSION}`;
 
 // The files the app needs to start. The ones with ?v= must match index.html and the imports exactly.

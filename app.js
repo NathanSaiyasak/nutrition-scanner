@@ -1,17 +1,17 @@
 // app.js — the screens. Shows one screen at a time: start, loading, product, message,
 // and (v0.2) the timed add form and the audit summary.
 // All product text goes in with textContent (never innerHTML), so odd data can't break the page.
-import { findProduct, keepAddedProduct, sendWaiting, countScan, newCheckId, shareLabelCheck } from './shared-db.js?v=r20';
-import { startScanner, scanPhoto } from './scanner.js?v=r20';
-import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r20';
-import { openAddForm, stopAddTimer } from './add-form.js?v=r20';
-import { renderAudit } from './audit-screen.js?v=r20';
-import { buildView, servingText } from './nutrition-view.js?v=r20';
-import { computeScore, SCORE_TEXT } from './score.js?v=r20';
-import { buildGauge, setupDropdown } from './dropdown.js?v=r20';
-import { loadHistory, addToHistory, clearHistory } from './history.js?v=r20';
-import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r20';
-import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r20';
+import { findProduct, keepAddedProduct, sendWaiting, countScan, newCheckId, shareLabelCheck } from './shared-db.js?v=r21';
+import { startScanner, scanPhoto } from './scanner.js?v=r21';
+import { logScan, askToKeepData, setLabelCheck } from './audit.js?v=r21';
+import { openAddForm, stopAddTimer } from './add-form.js?v=r21';
+import { renderAudit } from './audit-screen.js?v=r21';
+import { buildView, servingText } from './nutrition-view.js?v=r21';
+import { computeScore, SCORE_TEXT } from './score.js?v=r21';
+import { buildGauge, setupDropdown } from './dropdown.js?v=r21';
+import { loadHistory, addToHistory, clearHistory } from './history.js?v=r21';
+import { loadFavorites, isFavorite, addFavorite, removeFavorite, restoreFavorite, refreshFavorite } from './favorites.js?v=r21';
+import { t, lang, locale, setLang, applyStatic } from './i18n.js?v=r21';
 
 // Fill the page's fixed text in the chosen language (English or Thai) before anything is shown.
 applyStatic();
@@ -377,10 +377,41 @@ export function showMessage(title, text, barcode, done = false, kind = done ? 'd
 }
 
 // ---------- Product screen ----------
+// Long names are cut to 2 lines with "…" so the card stays tidy (Nathan, 28 Nov 2026). When a name is
+// cut, tapping the name shows all of it, and tapping again folds it back. Nothing is lost: the full
+// name is also read out to screen readers and kept in the photo's description.
+function setupNameClamp() {
+  const box = document.querySelector('.product-text');
+  box.classList.remove('is-open', 'can-open');
+  box.removeAttribute('role');
+  box.removeAttribute('tabindex');
+  box.removeAttribute('aria-expanded');
+  requestAnimationFrame(() => {
+    const cut = [$('product-name'), $('product-name-alt')]
+      .some((n) => !n.hidden && n.scrollHeight > n.clientHeight + 1);
+    if (!cut) return;
+    box.classList.add('can-open');
+    box.setAttribute('role', 'button');
+    box.setAttribute('tabindex', '0');
+    box.setAttribute('aria-expanded', 'false');
+  });
+}
+function toggleName() {
+  const box = document.querySelector('.product-text');
+  if (!box.classList.contains('can-open')) return;
+  const open = box.classList.toggle('is-open');
+  box.setAttribute('aria-expanded', String(open));
+}
+document.querySelector('.product-text').addEventListener('click', toggleName);
+document.querySelector('.product-text').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleName(); }
+});
+
 function renderProduct(p) {
   $('product-name').textContent = p.name;
   $('product-name-alt').textContent = p.altName || '';
   $('product-name-alt').hidden = !p.altName;
+  setupNameClamp();
   const brand = p.brands ? p.brands.split(',')[0].trim() : '';
   $('product-brand').textContent = brand;
   $('product-brand').hidden = !brand;
@@ -530,12 +561,17 @@ function renderGroups(view) {
   const box = $('groups');
   box.replaceChildren();
   if (!view) return;
-  // "Per serving of 30 g (half a bag)" sits above the lists (Bettr Figma R1).
-  box.append(el('p', 'basis-line', view.basisLabel));
+  // "Per serving of 30 g (half a bag)" sits on the first heading's line, at the right (Nathan,
+  // 28 Nov 2026). With no list to sit beside, it stays on its own line.
+  let basisPlaced = false;
   view.groups.forEach((group) => {
     const section = el('section', 'group');
     const head = el('div', 'group-head');
     head.append(el('h3', '', group.title));
+    if (!basisPlaced) {
+      head.append(el('p', 'basis-line', view.basisLabel));
+      basisPlaced = true;
+    }
     // Not Available (Bettr Figma R1): one card naming what's missing and why, nothing to open.
     if (group.id === 'missing') {
       const card = el('div', 'missing-card');
@@ -611,6 +647,7 @@ function renderGroups(view) {
     else section.append(head, card);
     box.append(section);
   });
+  if (!basisPlaced) box.prepend(el('p', 'basis-line', view.basisLabel));
   // Flavour enhancers such as MSG: one plain line, no points off (24 Nov 2026).
   if (view.infoLine) box.append(el('p', 'group-hint info-line', view.infoLine));
 }

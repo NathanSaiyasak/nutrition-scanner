@@ -3,8 +3,8 @@
 // made one (kept on this phone), otherwise English. English stays the main language (Nathan, 26 Nov 2026):
 // Thai only when someone picks it.
 // Switching reloads the page, so every screen is drawn again in the new language.
-import { STRINGS, ADDITIVE_TH } from './strings.js?v=r20';
-import { APP_NAME } from './app-name.js?v=r20';
+import { STRINGS, ADDITIVE_TH } from './strings.js?v=r21';
+import { APP_NAME } from './app-name.js?v=r21';
 
 const KEY = 'bettr-lang';
 const LANGS = ['en', 'th'];
