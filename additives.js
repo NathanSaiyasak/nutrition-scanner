@@ -12,7 +12,7 @@
 // (Nathan, 24 Nov 2026). Benzoates take 8 points again (they were flag only from 25 Nov 2026).
 // All wording is whole sentences with no colons (Nathan, 24 Nov 2026), in strings.js under add.*.
 
-import { t, additiveName } from './i18n.js?v=r19';
+import { t, additiveName } from './i18n.js?v=r20';
 
 export const TIER_POINTS = { high: 15, moderate: 8, limited: 3 };
 export const ADDITIVE_POINTS_MAX = 40;

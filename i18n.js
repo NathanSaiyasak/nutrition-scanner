@@ -3,7 +3,8 @@
 // made one (kept on this phone), otherwise English. English stays the main language (Nathan, 26 Nov 2026):
 // Thai only when someone picks it.
 // Switching reloads the page, so every screen is drawn again in the new language.
-import { STRINGS, ADDITIVE_TH } from './strings.js?v=r19';
+import { STRINGS, ADDITIVE_TH } from './strings.js?v=r20';
+import { APP_NAME } from './app-name.js?v=r20';
 
 const KEY = 'bettr-lang';
 const LANGS = ['en', 'th'];
@@ -23,7 +24,7 @@ export const lang = pick();
 export const locale = lang === 'th' ? 'th-TH' : 'en-GB';
 document.documentElement.lang = lang;
 
-/** The text for a key in the current language, with {name} filled in from vars. */
+/** The text for a key in the current language, with {name} filled in from vars. {app} is the app's name. */
 export function t(key, vars = {}) {
   const entry = STRINGS[key];
   if (!entry) {
@@ -32,7 +33,7 @@ export function t(key, vars = {}) {
   }
   const value = entry[lang === 'th' ? 1 : 0] ?? entry[0];
   if (typeof value === 'function') return value(vars);
-  return value.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? ''));
+  return value.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? (k === 'app' ? APP_NAME : '')));
 }
 
 /** An additive's name: Thai when there is one, else the English name. */
@@ -68,4 +69,6 @@ export function applyStatic(root = document) {
       if (attr && key) node.setAttribute(attr, t(key));
     }
   }
+  // The drawn wordmark is read out as the app's name (app-name.js).
+  for (const node of root.querySelectorAll('[data-app-name]')) node.setAttribute('aria-label', APP_NAME);
 }

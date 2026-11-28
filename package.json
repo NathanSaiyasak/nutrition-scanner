@@ -1,0 +1,24 @@
+{
+  "name": "nutrition-scanner",
+  "private": true,
+  "version": "0.5.0",
+  "description": "Scan a barcode, see what is in it. Web app plus iPhone and Android app projects (Capacitor).",
+  "type": "module",
+  "scripts": {
+    "rename": "node tools/app/apply-name.mjs",
+    "icons": "node tools/app/make-icons.mjs && capacitor-assets generate --ios --android --assetPath native-art --iconBackgroundColor \"#A66E35\" --splashBackgroundColor \"#FFF7ED\"",
+    "build": "node tools/app/build-www.mjs",
+    "sync": "node tools/app/build-www.mjs && cap sync",
+    "ios": "node tools/app/build-www.mjs && cap sync ios && cap open ios",
+    "android": "node tools/app/build-www.mjs && cap sync android && cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.3",
+    "@capacitor/core": "^8.6.3",
+    "@capacitor/ios": "^8.6.3"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.3"
+  }
+}

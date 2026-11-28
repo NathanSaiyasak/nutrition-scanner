@@ -3,11 +3,11 @@
 import {
   loadLog, clearLog, summarise, toCsv, csvFileName, localDateTime, fixList,
   ADD_TARGET_SECONDS, SMALL_SAMPLE,
-} from './audit.js?v=r19';
+} from './audit.js?v=r20';
 import {
   sharedConfigured, getPasscode, savePasscode, forgetPasscode, sendWaiting, waitingCount,
-} from './shared-db.js?v=r19';
-import { t } from './i18n.js?v=r19';
+} from './shared-db.js?v=r20';
+import { t } from './i18n.js?v=r20';
 
 const $ = (id) => document.getElementById(id);
 

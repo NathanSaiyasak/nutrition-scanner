@@ -46,6 +46,12 @@ Opening `index.html` by double-clicking won't work, because browsers block this 
 The camera works on `localhost` (your Mac's webcam can scan a barcode held up to it). On a phone, the camera
 needs an https:// link, so test phone scanning on the hosted link.
 
+## Put it on a phone (28 Nov 2026)
+
+The app can be added to a phone's home screen from the browser (full screen, opens offline), and the
+`ios/` and `android/` folders hold real iPhone and Android app projects made with Capacitor from the same
+files. Step-by-step guide: `docs/phone-app-guide.md`. The app's name lives in `app-name.js`.
+
 ## Hosting
 
 Hosted free on GitHub Pages: <https://nathansaiyasak.github.io/nutrition-scanner/>
@@ -54,6 +60,7 @@ GitHub Pages serves the files from the repository's main branch over HTTPS.
 ## How to update it
 
 Change the files, save, commit and push to GitHub. The live link updates about a minute later.
+On a release, bump `?v=rN` on the files and `VERSION` in `sw.js` together, so phones fetch the new files.
 
 ## Shared product database (v0.4)
 
